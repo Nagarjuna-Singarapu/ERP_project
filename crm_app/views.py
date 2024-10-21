@@ -137,3 +137,6 @@ def review(request):
 
 def viewreport(request):
     return render(request, 'Performance/viewreport.html')
+    
+def forecasting(request):
+    return render(request, 'forecasting/forecasting.html')

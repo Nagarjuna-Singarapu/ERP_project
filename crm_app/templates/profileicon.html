@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+  {% block css %}
+  <link rel="stylesheet" href="{% static '/profileicon.css' %}">
+  {% endblock %}
+  <title>Profile</title>
+</head>
+
+<body>
+  <nav class="navbar">
+    <!-- <img src="./assets/logo.png" class="navbar-logo" alt="logo" /> -->
+    
+    <ul class="navbar-list">
+      
+   
+
+    <div class="profile-dropdown">
+      <div onclick="toggle()">
+
+        <div>
+          <img class="img1"
+            src="https://png.pngtree.com/png-vector/20191110/ourmid/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg"
+            alt="" srcset="">
+        </div>
+      </div>
+
+
+      <!-- profile menu start -->
+
+      <ul class="profile-dropdown-list">
+
+        <li class="profile-dropdown-list-item">
+          <a href="#">
+            <i class="fa-regular fa-envelope"></i>
+            Name
+          </a>
+        </li>
+
+        <li class="profile-dropdown-list-item">
+          <a href="viewprofile.html">
+            <i class="fa-regular fa-envelope"></i>
+            view profile
+          </a>
+        </li>
+
+        <li class="profile-dropdown-list-item">
+          <a href="profile.html">
+            <i class="fa-regular fa-user"></i>
+            Edit Profile
+          </a>
+        </li>
+
+
+
+        <li class="profile-dropdown-list-item">
+          <a href="#">
+            <i class="fa-solid fa-chart-line"></i>
+            Community fourm
+          </a>
+        </li>
+
+        <li class="profile-dropdown-list-item">
+          <a href="#">
+            <i class="fa-solid fa-sliders"></i>
+            About
+          </a>
+        </li>
+
+        <li class="profile-dropdown-list-item">
+          <a href="#">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            Log out
+          </a>
+        </li>
+      </ul>
+    </div>
+  </ul>
+  </nav>
+
+  <script>
+    let profileDropdownList = document.querySelector(".profile-dropdown-list");
+let btn = document.querySelector(".profile-dropdown-btn");
+
+let classList = profileDropdownList.classList;
+
+const toggle = () => classList.toggle("active");
+
+window.addEventListener("click", function (e) {
+  if (!btn.contains(e.target)) classList.remove("active");
+});
+
+  </script>
+</body>
+
+</html>

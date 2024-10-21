@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Improvement Plans</title>
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'Performance_CSS/improvement.css' %}">
+    {% endblock %}
+</head>
+<body>
+    <nav class="navbar animate__animated animate__fadeInDown">
+        <ul>
+          <li><a href="{% url 'PerDeshbord' %}">Dashboard</a></li>
+          <!-- <li><a href="improvement.html">Performance improvement</a></li> -->
+          <li><a href="{% url 'report' %}">Reports</a></li>
+          <li><a href="{% url 'viewreport' %}">Viewreport</a></li>
+          <li><a href="{% url 'review' %}">Feedback</a></li>
+          <!-- <li><a href="Monthp.html">Employee Performance</a></li>
+          <li><a href="perfor.html">Company Performance</a></li> -->
+    
+        </ul>
+      </nav>
+
+    <div class="container">
+        <div class="pip-form">
+            <h2>Create Performance Improvement Plan</h2>
+            <form id="pipForm">
+                <label for="employeeName">Employee Name:</label>
+                <input type="text" id="employeeName" required>
+
+                <label for="planDetails">Plan Details:</label>
+                <textarea id="planDetails" rows="4" required></textarea>
+
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" required>
+
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" required>
+
+                <button type="submit">Create PIP</button>
+            </form>
+        </div>
+
+        <div class="pip-list">
+            <h2>Active PIPs</h2>
+            <ul id="pipList"></ul>
+        </div>
+    </div>
+
+    <script>
+
+        // script.js
+document.getElementById('pipForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const employeeName = document.getElementById('employeeName').value;
+    const planDetails = document.getElementById('planDetails').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    const pipItem = document.createElement('li');
+    pipItem.innerHTML = `<strong>${employeeName}</strong><br>Plan: ${planDetails}<br>Start Date: ${startDate} | End Date: ${endDate}`;
+    
+    document.getElementById('pipList').appendChild(pipItem);
+    
+    // Clear the form fields after submission
+    document.getElementById('pipForm').reset();
+
+    // Optional: Notification or alert can be added here
+    alert(`Performance Improvement Plan for ${employeeName} created successfully!`);
+});
+
+    </script>
+</body>
+</html>

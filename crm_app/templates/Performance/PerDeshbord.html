@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Metrics Dashboard</title>
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'Performance_CSS/Deshbord.css' %}">
+    {% endblock %}
+</head>
+<body>
+    <img id="img" src="/static/images/image-ERP.jpg">
+    <nav class="navbar animate__animated animate__fadeInDown">
+        <ul>
+          <!-- <li><a href="Deshbord.html">Dashboard</a></li> -->
+          <li><a href="{% url 'improvement' %}">Performance improvement</a></li>
+          <li><a href="{% url 'report' %}">Reports</a></li>
+          <li><a href="{% url 'viewreport' %}">Viewreport</a></li>
+          <li><a href="{% url 'review' %}">Feedback</a></li>
+          <!-- <li><a href="Monthp.html">Employee Performance</a></li>
+          <li><a href="perfor.html">Company Performance</a></li> -->
+    
+        </ul>
+      </nav>
+    <div class="dashboard">
+        <div class="card" id="employeeCard">
+            <h2>Employee Performance</h2>
+        </div>
+        <div class="card" id="companyCard">
+            <h2>Company Performance</h2>
+        </div>
+    </div>
+
+    <script>
+
+
+
+
+    document.getElementById('employeeCard').addEventListener('click', function() {
+        window.location.href = '{% url "Employee" %}';  
+    });
+    document.getElementById('companyCard').addEventListener('click', function() {
+        window.location.href = '{% url "company" %}'; 
+    });
+
+
+
+    </script>
+</body>
+</html>

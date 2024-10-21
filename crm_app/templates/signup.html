@@ -1,0 +1,143 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+    {% endblock %}
+    <style>
+        body {
+            background-color: rgba(100, 58, 252, 0.651);
+        }
+
+        .alert-box {
+            display: none; /* Default to hidden */
+            position: fixed; /* Fixed position for the alert */
+            top: 20px; /* Position at the top */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Center the alert */
+            background-color: #4cabff; /* Alert background color for error */
+            color: rgb(0, 0, 0); /* Text color */
+            padding: 15px; /* Padding around the content */
+            border-radius: 5px; /* Rounded corners */
+            z-index: 1000; /* Ensure it is on top */
+        }
+
+        .alert-box.success {
+            background-color: #28a745; /* Green background for success */
+        }
+
+        .alert-box.visible {
+            display: block; /* Show when visible class is added */
+        }
+
+        .ok-link {
+            color: white;
+            font-size: 14px;
+            text-decoration: underline; /* Underline to make it look like a link */
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .ok-link:hover {
+            color: #ddd;
+        }
+
+        .alert-box ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Alert Box -->
+    <div id="error-popup" class="alert-box {% if error_messages %}visible{% elif success_message %}success visible{% endif %}" data-success="{% if success_message %}true{% else %}false{% endif %}">
+        <ul>
+            {% if error_messages %}
+                {% for errors in error_messages.values %}
+                    {% for error in errors %}
+                        <p>{{ error }}</p> <!-- Displaying error messages as list items -->
+                    {% endfor %}
+                {% endfor %}
+            {% elif success_message %}
+                <li>{{ success_message }}</li> <!-- Display success message -->
+            {% endif %}
+        </ul>
+        <!-- Okay Link: Closes the popup or redirects on success -->
+        <a href="#" id="ok-link" class="ok-link">Okay</a>
+    </div>
+
+    <section>
+        <div class="form-box">
+            <div class="form-value">
+                <form method="post">
+                    {% csrf_token %}
+                    <h2>Sign Up</h2>
+
+                    <!-- Username Field -->
+                    <div class="inputbox">
+                        <input type="text" name="username" id="id_username" value="{{ form.username.value|default_if_none:'' }}" required>
+                        <label for="id_username">Username:</label>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="inputbox">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <input type="email" name="email" id="id_email" value="{{ form.email.value|default_if_none:'' }}" required>
+                        <label for="id_email">Email:</label>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="inputbox">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input type="password" name="password1" id="id_password1" required>
+                        <label for="id_password1">Password:</label>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="inputbox">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input type="password" name="password2" id="id_password2" required>
+                        <label for="id_password2">Confirm Password:</label>
+                    </div>
+
+                    <div class="forget">
+                        <label><input type="checkbox">Remember Me</label>
+                    </div>
+
+                    <button type="submit">Signup</button>
+                    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var okLink = document.getElementById("ok-link");
+            var errorPopup = document.getElementById("error-popup");
+            var isSuccess = errorPopup.getAttribute("data-success") === "true"; // Retrieve success state from data attribute
+
+            // Add event listener to the "Okay" link
+            okLink.addEventListener("click", function(event) {
+                event.preventDefault(); // Prevent default anchor behavior
+                hideAlert(isSuccess);
+            });
+        });
+
+        // Hide alert and handle redirection for success
+        function hideAlert(isSuccess) {
+            document.getElementById('error-popup').classList.remove('visible');
+            if (isSuccess) {
+                window.location.href = "{% url 'login' %}"; // Redirect to login page after success
+            }
+        }
+    </script>
+</body>
+</html>

@@ -25,6 +25,8 @@ urlpatterns = [
     path('report/', views.report, name='report'),
     path('review/', views.review, name='review'),
     path('viewreport/', views.viewreport, name='viewreport'),
+    path('forecasting/', views.forecasting, name='forecasting'),
+
     
     
     

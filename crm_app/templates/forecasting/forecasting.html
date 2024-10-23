@@ -1,0 +1,552 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>forecasting</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'forecasting_CSS/forecasting.css' %}">
+    {% endblock %}
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <h1 class="logo">Forecasting</h1>
+        </div>
+    </nav>
+   
+    
+    <!-- <div class="nav-containerdown">
+        <ul class="nav-buttons">
+            
+            <button>Forecasting</button>
+            <button> Budget Planning </button>
+            <button> Performance </button>
+            <button> Allocations </button>
+            <button> Reports </button>
+            <button> Settings </button>
+
+            
+            
+        </ul>
+    </div>
+     -->
+    
+    
+    
+    <!-- <div class="nav-containerdown">
+        <ul class="nav-buttons">
+            <li><a href="#" class="nav-button">Forecasting</a></li>
+            <li><a href="#" class="nav-button">Budgeting</a></li>
+            <li><a href="#" class="nav-button">Performance</a></li>
+            <li><a href="#" class="nav-button">Allocations</a></li>
+            <li><a href="#" class="nav-button">Reports</a></li>
+            <li><a href="#" class="nav-button">Settings</a></li>
+            
+            
+        </ul>
+    </div>
+     -->
+    
+    
+
+    <!-- <header>
+        <div class="header-container">
+            <h2>Budget Overview Dashboard</h2>
+            <button class="primary-btn"><a href="budget.html"><i class="fas fa-plus"></i> Add New Budget</a></button>
+        </div>
+    </header> -->
+
+    <section class="stats-section">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Allocated Budget</h3>
+                <p>Rs 500,000</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Spent</h3>
+                <p>Rs 200,000</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-piggy-bank"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Remaining Budget</h3>
+                <p>Rs 300,000</p>
+            </div>
+        </div>
+        
+    </section>
+
+    <section class="stats-section">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Allocated Budget</h3>
+                <p>Rs 500,000</p>
+            </div>
+        </div>
+        
+        
+    </section>
+
+    
+    
+    
+    <section class="charts-section">
+        
+        <div class="chart-container">
+            <h3>Spending Trends</h3>
+            <canvas id="lineChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h3>Department Contribution to Total Spend</h3>
+            <canvas id="departmentPieChart"></canvas>
+        </div>
+        
+
+       </section>
+
+    
+    
+    
+    
+    
+    
+    <section class="charts-section">
+        
+
+
+        <div class="chart-container">
+            <h3>Department Spend vs. Forecast</h3>
+            <canvas id="barChart"></canvas>
+        </div> 
+
+        
+
+        <div class="chart-container">
+            <h3>Cumulative Spend vs. Budget</h3>
+            <canvas id="areaChart"></canvas>
+        </div>
+        
+        
+        
+
+       
+
+
+    </section>
+
+     
+    <section class="charts-section">
+        
+       
+        
+        <div class="chart-container">
+            <h3>Departmental Budget Performance</h3>
+            <canvas id="radarChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>Quarterly Budget Allocation</h3>
+            <canvas id="stackedBarChart"></canvas>
+        </div>
+
+       
+
+
+    </section>
+
+
+</body>
+
+<script>
+
+// Radar Chart for Departmental Budget Performance
+const ctxDepartmentalPerformance = document.getElementById('radarChart').getContext('2d');
+const departmentalPerformanceChart = new Chart(ctxDepartmentalPerformance, {
+    type: 'radar',
+    data: {
+        labels: ['Department A', 'Department B', 'Department C', 'Department D'], // Example departments
+        datasets: [
+            {
+                label: 'Allocated Budget',
+                data: [50000, 60000, 40000, 30000], // Example allocated budgets
+                backgroundColor: 'rgba(75, 192, 192, 0.5)', // Fill color for allocated
+                borderColor: 'rgba(75, 192, 192, 1)', // Border color for allocated
+                borderWidth: 2,
+            },
+            {
+                label: 'Spent Budget',
+                data: [30000, 45000, 20000, 25000], // Example spent budgets
+                backgroundColor: 'rgba(255, 99, 132, 0.5)', // Fill color for spent
+                borderColor: 'rgba(255, 99, 132, 1)', // Border color for spent
+                borderWidth: 2,
+            },
+            {
+                label: 'Remaining Budget',
+                data: [20000, 15000, 20000, 5000], // Example remaining budgets
+                backgroundColor: 'rgba(255, 206, 86, 0.5)', // Fill color for remaining
+                borderColor: 'rgba(255, 206, 86, 1)', // Border color for remaining
+                borderWidth: 2,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scale: {
+            ticks: {
+                beginAtZero: true,
+                max: 60000, // Adjust based on your budget range
+            },
+            pointLabels: {
+                fontSize: 14,
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+            }
+        }
+    }
+});
+
+
+
+
+const ctxCumulativeSpend = document.getElementById('areaChart').getContext('2d');
+const cumulativeSpendChart = new Chart(ctxCumulativeSpend, {
+    type: 'line', // Use line chart type for area effect
+    data: {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June'], // Example dates
+        datasets: [
+            {
+                label: 'Cumulative Spend',
+                data: [20000, 50000, 80000, 120000, 160000, 200000], // Example cumulative spend data
+                backgroundColor: 'rgba(75, 192, 192, 0.5)', // Area fill color
+                borderColor: 'rgba(75, 192, 192, 1)', // Line color
+                fill: true,
+                tension: 0.3, // Smooth the line
+            },
+            {
+                label: 'Total Budget',
+                data: [100000, 100000, 100000, 100000, 100000, 100000], // Example total budget data
+                borderColor: 'rgba(255, 99, 132, 1)', // Line color for budget
+                borderWidth: 2,
+                fill: false, // No fill for budget line
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Amount ($)',
+                },
+                grid: {
+                    color: 'rgba(200, 200, 200, 0.5)',
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Month',
+                },
+                grid: {
+                    color: 'rgba(200, 200, 200, 0.5)',
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+            }
+        }
+    }
+});
+
+
+
+// Pie Chart for Department Contribution to Total Spend
+const ctxDepartmentPie = document.getElementById('departmentPieChart').getContext('2d');
+const departmentPieChart = new Chart(ctxDepartmentPie, {
+    type: 'pie',
+    data: {
+        labels: ['Marketing', 'Sales', 'Development', 'HR'], // Example department names
+        datasets: [{
+            label: 'Department Spend',
+            data: [120000, 210000, 180000, 90000], // Example total spend data for each department
+            backgroundColor: [
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(54, 162, 235, 0.7)',
+            ],
+            borderColor: [
+                'rgba(75, 192, 192, 1)',
+                'rgba(255, 99, 132, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(54, 162, 235, 1)',
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom',
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+            }
+        }
+    }
+});
+
+
+
+// Bar Chart for Department Spend vs. Forecast
+const ctxBar = document.getElementById('barChart').getContext('2d');
+const barChart = new Chart(ctxBar, {
+    type: 'bar',
+    data: {
+        labels: ['Marketing', 'Sales', 'Development', 'HR'], // Example department names
+        datasets: [
+            {
+                label: 'Forecasted Budget',
+                data: [150000, 200000, 250000, 100000], // Example forecasted data
+                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            },
+            {
+                label: 'Actual Spend',
+                data: [120000, 210000, 230000, 90000], // Example actual spend data
+                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Amount ($)',
+                },
+                grid: {
+                    color: 'rgba(200, 200, 200, 0.5)',
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Department',
+                },
+                grid: {
+                    color: 'rgba(200, 200, 200, 0.5)',
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+            }
+        }
+    }
+});
+
+
+
+
+// Stacked Bar Chart for Quarterly Budget Allocation
+const ctxStackedBar = document.getElementById('stackedBarChart').getContext('2d');
+const stackedBarChart = new Chart(ctxStackedBar, {
+    type: 'bar',
+    data: {
+        labels: ['Q1', 'Q2', 'Q3', 'Q4','Q5', 'Q6', 'Q7', 'Q8'], // Example quarters
+        datasets: [
+            {
+                label: 'Marketing',
+                data: [30000, 45000, 40000, 35000], // Example allocation for Marketing
+                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+            },
+            {
+                label: 'Sales',
+                data: [50000, 60000, 55000, 70000], // Example allocation for Sales
+                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            },
+            {
+                label: 'Development',
+                data: [40000, 50000, 60000, 70000], // Example allocation for Development
+                backgroundColor: 'rgba(255, 206, 86, 0.7)',
+            },
+            {
+                label: 'HR',
+                data: [20000, 25000, 30000, 35000], // Example allocation for HR
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+            } ,
+            {
+                label: 'Marketing',
+                data: [30000, 45000, 40000, 35000], // Example allocation for Marketing
+                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+            },
+            {
+                label: 'Sales',
+                data: [50000, 60000, 55000, 70000], // Example allocation for Sales
+                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            },
+            {
+                label: 'Development',
+                data: [40000, 50000, 60000, 70000], // Example allocation for Development
+                backgroundColor: 'rgba(255, 206, 86, 0.7)',
+            },
+            {
+                label: 'HR',
+                data: [20000, 25000, 30000, 35000], // Example allocation for HR
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Budget Allocation ($)',
+                },
+                stacked: true, // Enable stacking
+                grid: {
+                    color: 'rgba(200, 200, 200, 0.5)',
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Quarter',
+                },
+                stacked: true, // Enable stacking
+                grid: {
+                    color: 'rgba(200, 200, 200, 0.5)',
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+            }
+        }
+    }
+});
+
+
+
+
+
+// Line Chart for Spending Trends
+const ctxLine = document.getElementById('lineChart').getContext('2d');
+const lineChart = new Chart(ctxLine, {
+    type: 'line',
+    data: {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June'], // Example labels
+        datasets: [{
+            label: 'Spending ($)',
+            data: [1200, 1900, 3000, 500, 2200, 1800], // Example data
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            fill: true,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.3 // Smooth lines
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    boxWidth: 20,
+                    padding: 15,
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(200, 200, 200, 0.5)',
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(200, 200, 200, 0.5)',
+                }
+            }
+        }
+    }
+});
+
+
+</script>
+
+</html>

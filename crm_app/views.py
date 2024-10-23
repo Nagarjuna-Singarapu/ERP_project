@@ -453,3 +453,7 @@ def export_data_to_pdf(data):
     p.save()  # Save the PDF
 
     return response
+    
+def forecasting(request):
+    return render(request, 'forecasting/forecasting.html')
+

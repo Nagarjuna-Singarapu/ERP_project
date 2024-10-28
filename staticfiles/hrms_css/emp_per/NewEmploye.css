@@ -1,0 +1,85 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa; /* Light gray background */
+    margin: 0;
+    padding: 0;
+}
+
+/* Container Styling */
+.container {
+    background-color: #ffffff; /* White background for form */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 20px rgba(192, 94, 94, 0.1); /* Light shadow */
+    padding: 30px; /* Padding around form content */
+    margin-left: 25%; /* Centered with margin */
+    max-width: 900px; /* Maximum width for the form container */
+}
+
+/* Form Title */
+h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    color: #343a40; /* Dark gray for title */
+}
+
+/* Input Fields */
+input[type="text"], 
+input[type="email"], 
+input[type="date"], 
+select {
+    border: 1px solid #ced4da; /* Light gray border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px; /* Padding inside the input */
+    font-size: 1rem; /* Font size for text */
+    width: 100%; /* Full width for inputs */
+    background-color: #f8f9fa; /* Light background inside input */
+    transition: all 0.3s ease-in-out;
+}
+
+input:focus, select:focus {
+    border-color: #80bdff; /* Blue border on focus */
+    background-color: #ffffff; /* White background on focus */
+    box-shadow: 0 0 5px rgba(128, 189, 255, 0.5); /* Blue shadow on focus */
+}
+
+/* Labels */
+label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #495057; /* Dark gray label text */
+    display: block;
+}
+
+/* Required Fields */
+label .text-danger {
+    color: #dc3545; /* Red asterisk for required fields */
+}
+
+/* Section Titles */
+h5 {
+    color: #007bff; /* Blue color for section titles */
+    font-size: 1.25rem;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #007bff; /* Blue underline */
+    padding-bottom: 5px;
+}
+
+
+
+
+/* Responsiveness: Smaller Devices */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h5 {
+        font-size: 1.1rem;
+    }
+}

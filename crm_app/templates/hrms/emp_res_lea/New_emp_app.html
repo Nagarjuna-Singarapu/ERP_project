@@ -1,0 +1,203 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Employment Application</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_res_lea/New_emp_app.css' %}">
+    {% endblock %}
+    
+</head>
+<body>
+
+<div class="form-container">
+    <h2>New Employment Application</h2>
+    <form id="employmentApplicationForm">
+        <div class="mb-3">
+            <label for="applicationId" class="form-label">Application ID <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <input type="text" id="applicationId" class="form-control" name="applicationId" required>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#appIDModal">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="positionId" class="form-label">Empl Position ID</label>
+            <div class="input-group">
+                <input type="text" id="positionId" class="form-control" name="positionId">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#positionIDModal">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="statusId" class="form-label">Status ID</label>
+            <select id="statusId" class="form-select" name="statusId">
+                <option value="">Select Status</option>
+                <option value="1">Active/Open</option>
+                <option value="2">Inactive/Closed</option>
+                <option value="3">Planned For</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="empappSourceId" class="form-label">Employment App Source Type ID</label>
+            <select id="empappSourceId" class="form-select" name="empappSourceId">
+                <option value="">Select Source</option>
+                <option value="1">Advertisement</option>
+                <option value="2">Job Portal</option>
+                <option value="3">Internet</option>
+                <option value="4">News Paper</option>
+                <option value="5">Personal Referral</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="partyId" class="form-label">Applying Party ID</label>
+            <div class="input-group">
+                <input type="text" id="partyId" class="form-control" name="partyId">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#partyIDModal">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="applicationDate" class="form-label">Application Date</label>
+            <input type="date" id="applicationDate" class="form-control" name="applicationDate">
+        </div>
+
+        <div class="form-actions">
+            <input type="submit" class="btn btn-primary" value="Create">
+        </div>
+    </form>
+</div>
+
+<!-- Modals -->
+<!-- Application ID Modal -->
+<div class="modal fade" id="appIDModal" tabindex="-1" aria-labelledby="appIDModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="appIDModalLabel">Application ID Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <iframe src="{% url 'lookupempapp' %}" width="100%" height="400px" frameborder="0"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Position ID Modal -->
+<div class="modal fade" id="positionIDModal" tabindex="-1" aria-labelledby="positionIDModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="positionIDModalLabel">Position ID Details</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <iframe src="{% url 'lookupempposi' %}" width="100%" height="400px" frameborder="0"></iframe>
+        </div>
+      </div>
+  </div>
+</div>
+
+<!-- Applying Party ID Modal -->
+<div class="modal fade" id="partyIDModal" tabindex="-1" aria-labelledby="partyIDModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="partyIDModalLabel">Applying Party ID Details</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <iframe src="{% url 'lookupparty' %}" width="100%" height="400px" frameborder="0"></iframe>
+        </div>
+      </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="successModalLabel">Success</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <p>Your application has been submitted successfully!</p>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-primary" id="closeSuccessModal">OK</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS and Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+<script>
+  document.getElementById('employmentApplicationForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent the default form submission
+
+      // Gather form data
+      const applicationId = document.getElementById('applicationId').value;
+      const positionId = document.getElementById('positionId').value;
+      const statusId = document.getElementById('statusId').value;
+      const empappSourceId = document.getElementById('empappSourceId').value;
+      const partyId = document.getElementById('partyId').value;
+      const applicationDate = document.getElementById('applicationDate').value;
+
+      // Basic validation (can be expanded)
+      if (!applicationId) {
+          alert('Application ID is required.');
+          return;
+      }
+
+      // Here you can handle the form data as needed (e.g., send it to a server)
+      console.log({
+          applicationId,
+          positionId,
+          statusId,
+          empappSourceId,
+          partyId,
+          applicationDate
+      });
+
+      // Show success modal
+      const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+      successModal.show();
+
+      // Reset the form after a short delay to allow the modal to show
+      setTimeout(() => {
+          this.reset();
+          successModal.hide();
+          // Redirect back to the previous page
+          window.history.back();
+        }, 2000);
+      });
+
+      // Close the success modal and redirect when the OK button is clicked
+    document.getElementById('closeSuccessModal').addEventListener('click', function() {
+      const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+      successModal.hide();
+      // Redirect back to the previous page
+      window.history.back();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+.top-menu {
+    background-color: #003366;
+    padding: 5px 0;
+    color: white;
+   
+}
+
+.top-menu ul {
+    list-style-type: none;
+    display: flex;
+    justify-content: space-between;
+    
+}
+
+.top-menu ul li {
+    padding: 5px;
+    cursor: pointer;
+    
+}
+
+.top-menu ul li.active {
+    background-color: #0056b3;
+    border-radius: 5px;
+}
+
+.tabs-container {
+    background-color: hsl(246, 64%, 60%);
+    padding: 10px;
+    color: white;
+    
+    
+}
+
+.tabs {
+    display: flex;
+    list-style-type: none;
+    justify-content: start;
+}
+
+.tabs li {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #0056b3;
+    margin-right: 5px;
+    border-radius: 5px 5px 0 0;
+    
+}
+
+.tabs li.active {
+    background-color: #004080;
+}
+
+.tabs li a {
+    color: white;
+    text-decoration: none;
+}
+
+.content {
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 0 5px 5px 5px;
+    min-height: 300px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}

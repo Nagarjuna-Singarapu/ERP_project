@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Form</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/Employe.css' %}">
+    {% endblock %}
+</head>
+<body>
+    
+    <div class="container mt-5">
+        <h2 class="text-center">Find an Employee</h2>
+
+        <!-- Form Section -->
+        <form id="employeeForm" class="animated-form">
+            <div class="form-group">
+                <label>Contact Information:</label><br>
+                
+            </div>
+
+            <div class="form-group">
+                <label for="partyId">Party ID:</label>
+                <input type="text" class="form-control" id="partyId">
+               
+            </div>
+            <div class="form-group">
+                <label for="userLogin">User Login:</label>
+                <input type="text" class="form-control" id="userLogin">
+            </div>
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" class="form-control" id="firstName">
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" class="form-control" id="lastName">
+            </div>
+           
+            <button type="submit" class="btn btn-primary">Lookup Party</button>
+        </form>
+
+        <!-- Table Section (Hidden initially) -->
+        <h3 class="mt-5">Parties Found:</h3>
+        <table class="table table-bordered table-hover" id="employeeTable" style="display: none;">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Party ID</th>
+                    <th>User Login</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr id="noRecord">
+                    <td colspan="4" class="text-center">No parties found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="Employe.js">
+      
+    </script>
+</body>
+</html>

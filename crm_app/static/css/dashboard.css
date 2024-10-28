@@ -92,13 +92,13 @@ nav {
   nav .navbar {
 	height: 100%;
 	max-width: 1250px;
-	width: 100%;
+	width: 80%;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	margin: auto;
 	padding: 0 50px;
-	opacity: 0.5;
+	opacity: 0.8;
 	
   }
   

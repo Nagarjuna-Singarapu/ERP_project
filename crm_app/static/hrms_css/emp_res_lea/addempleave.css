@@ -1,0 +1,67 @@
+
+.form-section {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-weight: bold;
+}
+
+.form-required {
+  color: red;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+}
+/* Form improvements */
+.form-check {
+    margin-bottom: 0.5rem;
+    padding-left: 1.75rem;
+    }
+    
+    .form-check-input {
+    margin-left: -1.75rem;
+    }
+    
+    .form-check-label {
+    font-weight: normal;
+    }
+    
+    /* Input group improvements */
+    .input-group {
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .input-group .form-control {
+    border-right: none;
+    }
+    
+    .input-group .btn-outline-secondary {
+    border-left: none;
+    background: #fff;
+    }
+    
+    .input-group .btn-outline-secondary:hover {
+    background: #f8f9fa;
+    }
+    
+    /* Loading indicator for iframes */
+    .iframe-loading {
+    position: relative;
+    }
+    
+    .iframe-loading::after {
+    content: 'Loading...';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2rem;
+    color: #666;
+    }

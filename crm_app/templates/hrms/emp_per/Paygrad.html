@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Lookup</title>
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/FindEmploye.css' %}">
+    {% endblock %}
+   
+</head>
+<body>
+    <div class="container">
+        <h2>Lookup Party by Name</h2>
+
+        <div class="search-section">
+            <form id="search-form">
+                <div class="form-group">
+                    <label for="party-id">Search for Pay Grade ID</label>
+                    <select id="party-id-criteria">
+                        <option value="contains">Contains</option>
+                        <option value="equals">Equals</option>
+                    </select>
+                    <input type="text" id="party-id">
+                    <input type="checkbox" id="party-id-ignore">Search for Pay Grade ID
+                </div>
+
+
+                <button type="submit" id="find-btn">Find</button>
+            </form>
+        </div>
+
+        <div class="table-section">
+            <h3>Search Results</h3>
+            <table id="results-table">
+                <thead>
+                    <tr>
+                        <th>Party ID</th>
+                        <th>Details</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Search results will be dynamically injected here -->
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <button class="pagination-btn" id="prev-btn">Previous</button>
+                <span id="page-info">Page 1 of 10</span>
+                <button class="pagination-btn" id="next-btn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+document.getElementById('search-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Collect form data (this is just for demo purposes)
+    const partyId = document.getElementById('party-id').value;
+    const firstName = document.getElementById('first-name').value;
+    const lastName = document.getElementById('last-name').value;
+    const groupName = document.getElementById('group-name').value;
+
+    // Mock data for results
+    const results = [
+        {
+            partyId: '10000',
+            partyType: 'Person',
+            firstName: 'Nagarjuna',
+            lastName: 'Singarapu',
+            groupName: 'Accounting'
+        },
+        {
+            partyId: 'ACCOUNTING',
+            partyType: 'Party Group',
+            firstName: '',
+            lastName: '',
+            groupName: 'Accounting department'
+        }
+        // Add more dummy data as needed
+    ];
+
+    // Clear previous results
+    const tbody = document.querySelector('#results-table tbody');
+    tbody.innerHTML = '';
+
+    // Inject results into the table
+    results.forEach(result => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${result.partyId}</td>
+            <td>${result.partyType}</td>
+            <td>${result.firstName}</td>
+            <td>${result.lastName}</td>
+            <td>${result.groupName}</td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    // Update pagination (just a demo update)
+    document.getElementById('page-info').textContent = `Page 1 of 10`;
+});
+
+document.getElementById('next-btn').addEventListener('click', function () {
+    // Logic for next page (demo)
+});
+
+document.getElementById('prev-btn').addEventListener('click', function () {
+    // Logic for previous page (demo)
+});
+
+
+    </script>
+</body>
+</html>

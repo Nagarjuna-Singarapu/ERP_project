@@ -162,7 +162,7 @@ def create_company_view(request):
 def manage_departments_view(request):
     return render(request, 'budget/manage_departments.html')
 
-@csrf_exempt
+@login_required
 def create_company(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -201,7 +201,7 @@ def get_departments(request, company_id):
     departments = Department.objects.filter(company_id=company_id).values_list('name', flat=True)
     return JsonResponse(list(departments), safe=False)
 
-@csrf_exempt
+@login_required
 def add_departments(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -238,6 +238,7 @@ def add_department_budget(request):
         )
         return JsonResponse({'status': 'success'}, status=201)
     
+@login_required
 def get_department_budgets(request, company_id):
     # Fetch departments related to the specified company
     departments = Department.objects.filter(company_id=company_id)
@@ -257,7 +258,7 @@ def get_department_budgets(request, company_id):
     
     return JsonResponse(budget_details, safe=False)
 
-@csrf_exempt
+@login_required
 def submit_budget(request):
     if request.method == 'POST':
         # Parse JSON data from the request body
@@ -303,8 +304,7 @@ def submit_budget(request):
 def requestBudget(request):
     return render(request, 'budget/request_budget.html')
 
-
-@csrf_exempt
+@login_required
 def create_budget_request(request):
     if request.method == 'POST':
         data = json.loads(request.body)

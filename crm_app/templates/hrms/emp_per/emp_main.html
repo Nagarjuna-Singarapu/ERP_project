@@ -1,0 +1,322 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Module Interface</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/Employe.css' %}">
+    {% endblock %}
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+
+        .search-section,
+        .result-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 500;
+        }
+
+        .table thead {
+            background-color: #f8f9fa;
+        }
+
+        .btn-info-circle {
+            padding: 0.25rem 0.5rem;
+            border-radius: 50%;
+        }
+
+        .nav-placeholder {
+            height: 60px;
+            background-color: #f8f9fa;
+            margin-bottom: 20px;
+        }
+
+        .modal-dialog.modal-lg {
+            max-width: 90%;
+            height: 90vh;
+            margin: 1.75rem auto;
+        }
+
+        .modal-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            padding: 1rem 1.5rem;
+        }
+
+        .modal-header .modal-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-body {
+            flex: 1;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-body iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+        }
+
+        .form-check {
+            margin-bottom: 0.5rem;
+            padding-left: 1.75rem;
+        }
+
+        .input-group {
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group .form-control {
+            border-right: none;
+        }
+
+        .input-group .btn-outline-secondary {
+            border-left: none;
+            background: #fff;
+        }
+
+        .input-group .btn-outline-secondary:hover {
+            background: #f8f9fa;
+        }
+
+        .iframe-loading {
+            position: relative;
+        }
+
+        .iframe-loading::after {
+            content: 'Loading...';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div class="content">
+        <div id="main" class="tab-content active">
+            <h2>Company</h2>
+            <p>Your Company Name Here [Company]</p>
+        </div>
+        <div id="employees" class="tab-content">
+            <!-- Navbar placeholder -->
+            <div class="nav-placeholder"></div>
+
+            <div class="container">
+                <div class="search-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Find Employment Application</h2>
+                        <a href="{% url 'NewEmploye' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> New Employment Application
+                        </a>
+                    </div>
+
+                    <form id="searchForm">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label for="appID" class="form-label">Party ID:</label>
+                                <div class="input-group">
+                                    <input type="text" id="appID" class="form-control"
+                                        placeholder="Enter Application ID">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                                        data-bs-target="#appIDModal">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <label for="positionID" class="form-label">User Login:</label>
+                                <div class="input-group">
+                                    <input type="text" id="positionID" class="form-control"
+                                        placeholder="Enter Position ID">
+                                </div>
+                            </div>
+
+                            <a class="btn btn-primary" href="./Employe.html"
+                                role="button">Find Employe</a>
+                        </div>
+                    </form>
+                </div>
+
+                <h3 class="mt-5">Parties Found:</h3>
+                <table class="table table-bordered table-hover" id="resultTable" style="display:none;">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Party ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Middle Initial</th>
+                            <th>Personal Title</th>
+                            <th>Suffix</th>
+                            <th>Nick Name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data will be inserted here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Modals -->
+            <div class="modal fade" id="appIDModal" tabindex="-1" aria-labelledby="appIDModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="appIDModalLabel">Party ID:</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <iframe src="{% url 'lookup' %}" width="100%" height="400px" frameborder="0"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal fade" id="positionIDModal" tabindex="-1" aria-labelledby="positionIDModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="positionIDModalLabel">User Login:</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Details about User Login will be displayed here.</p>
+                            <!-- Additional content can be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            
+
+            <!-- Bootstrap JS and Popper.js -->
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+            <script>
+                // Sample data for demonstration
+                const mockData = [
+                    {
+                        appID: '4561',
+                        positionID: '4852',
+                        status: 'Planned For',
+                        appSource: 'PER_REF',
+                        applyingParty: 'Developer2',
+                        referredByParty: 'DevTeam1',
+                        appDate: '10/31/2024 12:00:00 AM'
+                    }
+                ];
+
+                // Find button click handler
+                document.getElementById('searchForm').addEventListener('submit', function (event) {
+                    event.preventDefault(); // Prevent form submission
+                    const resultTable = document.getElementById('resultTable').querySelector('tbody');
+                    resultTable.innerHTML = ''; // Clear previous results
+
+                    // Add rows to the table based on mock data
+                    mockData.forEach(data => {
+                        const row = `
+                            <tr>
+                                <td><input type="text" class="form-control" value="${data.appID}" readonly></td>
+                                <td><input type="text" class="form-control" value="${data.positionID}"></td>
+                                <td>
+                                    <select class="form-select">
+                                        <option value="Planned For" ${data.status === 'Planned For' ? 'selected' : ''}>Planned For</option>
+                                        <option value="Active/Open" ${data.status === 'Active/Open' ? 'selected' : ''}>Active/Open</option>
+                                        <option value="Inactive/Closed" ${data.status === 'Inactive/Closed' ? 'selected' : ''}>Inactive/Closed</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-select">
+                                        <option value="PER_REF" ${data.appSource === 'PER_REF' ? 'selected' : ''}>PER_REF</option>
+                                        <option value="JOB_PORTAL" ${data.appSource === 'JOB_PORTAL' ? 'selected' : ''}>Job Portal</option>
+                                    </select>
+                                </td>
+                                <td><input type="text" class="form-control" value="${data.applyingParty}"></td>
+                                <td><input type="text" class="form-control" value="${data.referredByParty}"></td>
+                                <td><input type="text" class="form-control" value="${data.appDate}" readonly></td>
+                                <td>
+                                    <button class="btn btn-danger deleteBtn">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        resultTable.innerHTML += row;
+                    });
+
+                    // Attach delete functionality to buttons
+                    attachDeleteFunctionality();
+                    document.getElementById('resultTable').style.display = 'table'; // Show the table
+                });
+
+                function attachDeleteFunctionality() {
+                    document.querySelectorAll('.deleteBtn').forEach(btn => {
+                        btn.addEventListener('click', function () {
+                            if (confirm('Are you sure you want to delete this record?')) {
+                                this.closest('tr').remove();
+                            }
+                        });
+                    });
+                }
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                    new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+
+                // Clear form functionality
+                function clearForm() {
+                    document.getElementById('searchForm').reset();
+                    const resultTable = document.getElementById('resultTable').querySelector('tbody');
+                    resultTable.innerHTML = '';
+                    document.getElementById('resultTable').style.display = 'none'; // Hide the table
+                }
+
+                document.getElementById('clearBtn')?.addEventListener('click', clearForm);
+            </script>
+
+</body>
+
+</html>

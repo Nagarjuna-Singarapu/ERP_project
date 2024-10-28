@@ -25,8 +25,41 @@ urlpatterns = [
     path('report/', views.report, name='report'),
     path('review/', views.review, name='review'),
     path('viewreport/', views.viewreport, name='viewreport'),
-    path('forecasting/', views.forecasting, name='forecasting'),
-
+    path('forecasting/', views.forecasting, name='forecasting'), 
+    
+    # anuj hrms
+    path('emp_main/', views.emp_main, name='emp_main'),
+    path('Employment/', views.Employment, name='Employment'),
+    path('Employe_position/', views.Employe_position, name='Employe_position'), 
+    path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
+    path('lookup/', views.lookup, name='lookup'),
+    path('NewEmployement/', views.NewEmployement, name='NewEmployement'),
+    path('FindEmploye/', views.FindEmploye, name='FindEmploye'),
+    path('New_positions/', views.New_positions, name='New_positions'),
+    path('Search_Emp_position/', views.Search_Emp_position, name='Search_Emp_position'),
+    path('Paygrad/', views.Paygrad, name='Paygrad'),
+    path('EditSalary/', views.EditSalary, name='EditSalary'), 
+     
+    # sunny hrms
+    path('Employee_app/', views.Employee_app, name='Employee_app'),
+    path('New_emp_app/', views.New_emp_app, name='New_emp_app'),
+    path('resume/', views.resume, name='resume'),
+    path('leave/', views.leave, name='leave'),
+    path('lookupempapp/', views.lookupempapp, name='lookupempapp'),
+    path('lookupempposi/', views.lookupempposi, name='lookupempposi'),
+    path('lookupparty/', views.lookupparty, name='lookupparty'),
+    path('Newresume/', views.Newresume, name='Newresume'),
+    path('lookpartyresume/', views.lookpartyresume, name='lookpartyresume'),
+    path('addempleave/', views.addempleave, name='addempleave'),
+    path('leaveappr/', views.leaveappr, name='leaveappr'),
+    
+    # gannu hrms
+    path('Skills/', views.Skills, name='Skills'),
+    path('Qualification/', views.Qualification, name='Qualification'),
+    path('newparties/', views.newparties, name='newparties'),
+    path('skill_lookupparty/', views.skill_lookupparty, name='skill_lookupparty'),
+    path('newpartiesQualifivation/', views.newpartiesQualifivation, name='newpartiesQualifivation'),
+    
     
     
     

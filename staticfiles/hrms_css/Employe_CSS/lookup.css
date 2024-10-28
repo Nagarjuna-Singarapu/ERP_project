@@ -1,0 +1,69 @@
+/* Style the form */
+form {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.8s forwards;
+}
+
+form input, form button {
+    transition: all 0.3s ease;
+}
+
+form input:focus, form button:focus {
+    transform: scale(1.02);
+}
+
+/* Button hover effect */
+form button:hover {
+    background-color: #007bff;
+    transform: scale(1.05);
+    box-shadow: 0 6px 10px rgba(0, 123, 255, 0.3);
+}
+
+/* Style the table */
+#resultTable {
+    margin-top: 30px;
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+    animation: slideInUp 0.8s forwards;
+}
+
+#resultTable td, #resultTable th {
+    padding: 12px 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+#resultTable tbody tr:hover {
+    background-color: #f1f1f1;
+    transform: scale(1.02);
+}
+
+/* Fade-in animation for form */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slide-in animation for table */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

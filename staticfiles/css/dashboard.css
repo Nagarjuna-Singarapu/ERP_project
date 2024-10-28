@@ -92,18 +92,18 @@ nav {
   nav .navbar {
 	height: 100%;
 	max-width: 1250px;
-	width: 100%;
+	width: 80%;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	/* margin: auto; */
-	padding: 0 10px;
-	opacity: 0.5;
+	margin: auto;
+	padding: 0 50px;
+	opacity: 0.8;
 	
   }
   
   .navbar .logo a {
-	font-size: 20px;
+	font-size: 30px;
 	color: #fff;
 	text-decoration: none;
 	font-weight: 600;
@@ -228,7 +228,7 @@ nav {
 		width: 40px; /* Maintain width */
 	  }
 	}
-	@media (max-width: 820px) and (max-height: 1128px) and (orientation: landscape) {
+	@media (max-width: 820px) and (max-height: 1180px) and (orientation: landscape) {
 	  .navbar {
 		font-size: 22px; /* You could reset or tweak for landscape */
 	  }
@@ -307,7 +307,7 @@ nav {
 	}
   }
   
-  @media (max-width: 1528px) {
+  @media (max-width: 1115px) {
 	
   
 	.navbar .bx-menu {
@@ -409,8 +409,6 @@ nav {
 /* NAVBAR */
 
 
-
-
 :root {
 	--primary: #eeeeee;
 	--secondary: #227c70;
@@ -434,7 +432,7 @@ nav {
   .profile-dropdown-btn {
 	display: flex;
 	align-items: center;
-	/* padding: 0.5rem 1rem; */
+	padding: 0.5rem 1rem;
 	font-size: 0.9rem;
 	font-weight: 500;
 	width: 150px;
@@ -502,6 +500,10 @@ nav {
   .profile-dropdown-list-item:hover {
 	background-color: var(--secondary-light);
   }
+  
+
+
+
 
 
 /* Profile Dropdown Container */
@@ -614,7 +616,6 @@ nav {
 	overflow-y: auto;
 	margin-top: 20px;
 }
-
 
 #content main .box-info {
 	display: grid;

@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lookup Person</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/lookup.css' %}">
+    {% endblock %}
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Lookup Person</h2>
+
+        <!-- Search Form -->
+        <form id="lookupForm">
+            <div class="form-group">
+                <label for="partyId">Mobile Number:</label>
+                <input type="text" class="form-control" id="partyId" placeholder="Contains" required>
+            </div>
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" class="form-control" id="firstName" placeholder="Contains" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" class="form-control" id="lastName" placeholder="Contains" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Find</button>
+        </form>
+
+        <!-- Results Table -->
+        <h3 class="mt-5">Parties Found:</h3>
+        <table class="table table-bordered table-hover" id="resultTable" style="display:none;">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Party ID</th>
+                    <th>Personal Title</th>
+                    <th>First Name</th>
+                    <th>Middle Initial</th>
+                    <th>Last Name</th>
+                    
+                    
+                   
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Data will be inserted here dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="lookup.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Employee Form</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/NewEmploye.css' %}">
+    {% endblock %}
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2>New Employee</h2>
+        <form id="newEmployeeForm">
+            <!-- Employee Details -->
+            <div class="mb-3">
+                <label for="title" class="form-label">
+                    <select id="title" name="title" required>
+                        <option value="">Select a title</option>
+                        <option value="Mr">Mr</option>
+                        <option value="Ms">Ms</option>
+                        <option value="Mrs">Mrs</option>
+                        <option value="Dr">Dr</option>
+                        <option value="Prof">Prof</option>
+                    </select><br><br>
+                </label>
+                <input type="text" class="form-control" id="title" placeholder="Enter title">
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="firstName" placeholder="Enter first name" required>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label for="middleInitial" class="form-label">Middle Initial</label>
+                    <input type="text" class="form-control" id="middleInitial" placeholder="M.I.">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="lastName" placeholder="Enter last name" required>
+                </div>
+
+                <div class="col-md-4 mb-2">
+
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select><br><br>
+                    </span></label>
+
+                </div>
+
+            </div>
+            <div class="mb-3">
+                <label for="internalOrganization" class="form-label">Internal Organization</label>
+                <select class="form-select" id="internalOrganization">
+                    <option selected>Select an organization</option>
+                    <option value="1">Org 1</option>
+                    <option value="2">Org 2</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="startDate" class="form-label">Estimated Start Date</label>
+                <input type="date" class="form-control" id="startDate">
+            </div>
+
+            <!-- Address Section -->
+            <h5>Address</h5>
+            <div class="mb-3">
+                <label for="address1" class="form-label">Address 1 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="address1" placeholder="Enter address line 1" required>
+            </div>
+            <div class="mb-3">
+                <label for="address2" class="form-label">Address 2</label>
+                <input type="text" class="form-control" id="address2" placeholder="Enter address line 2">
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="country" class="form-label">Country</label>
+                    <select class="form-select" id="country">
+                        <option value="AFG">Afghanistan - AFG</option>
+                        <option value="USA">United States - USA</option>
+                        <option value="CAN">Canada - CAN</option>
+                        <!-- Add other countries as needed -->
+                    </select>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label for="state" class="form-label">State</label>
+                    <select class="form-select" id="state">
+                        <option selected>No States/Provinces exist</option>
+                        <option value="1">State 1</option>
+                        <option value="2">State 2</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="city" class="form-label">City <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="city" placeholder="Enter city" required>
+                </div>
+                
+               
+                <div class="col-md-4 mb-3">
+                    <label for="zipCode" class="form-label">Zip/Postal Code <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="zipCode" placeholder="Enter zip code" required>
+                </div>
+            </div>
+           
+
+            <!-- Phone Number Section -->
+            <h5>Primary Phone Number</h5>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="countryCode" class="form-label">Country Code</label>
+                    <input type="text" class="form-control" id="countryCode">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="phoneNumber" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="phoneNumber" required>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="ext" class="form-label">Ext</label>
+                    <input type="text" class="form-control" id="ext">
+                </div>
+            </div>
+
+            <!-- Email Section -->
+            <div class="mb-3">
+                <label for="email" class="form-label">E-Mail Address</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter email address">
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Employe ID:</label>
+                <input type="text" class="form-control" id="email" placeholder="Enter Employe Id">
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md">
+                <button class="btn btn-primary me-md-2 btn-sm" type="button" role="button">save</button>
+            </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="NewEmploye.js"></script>
+</body>
+
+</html>

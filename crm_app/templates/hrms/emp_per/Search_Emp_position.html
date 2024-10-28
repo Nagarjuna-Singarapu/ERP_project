@@ -7,7 +7,7 @@
     <title>Employee Lookup</title>
 
     {% block css %}
-    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/FindEmploye.css' %}">
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/Search_Emp_position.css' %}">
     {% endblock %}
     
 </head>
@@ -18,7 +18,7 @@
         <div class="search-section">
             <form id="search-form">
                 <div class="form-group">
-                    <label for="party-id">Search for salary increase sequence ID</label>
+                    <label for="party-id">Party ID</label>
                     <select id="party-id-criteria">
                         <option value="contains">Contains</option>
                         <option value="equals">Equals</option>
@@ -30,7 +30,7 @@
                 
 
                 <div class="form-group">
-                    <label for="first-name">Original</label>
+                    <label for="first-name">First Name</label>
                     <select id="first-name-criteria">
                         <option value="contains">Contains</option>
                         <option value="equals">Equals</option>
@@ -39,8 +39,27 @@
                     <input type="checkbox" id="first-name-ignore"> Ignore Case
                 </div>
 
+                <div class="form-group">
+                    <label for="last-name">Last Name</label>
+                    <select id="last-name-criteria">
+                        <option value="contains">Contains</option>
+                        <option value="equals">Equals</option>
+                    </select>
+                    <input type="text" id="last-name">
+                    <input type="checkbox" id="last-name-ignore"> Ignore Case
+                </div>
 
-                <button type="submit" id="find-btn">Search</button>
+                <div class="form-group">
+                    <label for="group-name">Group Name</label>
+                    <select id="group-name-criteria">
+                        <option value="contains">Contains</option>
+                        <option value="equals">Equals</option>
+                    </select>
+                    <input type="text" id="group-name">
+                    <input type="checkbox" id="group-name-ignore"> Ignore Case
+                </div>
+
+                <button type="submit" id="find-btn">Find</button>
             </form>
         </div>
 
@@ -49,11 +68,11 @@
             <table id="results-table">
                 <thead>
                     <tr>
-                        <th>Search for salary increase sequence ID</th>
-                        <th>Original</th>
-                        <th>end</th>
-                        <th>Amount</th>
-                       
+                        <th>Party ID</th>
+                        <th>Party Type ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Group Name</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,9 +87,9 @@
             </div>
         </div>
     </div>
-    
-    <script>
-         document.getElementById('search-form').addEventListener('submit', function (e) {
+
+    <script> 
+        document.getElementById('search-form').addEventListener('submit', function (e) {
     e.preventDefault();
 
     // Collect form data (this is just for demo purposes)
@@ -126,7 +145,6 @@ document.getElementById('next-btn').addEventListener('click', function () {
 document.getElementById('prev-btn').addEventListener('click', function () {
     // Logic for previous page (demo)
 });
-
 
     </script>
 </body>

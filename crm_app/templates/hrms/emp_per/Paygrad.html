@@ -9,7 +9,7 @@
     {% block css %}
     <link rel="stylesheet" href="{% static 'hrms_css/emp_per/FindEmploye.css' %}">
     {% endblock %}
-    
+   
 </head>
 <body>
     <div class="container">
@@ -18,29 +18,17 @@
         <div class="search-section">
             <form id="search-form">
                 <div class="form-group">
-                    <label for="party-id">Search for salary increase sequence ID</label>
+                    <label for="party-id">Search for Pay Grade ID</label>
                     <select id="party-id-criteria">
                         <option value="contains">Contains</option>
                         <option value="equals">Equals</option>
                     </select>
                     <input type="text" id="party-id">
-                    <input type="checkbox" id="party-id-ignore"> Ignore Case
-                </div>
-
-                
-
-                <div class="form-group">
-                    <label for="first-name">Original</label>
-                    <select id="first-name-criteria">
-                        <option value="contains">Contains</option>
-                        <option value="equals">Equals</option>
-                    </select>
-                    <input type="text" id="first-name">
-                    <input type="checkbox" id="first-name-ignore"> Ignore Case
+                    <input type="checkbox" id="party-id-ignore">Search for Pay Grade ID
                 </div>
 
 
-                <button type="submit" id="find-btn">Search</button>
+                <button type="submit" id="find-btn">Find</button>
             </form>
         </div>
 
@@ -49,11 +37,9 @@
             <table id="results-table">
                 <thead>
                     <tr>
-                        <th>Search for salary increase sequence ID</th>
-                        <th>Original</th>
-                        <th>end</th>
-                        <th>Amount</th>
-                       
+                        <th>Party ID</th>
+                        <th>Details</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -68,9 +54,9 @@
             </div>
         </div>
     </div>
-    
+
     <script>
-         document.getElementById('search-form').addEventListener('submit', function (e) {
+document.getElementById('search-form').addEventListener('submit', function (e) {
     e.preventDefault();
 
     // Collect form data (this is just for demo purposes)

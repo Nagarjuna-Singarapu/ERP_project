@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Employment</title>
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/NewEmployement.css' %}">
+    {% endblock %}
+
+    <!-- Link to animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+</head>
+
+<body>
+    <div class="container animate__animated animate__fadeIn">
+        <h2>Edit Employment</h2>
+        <form id="employment-form">
+            <div class="form-group">
+                <label for="org">Internal Organization</label>
+                <select id="org" class="form-control">
+                    <option value="company">Company</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="another-field">Employee Party ID</label>
+                <div class="input-wrapper">
+                    <input type="text" id="another-field" class="form-control" />
+                    <div class="icons" id="show-modal-btn3">📄</div>
+                </div>
+            </div>
+            
+            <div id="myModal3" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="close-modal-btn3">&times;</span>
+                    <iframe src="{% url 'FindEmploye' %}" style="width: 100%; height: 610px" frameborder="0"></iframe>
+                </div>
+            </div>
+
+            
+            <div class="form-group">
+                <label for="from-date">From Date</label>
+                <input type="datetime-local" id="from-date" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" class="form-control" placeholder="Enter Amount" />
+            </div>
+            <div class="form-group">
+                <label for="comments">Comments</label>
+                <input type="text" id="comments" class="form-control" placeholder="Add any comments" />
+            </div>
+
+            <div class="form-group">
+                <label for="another-field">Pay Grade ID</label>
+                <div class="input-wrapper">
+                    <input type="text" id="another-field" class="form-control" />
+                    <div class="icons" id="show-modal-btn1">📄</div>
+                </div>
+            </div>
+            
+            <div id="myModal1" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="close-modal-btn1">&times;</span>
+                    <iframe src="{% url 'Paygrad' %}" style="width: 100%; height: 610px" frameborder="0"></iframe>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="another-field">Salary Increase Serial Number ID</label>
+                <div class="input-wrapper">
+                    <input type="text" id="another-field" class="form-control" />
+                    <div class="icons" id="show-modal-btn2">📄</div>
+                </div>
+            </div>
+            
+            <div id="myModal2" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="close-modal-btn2">&times;</span>
+                    <iframe src="{% url 'EditSalary' %}" style="width: 100%; height: 610px" frameborder="0"></iframe>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="period-type">Period Type ID</label>
+                <select id="period-type" class="form-control">
+                    <option value="bi-week">Fiscal Bi-Week</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-animated">Create</button>
+        </form>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    // Function to open a modal
+    function openModal(modalId) {
+        var modal = document.getElementById(modalId);
+        modal.style.display = "block";
+    }
+
+    // Function to close a modal
+    function closeModal(modalId) {
+        var modal = document.getElementById(modalId);
+        modal.style.display = "none";
+    }
+
+    // Set up event listeners for each modal
+    document.getElementById("show-modal-btn1").onclick = function() {
+        openModal("myModal1");
+    };
+    document.getElementById("close-modal-btn1").onclick = function() {
+        closeModal("myModal1");
+    };
+
+    document.getElementById("show-modal-btn2").onclick = function() {
+        openModal("myModal2");
+    };
+    document.getElementById("close-modal-btn2").onclick = function() {
+        closeModal("myModal2");
+    };
+
+    document.getElementById("show-modal-btn3").onclick = function() {
+        openModal("myModal3");
+    };
+    document.getElementById("close-modal-btn3").onclick = function() {
+        closeModal("myModal3");
+    };
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        var modals = [document.getElementById("myModal1"), document.getElementById("myModal2"), document.getElementById("myModal3")];
+        modals.forEach(function(modal) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        });
+    };
+});
+    </script>
+</body>
+
+</html>

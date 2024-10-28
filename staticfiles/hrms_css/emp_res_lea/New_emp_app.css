@@ -1,0 +1,79 @@
+/* New_emp_app.css */
+
+/* Body Styles */
+body {
+  background-color: #f8f9fa; /* Light background color */
+  font-family: Arial, sans-serif; /* Font style */
+}
+
+/* Form Container */
+.form-container {
+  background-color: #ffffff; /* White background for form */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  padding: 20px; /* Padding around form */
+  max-width: 600px; /* Maximum width of the form */
+  margin: 50px auto; /* Center the form */
+}
+
+/* Form Heading */
+h2 {
+  text-align: center; /* Center the heading */
+  color: #343a40; /* Dark text color */
+  margin-bottom: 20px; /* Space below heading */
+}
+
+/* Form Labels */
+.form-label {
+  font-weight: bold; /* Bold labels */
+  color: #495057; /* Darker color for labels */
+}
+
+/* Input Fields */
+.form-control {
+  border-radius: 5px; /* Rounded corners for input fields */
+  border: 1px solid #ced4da; /* Light border */
+  transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+.form-control:focus {
+  border-color: #80bdff; /* Change border color on focus */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Add shadow on focus */
+}
+
+/* Select Fields */
+.form-select {
+  border-radius: 5px; /* Rounded corners for select fields */
+}
+
+/* Button Styles */
+.btn {
+  border-radius: 5px; /* Rounded corners for buttons */
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 8px; /* Rounded corners for modals */
+}
+
+.modal-header {
+  background-color: #007bff; /* Primary color for modal header */
+  color: white; /* White text color for modal header */
+}
+
+.modal-footer {
+  border-top: none; /* Remove top border */
+}
+
+/* Success Modal Styles */
+#successModal .modal-body {
+  text-align: center; /* Center text in success modal */
+}
+
+/* Responsive Styles */
+@media (max-width: 576px) {
+  .form-container {
+      margin: 20px; /* Reduce margin on smaller screens */
+      padding: 15px; /* Reduce padding on smaller screens */
+  }
+}

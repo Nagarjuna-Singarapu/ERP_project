@@ -251,6 +251,8 @@
       return;
     }
 
+    const csrftoken = document.cookie.match(/csrftoken=([^\s]*)/)[1];
+
     const data = {
       budget_name: budgetName,
       start_date: startDate,
@@ -259,14 +261,13 @@
       allocated_amount: allocatedAmount,
       company: companyId,
       department: departmentName,
-      csrfmiddlewaretoken: '{{ csrf_token }}' // Include CSRF token for POST requests
     };
 
     fetch('/create/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': data.csrfmiddlewaretoken,
+        'X-CSRFToken': csrftoken,
       },
       body: JSON.stringify(data)
     })

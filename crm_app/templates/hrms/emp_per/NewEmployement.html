@@ -11,135 +11,281 @@
     <link rel="stylesheet" href="{% static 'hrms_css/emp_per/NewEmployement.css' %}">
     {% endblock %}
 
-    <!-- Link to animate.css for animations -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 </head>
 
 <body>
     <div class="container animate__animated animate__fadeIn">
         <h2>Edit Employment</h2>
-        <form id="employment-form">
-            <div class="form-group">
-                <label for="org">Internal Organization</label>
-                <select id="org" class="form-control">
-                    <option value="company">Company</option>
-                </select>
-            </div>
+        <form method="post" action="{% url 'create_employment' %}" id="employment-form">
+            {% csrf_token %}
 
             <div class="form-group">
-                <label for="another-field">Employee Party ID</label>
+                <label for="employee_id">Employee Party ID</label>
                 <div class="input-wrapper">
-                    <input type="text" id="another-field" class="form-control" />
-                    <div class="icons" id="show-modal-btn3">📄</div>
+                    <input type="text" id="employee_id" name="employee_id" class="form-control" />
+                    <div class="icons" id="show-modal-btn3" style="cursor: pointer;">📄</div><br>
                 </div>
+                <button type="button" onclick="fetchEmployeeData()">Fetch</button>
             </div>
-            
+
             <div id="myModal3" class="modal">
                 <div class="modal-content">
                     <span class="close" id="close-modal-btn3">&times;</span>
-                    <iframe src="{% url 'FindEmploye' %}" style="width: 100%; height: 610px" frameborder="0"></iframe>
-                </div>
-            </div>
-
-            
-            <div class="form-group">
-                <label for="from-date">From Date</label>
-                <input type="datetime-local" id="from-date" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label for="amount">Amount</label>
-                <input type="number" id="amount" class="form-control" placeholder="Enter Amount" />
-            </div>
-            <div class="form-group">
-                <label for="comments">Comments</label>
-                <input type="text" id="comments" class="form-control" placeholder="Add any comments" />
-            </div>
-
-            <div class="form-group">
-                <label for="another-field">Pay Grade ID</label>
-                <div class="input-wrapper">
-                    <input type="text" id="another-field" class="form-control" />
-                    <div class="icons" id="show-modal-btn1">📄</div>
-                </div>
-            </div>
-            
-            <div id="myModal1" class="modal">
-                <div class="modal-content">
-                    <span class="close" id="close-modal-btn1">&times;</span>
-                    <iframe src="{% url 'Paygrad' %}" style="width: 100%; height: 610px" frameborder="0"></iframe>
+                    <iframe src="{% url 'lookup' %}" style="width: 100%; height: 600px" frameborder="0"></iframe>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="another-field">Salary Increase Serial Number ID</label>
-                <div class="input-wrapper">
-                    <input type="text" id="another-field" class="form-control" />
-                    <div class="icons" id="show-modal-btn2">📄</div>
-                </div>
-            </div>
-            
-            <div id="myModal2" class="modal">
-                <div class="modal-content">
-                    <span class="close" id="close-modal-btn2">&times;</span>
-                    <iframe src="{% url 'EditSalary' %}" style="width: 100%; height: 610px" frameborder="0"></iframe>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="period-type">Period Type ID</label>
-                <select id="period-type" class="form-control">
-                    <option value="bi-week">Fiscal Bi-Week</option>
+                <label for="internal_organization">Internal Organization</label>
+                <select id="internal_organization" name="internal_organization" class="form-control">
+                    <option value="">Select an Organization</option>
                 </select>
             </div>
+
+            <div class="form-group">
+                <label for="from-date">From Date</label>
+                <input type="date" id="from-date" name="from_date" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" name="amount" class="form-control" placeholder="Enter Amount" />
+            </div>
+
+            <div class="form-group">
+                <label for="comments">Comments</label>
+                <input type="text" id="comments" name="comments" class="form-control" placeholder="Add any comments" />
+            </div>
+
+            <div class="form-group">
+                <label for="pay_grade">Pay Grade</label>
+                <select id="pay_grade" name="pay_grade" class="form-control">
+                    <option value="">Select a Pay Grade</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="salary_step">Salary Step</label>
+                <select id="salary_step" name="salary_step" class="form-control">
+                    <option value="">Select a Salary Step</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="period-type">Period Type</label>
+                <select id="period_type" name="period_type" class="form-control">
+                    <option value="FISCAL_BIWEEK">Fiscal Bi-Week</option>
+                    <option value="FISCAL_MONTH">Fiscal Month</option>
+                    <option value="FISCAL_QUARTER">Fiscal Quarter</option>
+                    <option value="FISCAL_WEEK">Fiscal Week</option>
+                    <option value="FISCAL_YEAR">Fiscal Year</option>
+                    <option value="RATE_HOUR">Rate per Hour</option>
+                    <option value="RATE_MONTH">Rate per Month</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="termination_type">Termination Type</label>
+                <select id="termination_type" name="termination_type" class="form-control">
+                    <option value="">Select the Type</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="termination_reason">Termination Reason</label>
+                <select id="termination_reason" name="termination_reason" class="form-control">
+                    <option value="">Select a Reason</option>
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-animated">Create</button>
         </form>
     </div>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-    // Function to open a modal
-    function openModal(modalId) {
-        var modal = document.getElementById(modalId);
-        modal.style.display = "block";
+
+function selectEmployeeId(employeeId) {
+            console.log('Selected Employee ID:', employeeId);
+            document.getElementById("employee_id").value = employeeId; // Set the value in the input field
+            document.getElementById("myModal3").style.display = "none"; // Optionally close the modal
+        }
+        async function fetchEmployeeData() {
+            const employeeId = document.getElementById("employee_id").value;
+            if (employeeId) {
+                try {
+                    const response = await fetch(`/hrms/get-employee/${employeeId}/`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        fillFormWithData(data);
+                    } else {
+                        alert("No employee data found. You can still submit your own details.");
+                    }
+                } catch (error) {
+                    console.error('Error fetching employee data:', error);
+                    alert("Error fetching data. Please enter the details manually.");
+                }
+            }
+        }
+
+        function fillFormWithData(data) {
+            // Fill the internal organization dropdown
+            if (data.internal_organization) {
+                const orgSelect = document.getElementById("internal_organization");
+                const optionToSelect = Array.from(orgSelect.options).find(
+                    option => option.textContent.includes(data.internal_organization)
+                );
+
+                if (optionToSelect) {
+                    orgSelect.value = optionToSelect.value; // Set the selected value
+                } else {
+                    console.warn(`No matching option for internal organization: ${data.internal_organization}`);
+                }
+            }
+
+            // Fill other form fields with the provided data
+            if (data.from_date) document.getElementById("from-date").value = data.from_date;
+            if (data.amount) document.getElementById("amount").value = data.amount;
+            if (data.comments) document.getElementById("comments").value = data.comments;
+
+            // Set pay_grade based on the grade name
+            if (data.pay_grade) {
+        const payGradeSelect = document.getElementById("pay_grade");
+        const payGradeOption = Array.from(payGradeSelect.options).find(
+            option => option.textContent.trim() === data.pay_grade.trim()
+        );
+        if (payGradeOption) {
+            payGradeSelect.value = payGradeOption.value; // Set the matching option by ID
+        } else {
+            console.warn(`No matching option for pay grade: ${data.pay_grade}`);
+        }
     }
 
-    // Function to close a modal
-    function closeModal(modalId) {
-        var modal = document.getElementById(modalId);
-        modal.style.display = "none";
+    // Set salary step by matching the name
+    if (data.salary_step) {
+        const salaryStepSelect = document.getElementById("salary_step");
+        const salaryStepOption = Array.from(salaryStepSelect.options).find(
+            option => option.textContent.trim() === data.salary_step.trim()
+        );
+        if (salaryStepOption) {
+            salaryStepSelect.value = salaryStepOption.value; // Set the matching option by ID
+        } else {
+            console.warn(`No matching option for salary step: ${data.salary_step}`);
+        }
     }
 
-    // Set up event listeners for each modal
-    document.getElementById("show-modal-btn1").onclick = function() {
-        openModal("myModal1");
-    };
-    document.getElementById("close-modal-btn1").onclick = function() {
-        closeModal("myModal1");
-    };
+            if (data.period_type) document.getElementById("period_type").value = data.period_type;
+        }
 
-    document.getElementById("show-modal-btn2").onclick = function() {
-        openModal("myModal2");
-    };
-    document.getElementById("close-modal-btn2").onclick = function() {
-        closeModal("myModal2");
-    };
+        async function loadDepartments() {
+            try {
+                const response = await fetch('/hrms/api/department/');
+                const departments = await response.json();
+                const departmentSelect = document.getElementById('internal_organization');
 
-    document.getElementById("show-modal-btn3").onclick = function() {
-        openModal("myModal3");
-    };
-    document.getElementById("close-modal-btn3").onclick = function() {
-        closeModal("myModal3");
-    };
+                departments.forEach(department => {
+                    const option = document.createElement('option');
+                    option.value = department.id;
+                    option.textContent = `${department.name} (Company: ${department.company_name})`;
+                    departmentSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
 
-    // Close modal when clicking outside of it
-    window.onclick = function(event) {
-        var modals = [document.getElementById("myModal1"), document.getElementById("myModal2"), document.getElementById("myModal3")];
-        modals.forEach(function(modal) {
+        document.addEventListener('DOMContentLoaded', loadDepartments);
+
+        async function loadPayGrades() {
+            try {
+                const response = await fetch('/hrms/api/paygrades/');
+                const payGrades = await response.json();
+                const payGradeSelect = document.getElementById('pay_grade');
+
+                payGrades.forEach(grade => {
+                    const option = document.createElement('option');
+                    option.value = grade.id;
+                    option.textContent = grade.grade_name; // Using the grade name
+                    payGradeSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading pay grades:', error);
+            }
+        }
+
+        async function loadSalarySteps() {
+            try {
+                const response = await fetch('/hrms/api/salarysteps/');
+                const salarySteps = await response.json();
+                const salaryStepSelect = document.getElementById('salary_step');
+
+                salarySteps.forEach(step => {
+                    const option = document.createElement('option');
+                    option.value = step.id;
+                    option.textContent = step.step_name; // Using the step name
+                    salaryStepSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading salary steps:', error);
+            }
+        }
+        async function loadTerminationTypes() {
+            try {
+                const response = await fetch('/hrms/api/terminationtype/');
+                const payGrades = await response.json();
+                const payGradeSelect = document.getElementById('termination_type');
+
+                payGrades.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type.id;
+                    option.textContent = type.termination_type; // Using the grade name
+                    payGradeSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading pay grades:', error);
+            }
+        }
+
+        async function loadTerminationReasons() {
+            try {
+                const response = await fetch('/hrms/api/terminationreason/');
+                const salarySteps = await response.json();
+                const salaryStepSelect = document.getElementById('termination_reason');
+
+                salarySteps.forEach(reason => {
+                    const option = document.createElement('option');
+                    option.value = reason.id;
+                    option.textContent = reason.termination_reason; // Using the step name
+                    salaryStepSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading salary steps:', error);
+            }
+        }
+
+        loadPayGrades();
+        loadSalarySteps();
+        loadTerminationTypes();
+        loadTerminationReasons();
+
+        // Show modal for employee ID
+        document.getElementById("show-modal-btn3").onclick = function () {
+            document.getElementById("myModal3").style.display = "block";
+        }
+
+        // Close modal functionality
+        document.getElementById("close-modal-btn3").onclick = function () {
+            document.getElementById("myModal3").style.display = "none";
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function (event) {
+            const modal = document.getElementById("myModal3");
             if (event.target == modal) {
                 modal.style.display = "none";
             }
-        });
-    };
-});
+        }
     </script>
 </body>
 

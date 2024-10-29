@@ -459,101 +459,13 @@ def export_data_to_pdf(data):
 def forecasting(request):
     return render(request, 'forecasting/forecasting.html')
 
-# anuj
-def emp_main(request):
-    return render(request, 'hrms/emp_per/emp_main.html')
 
-def Employment(request):
-    return render(request, 'hrms/emp_per/Employement.html')
-
-def Employe_position(request):
-    return render(request, 'hrms/emp_per/Employe_position.html')
-
-def NewEmploye(request):
-    return render(request, 'hrms/emp_per/NewEmploye.html')
-
-def NewEmployement(request):
-    return render(request, 'hrms/emp_per/NewEmployement.html')
-
-def New_positions(request):
-    return render(request, 'hrms/emp_per/New_positions.html')
-
-@xframe_options_exempt
-def lookup(request):
-    return render(request, 'hrms/emp_per/lookup.html')
-
-@xframe_options_exempt
-def FindEmploye(request):
-    return render(request, 'hrms/emp_per/FindEmploye.html')
-
-@xframe_options_exempt
-def Search_Emp_position(request):
-    return render(request, 'hrms/emp_per/Search_Emp_position.html')
-
-@xframe_options_exempt
-def Paygrad(request):
-    return render(request, 'hrms/emp_per/Paygrad.html')
-
-@xframe_options_exempt
-def EditSalary(request):
-    return render(request, 'hrms/emp_per/EditSalary.html')
-
-
-    
-# sunny
-def Employee_app(request):
-    return render(request, 'hrms/emp_res_lea/Employee_app.html')
-
-def New_emp_app(request):
-    return render(request, 'hrms/emp_res_lea/New_emp_app.html')
-
-def resume(request):
-    return render(request, 'hrms/emp_res_lea/resume.html')
-
-def leave(request):
-    return render(request, 'hrms/emp_res_lea/leave.html')
-
-def Newresume(request):
-    return render(request, 'hrms/emp_res_lea/Newresume.html')
-
-def leaveappr(request):
-    return render(request, 'hrms/emp_res_lea/leaveappr.html')
-
-def addempleave(request):
-    return render(request, 'hrms/emp_res_lea/addempleave.html')
-
-
-@xframe_options_exempt
-def lookupempapp(request):
-    return render(request, 'hrms/emp_res_lea/lookupempapp.html')
-
-@xframe_options_exempt
-def lookupempposi(request):
-    return render(request, 'hrms/emp_res_lea/lookupempposi.html')
-
-@xframe_options_exempt
-def lookupparty(request):
-    return render(request, 'hrms/emp_res_lea/lookupparty.html')
-
-@xframe_options_exempt
-def lookpartyresume(request):
-    return render(request, 'hrms/emp_res_lea/lookpartyresume.html')
-
-
-# gannu
-def Skills(request):
-    return render(request, 'hrms/skill_qual/Skills.html')
-
-def Qualification(request):
-    return render(request, 'hrms/skill_qual/Qualification.html')
-
-def newparties(request):
-    return render(request, 'hrms/skill_qual/newparties.html')
-
-def newpartiesQualifivation(request):
-    return render(request, 'hrms/skill_qual/newpartiesQualifivation.html')
-
-@xframe_options_exempt
-def skill_lookupparty(request):
-    return render(request, 'hrms/skill_qual/skill_lookupparty.html')
+def get_departments(request):
+    """Return a list of departments with their names and associated companies."""
+    departments = Department.objects.select_related('company').all()
+    result = [
+        {"id": dept.id, "name": dept.name, "company_name": dept.company.name}
+        for dept in departments
+    ]
+    return JsonResponse(result, safe=False)
 

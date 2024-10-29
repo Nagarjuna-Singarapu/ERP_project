@@ -23,6 +23,7 @@
 
         <div class="search-section">
             <form id="search-form">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="internal-org">Internal Organization</label>
                     <input type="text" id="internal-org" placeholder="Your Company Name Here">
@@ -42,7 +43,7 @@
                 <div id="myModal" class="modal">
                     <div class="modal-content">
                         <span class="close" id="close-modal-btn">&times;</span>
-                        <iframe src="{% url 'FindEmploye' %} " style="width:100%; height: 610px;" frameborder="0"></iframe>
+                        <iframe src="{% url 'lookup' %} " style="width:100%; height: 610px;" frameborder="0"></iframe>
                     </div>
                 </div>
 
@@ -123,56 +124,14 @@
     </div>
 
     <script>
-    document.getElementById('search-form').addEventListener('submit', function (e) {  e.preventDefault();
 
-    // Collect form data
-    const internalOrg = document.getElementById('internal-org').value;
-    const empId = document.getElementById('emp-id').value;
-    const firstName = document.getElementById('first-name').value;
-    const lastName = document.getElementById('last-name').value;
-    const fromDate = document.getElementById('from-date').value;
-    const throughDate = document.getElementById('through-date').value;
-    const termReasonId = document.getElementById('termination-reason').value;
-    const termTypeId = document.getElementById('termination-type').value;
-
-    // Mock data for results
-    const results = [
-        {
-            internalOrg: 'Your Company',
-            empId: '101',
-            firstName: 'John',
-            lastName: 'Doe',
-            fromDate: '2020-01-01',
-            throughDate: '2023-01-01',
-            termReasonId: 'None',
-            termTypeId: 'Full-time'
+        function selectEmployeeId(employeeId) {
+            console.log('Selected Employee ID:', employeeId);
+            document.getElementById("emp-id").value = employeeId; // Set the value in the input field
+            document.getElementById("myModal").style.display = "none"; // Optionally close the modal
         }
-    ];
 
-    
-
-    // Clear previous results
-    const tbody = document.querySelector('#results-table tbody');
-    tbody.innerHTML = '';
-
-    // Inject results into the table
-    results.forEach(result => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${result.internalOrg}</td>
-            <td>${result.empId}</td>
-            <td>${result.firstName}</td>
-            <td>${result.lastName}</td>
-            <td>${result.fromDate}</td>
-            <td>${result.throughDate}</td>
-            <td>${result.termReasonId}</td>
-            <td>${result.termTypeId}</td>
-        `;
-        tbody.appendChild(row);
-    });
-});
-
-var modal = document.getElementById("myModal");
+        var modal = document.getElementById("myModal");
 
         // Get the icon that opens the modal
         var icon = document.getElementById("show-modal-btn");

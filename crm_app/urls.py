@@ -1,5 +1,5 @@
 # CRM_APP/urls.py
-from django.urls import path
+from django.urls import include, path
 from . import views
 from django.conf import settings
 from django.views.generic import RedirectView
@@ -26,45 +26,8 @@ urlpatterns = [
     path('review/', views.review, name='review'),
     path('viewreport/', views.viewreport, name='viewreport'),
     path('forecasting/', views.forecasting, name='forecasting'), 
+
     
-    # anuj hrms
-    path('emp_main/', views.emp_main, name='emp_main'),
-    path('Employment/', views.Employment, name='Employment'),
-    path('Employe_position/', views.Employe_position, name='Employe_position'), 
-    path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
-    path('lookup/', views.lookup, name='lookup'),
-    path('NewEmployement/', views.NewEmployement, name='NewEmployement'),
-    path('FindEmploye/', views.FindEmploye, name='FindEmploye'),
-    path('New_positions/', views.New_positions, name='New_positions'),
-    path('Search_Emp_position/', views.Search_Emp_position, name='Search_Emp_position'),
-    path('Paygrad/', views.Paygrad, name='Paygrad'),
-    path('EditSalary/', views.EditSalary, name='EditSalary'), 
-     
-    # sunny hrms
-    path('Employee_app/', views.Employee_app, name='Employee_app'),
-    path('New_emp_app/', views.New_emp_app, name='New_emp_app'),
-    path('resume/', views.resume, name='resume'),
-    path('leave/', views.leave, name='leave'),
-    path('lookupempapp/', views.lookupempapp, name='lookupempapp'),
-    path('lookupempposi/', views.lookupempposi, name='lookupempposi'),
-    path('lookupparty/', views.lookupparty, name='lookupparty'),
-    path('Newresume/', views.Newresume, name='Newresume'),
-    path('lookpartyresume/', views.lookpartyresume, name='lookpartyresume'),
-    path('addempleave/', views.addempleave, name='addempleave'),
-    path('leaveappr/', views.leaveappr, name='leaveappr'),
-    
-    # gannu hrms
-    path('Skills/', views.Skills, name='Skills'),
-    path('Qualification/', views.Qualification, name='Qualification'),
-    path('newparties/', views.newparties, name='newparties'),
-    path('skill_lookupparty/', views.skill_lookupparty, name='skill_lookupparty'),
-    path('newpartiesQualifivation/', views.newpartiesQualifivation, name='newpartiesQualifivation'),
-    
-    
-    
-    
-    
- 
     path("password_reset/", authentication_views.PasswordResetView.as_view(), name="password_reset"),
     path("password_reset_done/", authentication_views.PasswordResetDoneView.as_view(), name="password_reset_done"),
     path("reset/<uidb64>/<token>", authentication_views.PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
@@ -92,6 +55,10 @@ urlpatterns = [
     path('budget/<int:budget_id>/', views.budget_request_detail, name='budget_request_detail'),
     
     path('budgetReport/', views.report_view, name='budgetReport'),
+
+
+    path('hrms/', include('crm_app.HRMS.urls')),
+    path('api/departments/', views.get_departments, name='get_departments'),
     
 ]
 

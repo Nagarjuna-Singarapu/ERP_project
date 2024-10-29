@@ -93,3 +93,16 @@ class BudgetRequestAdmin(admin.ModelAdmin):
     ordering = ('-start_date',)
 
 admin.site.register(BudgetRequest, BudgetRequestAdmin)
+
+
+
+from crm_app.HRMS.models import HR_Employee, Employment, PayGrade, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType
+
+admin.site.register(HR_Employee)
+admin.site.register(Employment)
+admin.site.register(PayGrade)
+admin.site.register(SalaryStepGrade)
+admin.site.register(TerminationType)
+admin.site.register(TerminationReason)
+admin.site.register(HR_Department)
+admin.site.register(HR_Company)

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     {% block css %}
-    <link rel="stylesheet" href="{% static 'hrms_css/emp_res_lea/Employee_app.css' %}">
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_res_lea/employement_appli.css' %}">
     {% endblock %}
 
 
@@ -173,7 +173,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                <iframe src="{% url 'lookupempapp' %}" width="100%" height="400px" frameborder="0"></iframe>
+                <iframe src="{% url 'lookup_emp_app' %}" width="100%" height="800px" frameborder="0"></iframe>
                 </div>
             </div>
         </div>
@@ -188,7 +188,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <iframe src="{% url 'lookupempposi' %}" width="100%" height="400px" frameborder="0"></iframe>
+                    <iframe src="{% url 'lookup_emp_posi' %}" width="100%" height="800px" frameborder="0"></iframe>
                 </div>
             </div>
         </div>
@@ -203,7 +203,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">  
-                    <iframe src="{% url 'lookupparty' %}" width="100%" height="400px" frameborder="0"></iframe>
+                    <iframe src="{% url 'lookup_party' %}" width="100%" height="800px" frameborder="0"></iframe>
                 </div>
             </div>
         </div>

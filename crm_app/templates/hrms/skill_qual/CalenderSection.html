@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Navigation</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container my-4">
+
+     <!-- Navigation Buttons -->
+     <div class="my-4 text-start">
+        <button id="btnCalendar" class="btn btn-success me-3" onclick="window.location.href=`{% url 'TrainingCalender' %}`">Training Calendar</button>
+      <button id="btnApproval" class="btn btn-info" onclick="window.location.href=`{% url 'TrainingApproval' %}`">Training Approval</button>
+      </div>
+
+    <div class="row text-center">
+        <div class="col-md-2">
+            <button id="previousWeek" class="btn btn-primary w-100">Previous Week</button>
+        </div>
+        <div class="col-md-2">
+            <button id="thisWeek" class="btn btn-primary w-100">This Week</button>
+        </div>
+        <div class="col-md-2">
+            <button id="nextWeek" class="btn btn-primary w-100">Next Week</button>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100" onclick="window.location.href=`{% url 'dayView' %}`">Day View</button>
+        </div>
+        <div class="col-md-2">
+            <button id="monthView" class="btn btn-primary w-100" onclick="window.location.href=`{% url 'monthView' %}`">Month View</button>
+        </div>
+        <div class="col-md-2">
+            <button id="upcomingEvents" class="btn btn-primary w-100" onclick="window.location.href=`{% url 'upcomingEvent' %}`">Upcoming Events</button>
+        </div>
+    </div>
+    <div class="mt-4 text-center">
+        <h4 id="displayDate">Select an option to see the date</h4>
+    </div>
+</div>
+
+<!-- Training Approval Section (Initially Hidden) -->
+<div id="approvalSection" style="display: none;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Training Approval</h3>
+        </div>
+        <div class="card-body">
+            <p>This section can contain forms or content specific to training approvals.</p>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Bootstrap and jQuery CDN -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    document.getElementById('previousWeek').onclick = function() {
+        displayDate('Previous Week', -7);
+    };
+    document.getElementById('thisWeek').onclick = function() {
+        displayDate('This Week', 0);
+    };
+    document.getElementById('nextWeek').onclick = function() {
+        displayDate('Next Week', 7);
+    };
+    document.getElementById('dayView').onclick = function() {
+        displayDate('Day View', 0, 'day');
+    };
+    document.getElementById('monthView').onclick = function() {
+        displayDate('Month View', 0, 'month');
+    };
+    document.getElementById('upcomingEvents').onclick = function() {
+        displayDate('Upcoming Events', 7);
+    };
+
+    function displayDate(view, offsetDays = 0, viewType = 'week') {
+        const today = new Date();
+        let displayDate = new Date();
+        
+        // Adjust date based on offset
+        if (viewType === 'week') {
+            displayDate.setDate(today.getDate() + offsetDays);
+        } else if (viewType === 'month') {
+            displayDate.setMonth(today.getMonth());
+        } else if (viewType === 'day') {
+            displayDate = today;
+        }
+
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = displayDate.toLocaleDateString(undefined, options);
+        
+        document.getElementById('displayDate').innerText = `${view}: ${formattedDate}`;
+    }
+
+
+// Function to show/hide sections based on button clicks
+function showSection(section) {
+  const calendarSection = document.getElementById('calendarSection');
+  const approvalSection = document.getElementById('approvalSection');
+
+  if (section === 'calendar') {
+      calendarSection.style.display = 'block';
+      approvalSection.style.display = 'none';
+  } else if (section === 'approval') {
+      calendarSection.style.display = 'none';
+      approvalSection.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

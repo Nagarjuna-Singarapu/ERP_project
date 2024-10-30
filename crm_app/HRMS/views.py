@@ -349,9 +349,42 @@ def newpartiesQualifivation(request):
 
 
 
+def TrainingCalender(request):
+    return render(request, 'hrms/skill_qual/TrainingCalender.html')
+
+def dayView(request):
+    return render(request, 'hrms/skill_qual/dayView.html')
+
+def monthView(request):
+    return render(request, 'hrms/skill_qual/monthView.html')
+
+def upcomingEvent(request):
+    return render(request, 'hrms/skill_qual/upcomingEvent.html')
+
+def TrainingApproval(request):
+    return render(request, 'hrms/skill_qual/TrainingApproval.html')
+
+def weekView(request):
+    return render(request, 'hrms/skill_qual/weekView.html')
+
+def CalenderSection(request):
+    return render(request, 'hrms/skill_qual/CalenderSection.html')
+
+def addnewEventMonth(request):
+    return render(request, 'hrms/skill_qual/addnewEventMonth.html')
+
+def addnewEvent(request):
+    return render(request, 'hrms/skill_qual/addnewEvent.html')
+
+
+
 @xframe_options_exempt
 def skill_lookupparty(request):
     return render(request, 'hrms/skill_qual/skill_lookupparty.html')
+
+@xframe_options_exempt
+def nagaslookup(request):
+    return render(request, 'hrms/skill_qual/nagaslookup.html')
 
 
 

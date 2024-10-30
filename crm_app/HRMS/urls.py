@@ -73,4 +73,18 @@ urlpatterns = [
     path('newparties/', views.newparties, name='newparties'),
     path('skill_lookupparty/', views.skill_lookupparty, name='skill_lookupparty'),
     path('newpartiesQualifivation/', views.newpartiesQualifivation, name='newpartiesQualifivation'),
+    
+    
+    
+    path('TrainingCalender/', views.TrainingCalender, name='TrainingCalender'),
+    path('dayView/', views.dayView, name='dayView'),
+    path('monthView/', views.monthView, name='monthView'),
+    path('upcomingEvent/', views.upcomingEvent, name='upcomingEvent'),
+    path('TrainingApproval/', views.TrainingApproval, name='TrainingApproval'),
+    path('weekView/', views.weekView, name='weekView'),
+    path('CalenderSection/', views.CalenderSection, name='CalenderSection'),
+    path('addnewEventMonth/', views.addnewEventMonth, name='addnewEventMonth'),
+    path('addnewEvent/', views.addnewEvent, name='addnewEvent'),
+    path('nagaslookup/', views.nagaslookup, name='nagaslookup'),
+    
 ]

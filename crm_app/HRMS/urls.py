@@ -79,7 +79,14 @@ urlpatterns = [
     path('newparties/', views.newparties, name='newparties'),
     path('skill_lookupparty/', views.skill_lookupparty, name='skill_lookupparty'),
     path('newpartiesQualifivation/', views.newpartiesQualifivation, name='newpartiesQualifivation'),
-    
+    path('Recruitment/', views.Recruitment, name='Recruitment'),
+    path('JobRequision/', views.JobRequision, name='JobRequision'),
+    path('NewJobRequision/', views.NewJobRequision, name='NewJobRequision'),
+    path('Approvals/', views.Approvals, name='Approvals'),
+    path('jobInterview/', views.jobInterview, name='jobInterview'),
+    path('newInternalJobPosting/', views.newInternalJobPosting, name='newInternalJobPosting'),
+    path('NewjobInterview/', views.NewjobInterview, name='NewjobInterview'),
+    path('Relocation/', views.Relocation, name='Relocation'),
     
     
     path('TrainingCalender/', views.TrainingCalender, name='TrainingCalender'),

@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Requisition Search</title>
+    <!-- Include Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        
+        .content-section {
+            display: none;
+        }
+
+        .active-section {
+            display: block;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div class="container my-4">
+
+        <!-- Button Bar -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="btn-group" role="group">
+                    <a href="{% url 'JobRequision' %}" class="btn btn-primary">Job Requisition</a>
+                    <a href="{% url 'Recruitment' %}" class="btn btn-primary">Internal Job Posting</a>
+                </div>
+            </div>
+        </div>
+       <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Find Job Requisition</h2>
+            <a class="btn btn-primary" href="{% url 'NewJobRequision' %}">New Job Requisition</a>
+        </div>
+
+        <!-- Search Options Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Search Options</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="#" id="FindJobRequisitions">
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label for="jobRequisitionId" class="form-label">Job Requisition ID</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="jobRequisitionId" name="jobRequisitionId" placeholder="Enter ID">
+                                <button class="btn btn-outline-secondary" type="button">?</button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="experienceMonths" class="form-label">Experience in Months</label>
+                            <div class="input-group">
+                                <select class="form-select">
+                                    <option>Greater than equal</option>
+                                    <option>Less than equal</option>
+                                </select>
+                                <input type="number" class="form-control" id="experienceMonths" name="experienceMonths">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="experienceYears" class="form-label">Experience in Years</label>
+                            <div class="input-group">
+                                <select class="form-select">
+                                    <option>Greater than equal</option>
+                                    <option>Less than equal</option>
+                                </select>
+                                <input type="number" class="form-control" id="experienceYears" name="experienceYears">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="jobLocation" class="form-label">Job Location</label>
+                            <div class="input-group">
+                                <select class="form-select">
+                                    <option>Contains</option>
+                                </select>
+                                <input type="text" class="form-control" id="jobLocation" name="jobLocation">
+                            </div>
+                            <div class="form-check mt-1">
+                                <input class="form-check-input" type="checkbox" id="ignoreCase">
+                                <label class="form-check-label" for="ignoreCase">Ignore Case</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="skillTypeId" class="form-label">Skill Type ID</label>
+                            <select id="skillTypeId" name="skillTypeId" class="form-select">
+                                <option>Select Skill Type</option>
+                                <option value="9002">HTML/FTL</option>
+                                <option value="9000">Java/Groovy/BSH</option>
+                                <option value="9003">JavaScript/Dojo</option>
+                                <option value="9001">Mini Language</option>
+                                <option value="_NA_">Not Applicable</option>
+                                <option value="9005">OFBiz Installation</option>
+                                <option value="9004">Screens/Forms</option>
+                                <option value="48445">Django</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="jobPostingType" class="form-label">Job Posting Type</label>
+                            <select id="jobPostingType" name="jobPostingType" class="form-select">
+                                <option>Select Posting Type</option>
+                                <option value="JOB_POSTING_EXTR">External Job Posting</option>
+                                <option value="JOB_POSTING_INTR">Internal Job Posting</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="examTypeEnumId" class="form-label">Exam Type Enum ID</label>
+                            <select id="examTypeEnumId" name="examTypeEnumId" class="form-select">
+                                <option>Select Exam Type</option>
+                                <!-- Add exam type options here if available -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-secondary">To find</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Results Section -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Search Results</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Job Requisition ID</th>
+                                <th>Skill Type ID</th>
+                                <th>Job Posting Type</th>
+                                <th>Exam Type Enum ID</th>
+                                <th>Qualification</th>
+                                <th>Job Location</th>
+                                <th>Experience in Years</th>
+                                <th>Experience in Months</th>
+                                <th>Apply</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Example row -->
+                            <tr>
+                                <td>12345</td>
+                                <td>HTML/FTL</td>
+                                <td>External</td>
+                                <td>Technical Exam</td>
+                                <td>Bachelor's Degree</td>
+                                <td>New York</td>
+                                <td>3</td>
+                                <td>36</td>
+                                <td><a href="#" class="btn btn-primary btn-sm">Apply</a></td>
+                                <td><button class="btn btn-danger btn-sm">Delete</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

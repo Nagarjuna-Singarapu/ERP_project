@@ -347,6 +347,30 @@ def newparties(request):
 def newpartiesQualifivation(request):
     return render(request, 'hrms/skill_qual/newpartiesQualifivation.html')
 
+def Recruitment(request):
+    return render(request, 'hrms/skill_qual/Recruitment.html')
+
+def JobRequision(request):
+    return render(request, 'hrms/skill_qual/JobRequision.html')
+
+def NewJobRequision(request):
+    return render(request, 'hrms/skill_qual/NewJobRequision.html')
+
+def Approvals(request):
+    return render(request, 'hrms/skill_qual/Approvals.html')
+
+def jobInterview(request):
+    return render(request, 'hrms/skill_qual/jobInterview.html') 
+
+def newInternalJobPosting(request):
+    return render(request, 'hrms/skill_qual/newInternalJobPosting.html')
+
+def NewjobInterview(request):
+    return render(request, 'hrms/skill_qual/NewjobInterview.html')
+
+def Relocation(request):
+    return render(request, 'hrms/skill_qual/Relocation.html')
+
 
 
 def TrainingCalender(request):

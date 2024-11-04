@@ -1,0 +1,205 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Job Portal</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        
+        .content-section {
+            display: none;
+        }
+
+        .active-section {
+            display: block;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    
+    
+    
+    
+    <div class="container my-4" id="column-container">
+        <!-- Button Bar -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="btn-group" role="group">
+                    <a href="{% url 'JobRequision' %}" class="btn btn-primary">Job Requisition</a>
+                    <a href="{% url 'Recruitment' %}" class="btn btn-primary">Internal Job Posting</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Begin section widget -->
+        <div id="content-main-section">
+            <!-- Begin Menu Widget -->
+            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'newInternalJobPosting' %}" data-target="job-posting" role="tab">Internal Job Posting</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'jobInterview' %}" data-target="job-interview" role="tab">Job Interview</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'Approvals' %}" data-target="approvals" role="tab">Approvals</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'Relocation' %}" data-target="relocation" role="tab">Relocation</a>
+                </li>
+            </ul>
+            <!-- End Menu Widget -->
+
+            <!-- Internal Job Posting Section -->
+            <div id="job-posting" class="content-section active-section">
+                <h1 class="h3 mb-4 text-center">Find Internal Job Posting</h1>
+
+                <!-- Internal Job Posting Form (Added here) -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a href="{% url 'newInternalJobPosting' %}" class="btn btn-success" role="button">New Internal Job Posting</a>
+                </div>
+                
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Search Options</h3>
+                        <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#searchOptions" aria-expanded="true" aria-controls="searchOptions">
+                            Collapse
+                        </button>
+                    </div>
+
+                    <div id="searchOptions" class="collapse show card-body">
+                        <form method="post" action="FindInternalJobPosting" class="basic-form">
+                            <div class="mb-3">
+                                <label for="FindInternalJobPosting_applicationId" class="form-label">Application ID</label>
+                                <input type="text" class="form-control" name="applicationId" id="FindInternalJobPosting_applicationId">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="FindInternalJobPosting_statusId" class="form-label">Internal Job Posting</label>
+                                <select class="form-select" name="statusId" id="FindInternalJobPosting_statusId">
+                                    <option value="">&nbsp;</option>
+                                    <option value="IJP_APPROVED">Approved</option>
+                                    <option value="IJP_REJECTED">Rejected</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="FindInternalJobPosting_applicationDate" class="form-label">Application Date</label>
+                                <input type="text" class="form-control date-time-picker" name="applicationDate_fld0_value" id="FindInternalJobPosting_applicationDate_fld0_value">
+                                <select class="form-select mt-2" name="applicationDate_fld0_op">
+                                    <option value="equals">Equals</option>
+                                    <option value="sameDay">Same Day</option>
+                                    <option value="greaterThanFromDayStart">Greater Than From Day Start</option>
+                                    <option value="greaterThan" selected="selected">Greater Than</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="FindInternalJobPosting_approverPartyId" class="form-label">Approver Party</label>
+                                <input type="text" class="form-control" name="approverPartyId" id="FindInternalJobPosting_approverPartyId">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="FindInternalJobPosting_jobRequisitionId" class="form-label">Job Requisition ID</label>
+                                <input type="text" class="form-control" name="jobRequisitionId" id="FindInternalJobPosting_jobRequisitionId">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h3>Search Results</h3>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Application ID</th>
+                                <th scope="col">IJP Status</th>
+                                <th scope="col">Applying Party ID</th>
+                                <th scope="col">Application Date</th>
+                                <th scope="col">Approver Party</th>
+                                <th scope="col">Job Requisition ID</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be dynamically rendered here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- End of Internal Job Posting Section -->
+
+            <!-- Job Interview Section (Loaded from jobInterview.html) -->
+            <div id="job-interview" class="content-section">
+                <h1 class="h3 mb-4">Job Interview</h1>
+                <!-- Content loaded dynamically here -->
+            </div>
+
+            <!-- Relocation Section (Loaded from Relocation.html) -->
+            <div id="relocation" class="content-section">
+                <h1 class="h3 mb-4">Relocation</h1>
+                <!-- Content loaded dynamically here -->
+            </div> 
+
+            <!-- Approvals Section (Loaded from Approvals.html) -->
+            <div id="approvals" class="content-section">
+                <h1 class="h3 mb-4">Approvals</h1>
+                <!-- Content loaded dynamically here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Function to load content from an external HTML file
+        function loadContent(url, target) {
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById(target).innerHTML = data;
+                })
+                .catch(error => console.error('Error loading content:', error));
+        }
+
+        // Event listener for tab clicks
+        document.querySelectorAll('.nav-link').forEach(tab => {
+            tab.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Remove active class from all sections and tabs
+                document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active-section'));
+                document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
+
+                // Add active class to the clicked tab and related section
+                this.classList.add('active');
+                const target = this.getAttribute('data-target');
+                document.getElementById(target).classList.add('active-section');
+
+                // Load content dynamically for Job Interview, Relocation, and Approvals sections
+                if (target === 'job-interview') {
+                    loadContent('{% url 'jobInterview' %}', 'job-interview');
+                } else if (target === 'relocation') {
+                    loadContent('{% url 'Relocation' %}', 'relocation');
+                } else if (target === 'approvals') {
+                    loadContent('{% url 'Approvals' %}', 'approvals');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

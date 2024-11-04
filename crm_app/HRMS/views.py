@@ -226,6 +226,12 @@ def NewEmployement(request):
 def New_positions(request):
     return render(request, 'hrms/emp_per/New_positions.html')
 
+def performance(request):
+    return render(request, 'hrms/emp_per/performance.html')
+
+def EditPerformace(request):
+    return render(request, 'hrms/emp_per/EditPerformace.html')
+
 
 
 @xframe_options_exempt
@@ -242,11 +248,15 @@ def Search_Emp_position(request):
 
 @xframe_options_exempt
 def Paygrad(request):
-    return render(request, 'hrms/emp_per/Paygrad.html')
+    return render(request, 'hrms/emp_per/Paygrad.html') 
 
 @xframe_options_exempt
 def EditSalary(request):
     return render(request, 'hrms/emp_per/EditSalary.html')
+
+@xframe_options_exempt
+def LookUpPerformace(request):
+    return render(request, 'hrms/emp_per/LookUpPerformace.html')
 
 
     

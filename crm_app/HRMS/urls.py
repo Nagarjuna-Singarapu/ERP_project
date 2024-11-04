@@ -33,7 +33,10 @@ urlpatterns = [
     path('New_positions/', views.New_positions, name='New_positions'),
     path('Search_Emp_position/', views.Search_Emp_position, name='Search_Emp_position'),
     path('Paygrad/', views.Paygrad, name='Paygrad'),
-    path('EditSalary/', views.EditSalary, name='EditSalary'), 
+    path('EditSalary/', views.EditSalary, name='EditSalary'),
+    path('performance/', views.performance, name='performance'),
+    path('EditPerformace/', views.EditPerformace, name='EditPerformace'),
+    path('LookUpPerformace/', views.LookUpPerformace, name='LookUpPerformace'),
      
     # sunny hrms
     path('employement_appli/', views.employement_appli, name='employement_appli'),

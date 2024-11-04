@@ -215,7 +215,6 @@ def create_employment(request):
             }
         )
 
-        messages.success(request, 'Employment record created/updated successfully.')
 
         return redirect('Employment')
 
@@ -330,6 +329,14 @@ def NewEmployement(request):
 def New_positions(request):
     return render(request, 'hrms/emp_per/New_positions.html')
 
+def performance(request):
+    return render(request, 'hrms/emp_per/performance.html')
+
+def EditPerformace(request):
+    return render(request, 'hrms/emp_per/EditPerformace.html')
+
+
+
 @xframe_options_exempt
 def lookup(request):
     return render(request, 'hrms/emp_per/lookup.html')
@@ -344,17 +351,21 @@ def Search_Emp_position(request):
 
 @xframe_options_exempt
 def Paygrad(request):
-    return render(request, 'hrms/emp_per/Paygrad.html')
+    return render(request, 'hrms/emp_per/Paygrad.html') 
 
 @xframe_options_exempt
 def EditSalary(request):
     return render(request, 'hrms/emp_per/EditSalary.html')
 
+@xframe_options_exempt
+def LookUpPerformace(request):
+    return render(request, 'hrms/emp_per/LookUpPerformace.html')
+
 
     
 # sunny
-def Employee_app(request):
-    return render(request, 'hrms/emp_res_lea/Employee_app.html')
+def employement_appli(request):
+    return render(request, 'hrms/emp_res_lea/employement_appli.html')
 
 def New_emp_app(request):
     return render(request, 'hrms/emp_res_lea/New_emp_app.html')
@@ -365,31 +376,75 @@ def resume(request):
 def leave(request):
     return render(request, 'hrms/emp_res_lea/leave.html')
 
-def Newresume(request):
-    return render(request, 'hrms/emp_res_lea/Newresume.html')
+def New_resume(request):
+    return render(request, 'hrms/emp_res_lea/New_resume.html')
 
-def leaveappr(request):
-    return render(request, 'hrms/emp_res_lea/leaveappr.html')
+def leave_approval(request):
+    return render(request, 'hrms/emp_res_lea/leave_approval.html')
 
-def addempleave(request):
-    return render(request, 'hrms/emp_res_lea/addempleave.html')
+def add_emp_leave(request):
+    return render(request, 'hrms/emp_res_lea/add_emp_leave.html')
 
-
-@xframe_options_exempt
-def lookupempapp(request):
-    return render(request, 'hrms/emp_res_lea/lookupempapp.html')
 
 @xframe_options_exempt
-def lookupempposi(request):
-    return render(request, 'hrms/emp_res_lea/lookupempposi.html')
+def lookup_emp_app(request):
+    return render(request, 'hrms/emp_res_lea/lookup_emp_app.html')
 
 @xframe_options_exempt
-def lookupparty(request):
-    return render(request, 'hrms/emp_res_lea/lookupparty.html')
+def lookup_emp_posi(request):
+    return render(request, 'hrms/emp_res_lea/lookup_emp_posi.html')
 
 @xframe_options_exempt
-def lookpartyresume(request):
-    return render(request, 'hrms/emp_res_lea/lookpartyresume.html')
+def lookup_party(request):
+    return render(request, 'hrms/emp_res_lea/lookup_party.html')
+
+@xframe_options_exempt
+def lookup_party_resume(request):
+    return render(request, 'hrms/emp_res_lea/lookup_party_resume.html')
+
+
+# global HR by sunny and amit 
+def skill_types(request):
+    return render(request, 'hrms/global_hr/skill_types.html')
+
+def responsibility_types(request):
+    return render(request, 'hrms/global_hr/responsibility_types.html')
+
+def termination_reasons(request):
+    return render(request, 'hrms/global_hr/termination_reasons.html')
+
+def termination_types(request):
+    return render(request, 'hrms/global_hr/termination_types.html')
+
+def position_types(request):
+    return render(request, 'hrms/global_hr/position_types.html')
+
+def emp_leave_types(request):
+    return render(request, 'hrms/global_hr/emp_leave_types.html')
+
+def pay_grades(request):
+    return render(request, 'hrms/global_hr/pay_grades.html')
+
+def job_interview_types(request):
+    return render(request, 'hrms/global_hr/job_interview_types.html')
+
+def tranning_class_types(request):
+    return render(request, 'hrms/global_hr/tranning_class_types.html')
+
+def public_holiday(request):
+    return render(request, 'hrms/global_hr/public_holiday.html')
+
+def EditPayGrade(request):
+    return render(request, 'hrms/global_hr/EditPayGrade.html')
+
+def EmpLeaveReasonType(request):
+    return render(request, 'hrms/global_hr/EmpLeaveReasonType.html')
+
+def emp_leave_types(request):
+    return render(request, 'hrms/global_hr/emp_leave_types.html')
+
+def Edit_PositionTypes(request):
+    return render(request, 'hrms/global_hr/Edit_PositionTypes.html')
 
 
 # gannu
@@ -405,9 +460,44 @@ def newparties(request):
 def newpartiesQualifivation(request):
     return render(request, 'hrms/skill_qual/newpartiesQualifivation.html')
 
+
+
+def TrainingCalender(request):
+    return render(request, 'hrms/skill_qual/TrainingCalender.html')
+
+def dayView(request):
+    return render(request, 'hrms/skill_qual/dayView.html')
+
+def monthView(request):
+    return render(request, 'hrms/skill_qual/monthView.html')
+
+def upcomingEvent(request):
+    return render(request, 'hrms/skill_qual/upcomingEvent.html')
+
+def TrainingApproval(request):
+    return render(request, 'hrms/skill_qual/TrainingApproval.html')
+
+def weekView(request):
+    return render(request, 'hrms/skill_qual/weekView.html')
+
+def CalenderSection(request):
+    return render(request, 'hrms/skill_qual/CalenderSection.html')
+
+def addnewEventMonth(request):
+    return render(request, 'hrms/skill_qual/addnewEventMonth.html')
+
+def addnewEvent(request):
+    return render(request, 'hrms/skill_qual/addnewEvent.html')
+
+
+
 @xframe_options_exempt
 def skill_lookupparty(request):
     return render(request, 'hrms/skill_qual/skill_lookupparty.html')
+
+@xframe_options_exempt
+def nagaslookup(request):
+    return render(request, 'hrms/skill_qual/nagaslookup.html')
 
 
 

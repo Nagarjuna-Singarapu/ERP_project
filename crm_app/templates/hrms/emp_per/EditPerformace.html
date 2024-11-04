@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Performance Review</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> <!-- Font Awesome -->
+    <style>
+        .fade-in { animation: fadeIn 1s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .iframe-container { height: 400px; width: 100%; border: 1px solid #ddd; margin-top: 20px; display: none; }
+        .results-table { display: none; } /* Hide table initially */
+    </style>
+</head>
+<body class="fade-in">
+
+<div class="container mt-4">
+    <h2>Edit Performance Review</h2>
+    <button class="btn btn-primary mb-3" onclick="window.location.href='{% url 'performance' %}'">Find PerfReview</button>
+    
+    <div class="card mb-4">
+        <div class="card-header">Search Options</div>
+        <div class="card-body">
+            <form class="form-row" id="searchForm" onsubmit="submitForm(event)">
+                <div class="col-md-6 mb-3">
+                    <label for="employeePartyIdIcon">Employee Party ID</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="employeePartyId" placeholder="Enter Employee ID">
+                        <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
+                            <i class="fas fa-user"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="perfReviewId">Perf Review ID</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="perfReviewId" placeholder="Enter Review ID">
+                        
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="managerPartyId">Manager Party ID</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="managerPartyId" placeholder="Enter Manager ID">
+                        <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
+                            <i class="fas fa-user"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="managerRoleTypeId">Manager Role Type ID</label>
+                    <select class="form-control" id="managerRoleTypeId">
+                        <option selected disabled>Main Role</option>
+                        <option>Account Lead</option>
+                        <option>Administrator</option>
+                        <option>Agent</option>
+                        <option>Automated Agent</option>
+                        <option>Calendar</option>
+                        <option>Client</option>
+                        <option>Communication Participant</option>
+                        <option>Consumer</option>
+                        <option>Contractor</option>
+                        <option>Customer</option>
+                        <option>Distribution Channel</option>
+                        <option>ISP</option>
+                        <option>Hosting Server</option>
+                        <option>Manufacturer</option>
+                        <option>Not Applicable</option>
+                        <option>Organization</option>
+                        <option>Owner</option>
+                        <option>Prospect</option>
+                    </select>
+                </div>
+                
+
+                <div class="col-md-6 mb-3">
+                    <label for="emplPositionId">Empl Position ID</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="emplPositionId" placeholder="Enter Position ID">
+                        <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
+                            <i class="fas fa-user"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label for="fromDate">From Date</label>
+                    <input type="date" class="form-control" id="fromDate">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="throughDate">Through Date</label>
+                    <input type="date" class="form-control" id="throughDate">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="comments">Comments</label>
+                    <input type="text" class="form-control" id="comments" placeholder="Enter Comments">
+                </div>
+                <div class="col-md-12 text-right">
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+  
+    function submitForm(event) {
+        event.preventDefault();
+        
+        // Collect form values
+        const perfReviewId = document.getElementById('perfReviewId').value;
+        const employeePartyId = document.getElementById('employeePartyId').value;
+        const managerPartyId = document.getElementById('managerPartyId').value;
+        const paymentId = document.getElementById('paymentId').value;
+        const emplPositionId = document.getElementById('emplPositionId').value;
+        const fromDate = document.getElementById('fromDate').value;
+        const throughDate = document.getElementById('throughDate').value;
+        const comments = document.getElementById('comments').value;
+
+        // Show the results table
+        document.getElementById('resultsTable').style.display = 'block';
+
+   
+
+        // Add the row to the table body
+        
+    }
+</script>
+
+</body>
+</html>

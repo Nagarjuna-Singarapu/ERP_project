@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,220 +13,242 @@
     {% block css %}
     <link rel="stylesheet" href="{% static 'hrms_css/emp_per/Employe_position.css' %}">
     {% endblock %}
+    <style>
+        .icons {
+            position: absolute;
+            right: 10px;
+            top: 30%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Black with opacity */
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin-left: 30%;
+            margin-top: 6%;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 40%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container my-5">
-    
-    <h2 class="text-center mb-6">Search Employee Positions</h2>
-    <a href="{% url 'New_positions' %}"" class="btn btn-primary mb-3 ms-2">
-        <i class="fas fa-plus"></i> New Employment Positions
-    </a>
-    <div class="card p-4 mb-4 shadow-lg">
-        
-        <h5 class="card-title">Search Options</h5>
-        <form id="searchForm">
-            <!-- Row 1 -->
- 
-            
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="employeePositionID">Employee Position ID</label>
-                    <select class="form-select" id="employeePositionID">
-                        <option>Include</option>
-                        <option>Exclude</option>
-                    </select>
-                </div>
- 
+    <div class="container my-5">
+
+        <h2 class="text-center mb-6">Search Employee Positions</h2>
+        <a href="{% url 'New_positions' %}"" class=" btn btn-primary mb-3 ms-2">
+            <i class="fas fa-plus"></i> New Employment Positions
+        </a>
+        <div class="card p-4 mb-4 shadow-lg">
+
+            <h5 class="card-title">Search Options</h5>
+            <form id="searchForm">
+                <!-- Row 1 -->
+                <div class="row mb-3">
+
+                    <div class="form-group col-md-4">
+                        <label for="employee_id">Employee Party ID</label>
+                        <div class="input-wrapper" style="position: relative;">
+                            <input type="text" id="employee_id" name="employee_id" class="form-control"
+                                style="padding-right: 30px;" />
+                            <div class="icons" id="show-modal-btn3">
+                                📄
+                            </div>
+                        </div>
+                    </div>
 
 
 
 
-                
+                    <div class="col-md-4">
+                        <label for="employeePositionID">Employee Position ID</label>
+                        <input type="text" class="form-control" id="employeePositionID">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="statusID">Status ID</label>
+                        <input type="text" class="form-control" id="statusID">
+                    </div>
+
+                </div>
 
 
 
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="budgetID">Budget ID</label>
+                        <input type="text" class="form-control" id="budgetID">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="budgetItemSequenceID">Budget Item Sequence ID</label>
+                        <input type="text" class="form-control" id="budgetItemSequenceID">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="employeePositionTypeID">Employee Position Type ID</label>
+                        <input type="text" class="form-control" id="employeePositionTypeID">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="salaryFlag">Salary Flag</label>
+                        <input type="text" class="form-control" id="salaryFlag">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="taxExemptFlag">Tax Exempt Flag</label>
+                        <input type="text" class="form-control" id="taxExemptFlag">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="fullTimeFlag">Full-time Flag</label>
+                        <input type="text" class="form-control" id="fullTimeFlag">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="temporaryFlag">Temporary Flag</label>
+                        <input type="text" class="form-control" id="temporaryFlag">
+                    </div>
+                </div>
 
+                <!-- Row 5 -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="actualStartDate">Actual Start Date</label>
+                        <input type="date" class="form-control" id="actualStartDate">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="actualFinishDate">Actual Finish Date</label>
+                        <input type="date" class="form-control" id="actualFinishDate">
+                    </div>
+                </div>
 
+                <button type="button" class="btn btn-primary w-100" onclick="searchEmployees()">Search</button>
+            </form>
+            <!-- Search Results Table -->
 
-
-
-                <div class="col-md-4">
-                    <label for="statusID">Status ID</label>
-                    <select class="form-select" id="statusID">
-                        <option>Include</option>
-                        <option>Exclude</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="customerID">Customer ID</label>
-                    <select class="form-select" id="customerID">
-                        <option>Include</option>
-                        <option>Exclude</option>
-                    </select>
-                </div>
-            </div>
-            <!-- Row 2 -->
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="budgetID">Budget ID</label>
-                    <select class="form-select" id="budgetID">
-                        <option>Include</option>
-                        <option>Exclude</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="budgetItemSequenceID">Budget Item Sequence ID</label>
-                    <select class="form-select" id="budgetItemSequenceID">
-                        <option>Include</option>
-                        <option>Exclude</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="employeePositionTypeID">Employee Position Type ID</label>
-                    <select class="form-select" id="employeePositionTypeID">
-                        <option>Include</option>
-                        <option>Exclude</option>
-                    </select>
-                </div>
-            </div>
-            <!-- Row 3 -->
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="plannedStartDate">Planned Start Date</label>
-                    <input type="date" class="form-control" id="plannedStartDate">
-                </div>
-                <div class="col-md-4">
-                    <label for="plannedEndDate">Planned End Date</label>
-                    <input type="date" class="form-control" id="plannedEndDate">
-                </div>
-                <div class="col-md-4">
-                    <label for="salaryFlag">Salary Flag</label>
-                    <select class="form-select" id="salaryFlag">
-                        <option>Include</option>
-                        <option>Exclude</option>
-                    </select>
-                </div>
-            </div>
-            <!-- Row 4 -->
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="taxExemptFlag">Tax Exempt Flag</label>
-                    <select class="form-select" id="taxExemptFlag">
-                        <option>Include</option>
-                        <option>Exclude</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="fullTimeFlag">Full-time Flag</label>
-                    <select class="form-select" id="fullTimeFlag">
-                        <option>Include</option>
-                        <option>Exclude</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="temporaryFlag">Temporary Flag</label>
-                    <select class="form-select" id="temporaryFlag">
-                        <option>Include</option>
-                        <option>Exclude</option>
-                    </select>
-                </div>
-            </div>
-            <!-- Row 5 -->
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="actualStartDate">Actual Start Date</label>
-                    <input type="date" class="form-control" id="actualStartDate">
-                </div>
-                <div class="col-md-4">
-                    <label for="actualFinishDate">Actual Finish Date</label>
-                    <input type="date" class="form-control" id="actualFinishDate">
-                </div>
+            <h5 class="card-title">Search Results</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employee Position ID</th>
+                            <th>Status ID</th>
+                            <th>Employee ID</th>
+                            <th>Budget ID</th>
+                            <th>Budget Item Sequence ID</th>
+                            <th>Employee Position Type ID</th>
+                            <th>Planned Start Date</th>
+                            <th>Planned End Date</th>
+                            <th>Salary Flag</th>
+                            <th>Tax Exempt Flag</th>
+                            <th>Full-time Flag</th>
+                            <th>Temporary Flag</th>
+                            <th>Actual Start Date</th>
+                            <th>Actual Finish Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTable">
+                        <!-- Dynamic rows go here -->
+                    </tbody>
+                </table>
             </div>
 
-            <button type="button" class="btn btn-primary w-100" onclick="searchEmployees()">Search</button>
-        </form>
-    </div>
-
-    <!-- Search Results Table -->
-    <div class="card p-4 shadow-lg">
-        <h5 class="card-title">Search Results</h5>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th>Employee Position ID</th>
-                        <th>Status ID</th>
-                        <th>Customer ID</th>
-                        <th>Budget ID</th>
-                        <th>Budget Item Sequence ID</th>
-                        <th>Employee Position Type ID</th>
-                        <th>Planned Start Date</th>
-                        <th>Planned End Date</th>
-                        <th>Salary Flag</th>
-                        <th>Tax Exempt Flag</th>
-                        <th>Full-time Flag</th>
-                        <th>Temporary Flag</th>
-                        <th>Actual Start Date</th>
-                        <th>Actual Finish Date</th>
-                    </tr>
-                </thead>
-                <tbody id="resultsTable">
-                    <!-- Dynamic rows go here -->
-                </tbody>
-            </table>
         </div>
+        <!-- Modal -->
+
+        <div id="myModal3" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" id="close-modal-btn3" style="cursor: pointer;">&times;</span>
+                <iframe src="{% url 'lookup' %}" style="width: 100%; height: 600px; align-items: center;" frameborder="0"></iframe>
+            </div>
+        </div>
+
     </div>
-</div>
 
-<!-- Bootstrap JS and custom JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+    <!-- Bootstrap JS and custom JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
 
-function searchEmployees() {
-    // Sample data to demonstrate dynamic table population
-    const results = [
-        {
-            employeePositionID: '101',
-            statusID: 'Active',
-            customerID: 'C001',
-            budgetID: 'B001',
-            budgetItemSequenceID: 'S001',
-            employeePositionTypeID: 'T001',
-            plannedStartDate: '2024-01-01',
-            plannedEndDate: '2024-12-31',
-            salaryFlag: 'Yes',
-            taxExemptFlag: 'No',
-            fullTimeFlag: 'Yes',
-            temporaryFlag: 'No',
-            actualStartDate: '2024-01-01',
-            actualFinishDate: '2024-12-31'
-        },
-        {
-            employeePositionID: '102',
-            statusID: 'Inactive',
-            customerID: 'C002',
-            budgetID: 'B002',
-            budgetItemSequenceID: 'S002',
-            employeePositionTypeID: 'T002',
-            plannedStartDate: '2023-05-15',
-            plannedEndDate: '2023-11-15',
-            salaryFlag: 'No',
-            taxExemptFlag: 'Yes',
-            fullTimeFlag: 'No',
-            temporaryFlag: 'Yes',
-            actualStartDate: '2023-05-20',
-            actualFinishDate: '2023-11-10'
+
+        function selectEmployeeId(employeeId) {
+            console.log('Selected Employee ID:', employeeId);
+            document.getElementById("employee_id").value = employeeId; // Set the value in the input field
+            document.getElementById("myModal3").style.display = "none"; // Optionally close the modal
         }
-    ];
 
-    // Get the results table body
-    const resultsTable = document.getElementById('resultsTable');
-    resultsTable.innerHTML = ''; // Clear previous results
+        function searchEmployees() {
+            // Sample data to demonstrate dynamic table population
+            const results = [
+                {
+                    employeePositionID: '101',
+                    statusID: 'Active',
+                    customerID: 'C001',
+                    budgetID: 'B001',
+                    budgetItemSequenceID: 'S001',
+                    employeePositionTypeID: 'T001',
+                    plannedStartDate: '2024-01-01',
+                    plannedEndDate: '2024-12-31',
+                    salaryFlag: 'Yes',
+                    taxExemptFlag: 'No',
+                    fullTimeFlag: 'Yes',
+                    temporaryFlag: 'No',
+                    actualStartDate: '2024-01-01',
+                    actualFinishDate: '2024-12-31'
+                },
+                {
+                    employeePositionID: '102',
+                    statusID: 'Inactive',
+                    customerID: 'C002',
+                    budgetID: 'B002',
+                    budgetItemSequenceID: 'S002',
+                    employeePositionTypeID: 'T002',
+                    plannedStartDate: '2023-05-15',
+                    plannedEndDate: '2023-11-15',
+                    salaryFlag: 'No',
+                    taxExemptFlag: 'Yes',
+                    fullTimeFlag: 'No',
+                    temporaryFlag: 'Yes',
+                    actualStartDate: '2023-05-20',
+                    actualFinishDate: '2023-11-10'
+                }
+            ];
 
-    results.forEach((result) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
+            // Get the results table body
+            const resultsTable = document.getElementById('resultsTable');
+            resultsTable.innerHTML = ''; // Clear previous results
+
+            results.forEach((result) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
             <td>${result.employeePositionID}</td>
             <td>${result.statusID}</td>
             <td>${result.customerID}</td>
@@ -241,12 +264,33 @@ function searchEmployees() {
             <td>${result.actualStartDate}</td>
             <td>${result.actualFinishDate}</td>
         `;
-        resultsTable.appendChild(row);
-    });
-}
+                resultsTable.appendChild(row);
+            });
+        }
+        const modal = document.getElementById('myModal3');
+        const showModalBtn = document.getElementById('show-modal-btn3');
+        const closeModalBtn = document.getElementById('close-modal-btn3');
+
+        // Show the modal when clicking the icon
+        showModalBtn.onclick = function () {
+            modal.style.display = 'block';
+        }
+
+        // Close the modal when clicking the close button
+        closeModalBtn.onclick = function () {
+            modal.style.display = 'none';
+        }
+
+        // Close the modal if clicking outside the modal content
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
 
 
 
-</script>
+    </script>
 </body>
+
 </html>

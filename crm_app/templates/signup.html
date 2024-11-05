@@ -4,54 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign up</title>
+    <title>Sign Up</title>
     {% block css %}
     <link rel="stylesheet" href="{% static 'css/signup.css' %}">
     {% endblock %}
-    <style>
-        body {
-            background-color: rgba(100, 58, 252, 0.651);
-        }
-
-        .alert-box {
-            display: none; /* Default to hidden */
-            position: fixed; /* Fixed position for the alert */
-            top: 20px; /* Position at the top */
-            left: 50%; /* Center horizontally */
-            transform: translateX(-50%); /* Center the alert */
-            background-color: #4cabff; /* Alert background color for error */
-            color: rgb(0, 0, 0); /* Text color */
-            padding: 15px; /* Padding around the content */
-            border-radius: 5px; /* Rounded corners */
-            z-index: 1000; /* Ensure it is on top */
-        }
-
-        .alert-box.success {
-            background-color: #28a745; /* Green background for success */
-        }
-
-        .alert-box.visible {
-            display: block; /* Show when visible class is added */
-        }
-
-        .ok-link {
-            color: white;
-            font-size: 14px;
-            text-decoration: underline; /* Underline to make it look like a link */
-            cursor: pointer;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .ok-link:hover {
-            color: #ddd;
-        }
-
-        .alert-box ul {
-            list-style-type: disc;
-            margin-left: 20px;
-        }
-    </style>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
 <body>
 
@@ -61,14 +19,13 @@
             {% if error_messages %}
                 {% for errors in error_messages.values %}
                     {% for error in errors %}
-                        <p>{{ error }}</p> <!-- Displaying error messages as list items -->
+                        <p>{{ error }}</p>
                     {% endfor %}
                 {% endfor %}
             {% elif success_message %}
-                <li>{{ success_message }}</li> <!-- Display success message -->
+                <li>{{ success_message }}</li>
             {% endif %}
         </ul>
-        <!-- Okay Link: Closes the popup or redirects on success -->
         <a href="#" id="ok-link" class="ok-link">Okay</a>
     </div>
 
@@ -94,14 +51,14 @@
 
                     <!-- Password Field -->
                     <div class="inputbox">
-                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <ion-icon id="toggle-password1-icon" name="eye-off-outline" onclick="togglePasswordVisibility('id_password1', 'toggle-password1-icon')"></ion-icon>
                         <input type="password" name="password1" id="id_password1" required>
                         <label for="id_password1">Password:</label>
                     </div>
 
                     <!-- Confirm Password Field -->
                     <div class="inputbox">
-                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <ion-icon id="toggle-password2-icon" name="eye-off-outline" onclick="togglePasswordVisibility('id_password2', 'toggle-password2-icon')"></ion-icon>
                         <input type="password" name="password2" id="id_password2" required>
                         <label for="id_password2">Confirm Password:</label>
                     </div>
@@ -122,11 +79,11 @@
         document.addEventListener("DOMContentLoaded", function() {
             var okLink = document.getElementById("ok-link");
             var errorPopup = document.getElementById("error-popup");
-            var isSuccess = errorPopup.getAttribute("data-success") === "true"; // Retrieve success state from data attribute
+            var isSuccess = errorPopup.getAttribute("data-success") === "true";
 
             // Add event listener to the "Okay" link
             okLink.addEventListener("click", function(event) {
-                event.preventDefault(); // Prevent default anchor behavior
+                event.preventDefault();
                 hideAlert(isSuccess);
             });
         });
@@ -135,7 +92,21 @@
         function hideAlert(isSuccess) {
             document.getElementById('error-popup').classList.remove('visible');
             if (isSuccess) {
-                window.location.href = "{% url 'login' %}"; // Redirect to login page after success
+                window.location.href = "{% url 'login' %}";
+            }
+        }
+
+        // Function to toggle password visibility
+        function togglePasswordVisibility(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.setAttribute('name', 'eye-outline');
+            } else {
+                passwordInput.type = 'password';
+                icon.setAttribute('name', 'eye-off-outline');
             }
         }
     </script>

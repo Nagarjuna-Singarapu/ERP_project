@@ -65,7 +65,12 @@ input:valid ~ label {
     top: -5px;
     font-size: 0.9em; /* Slightly smaller when floating */
 }
-
+/* Additional styling for autofill */
+input:-webkit-autofill ~ label,
+input:-moz-autofill ~ label {
+    top: -5px; /* Position label above when autofilled */
+    font-size: 0.9em;
+}
 /* Input styling */
 .inputbox input {
     width: 100%;
@@ -168,6 +173,21 @@ p {
     color: #ddd; /* Light gray color on hover */
     text-decoration: underline; /* Add underline on hover */
   }
+
+/* Chrome, Safari, Edge autofill styling */
+input:-webkit-autofill {
+    -webkit-box-shadow: #5A3ACF inset !important; /* Match the form background */
+    -webkit-text-fill-color: #ffffff !important; /* White text to match design */
+    transition: background-color 5000s ease-in-out 0s; /* Prevent flashing */
+}
+
+/* Firefox autofill styling */
+input:-moz-autofill {
+    box-shadow: #5A3ACF inset !important;
+    -moz-text-fill-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
 
 @media screen and (max-width: 480px) {
     .form-box {

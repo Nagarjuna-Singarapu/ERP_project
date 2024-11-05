@@ -101,3 +101,37 @@ class Employment(models.Model):
 
     def __str__(self):
         return f"Employment of {self.employment_id} in {self.internal_organization} from {self.from_date}"
+    
+class PerformanceReview(models.Model):
+    hr_employee = models.ForeignKey(HR_Employee, on_delete=models.CASCADE, related_name='performance_reviews')
+    perf_review_id = models.CharField(max_length=25)
+    manager_party_id = models.CharField(max_length=25)
+    manager_role_type_id = models.CharField(max_length=25)
+    from_date = models.DateField(auto_now_add=True)
+    through_date = models.DateTimeField(auto_now=True, blank=True, null=True)
+    comments = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Review for {self.hr_employee} (ID: {self.perf_review_id})"
+
+class PartySkill(models.Model):
+    SKILL_TYPE_CHOICES = [
+        ('HTML/FTL','HTML/FTL'),
+        ('Java/Groovy/BSH', 'Java/Groovy/BSH'),
+        ('JavaScript/Dojo', 'JavaScript/Dojo'),
+        ('Mini Language', 'Mini Language'),
+        ('Not Applicable', 'Not Applicable'),
+        ('OFBiz Installation', 'OFBiz Installation'),
+        ('Screen/Forms', 'Screen/Forms'),
+    ]
+
+
+    hr_employee = models.ForeignKey(HR_Employee, on_delete=models.CASCADE, related_name='party_skills')
+    skill_type = models.CharField(max_length=255, choices=SKILL_TYPE_CHOICES, blank=False)
+    years_of_experience = models.FloatField()
+    rating = models.IntegerField(default=0)  # Store as integer for 1-5
+    skill_level = models.CharField(max_length=50)  # Example: Beginner, Intermediate, Advanced
+    description = models.TextField(blank=True, null=True)  # Optional field for additional info
+
+    def __str__(self):
+        return f"{self.hr_employee.first_name} {self.hr_employee.last_name} - {self.skill_type}"

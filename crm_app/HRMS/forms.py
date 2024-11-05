@@ -1,5 +1,5 @@
 from django import forms
-from .models import Employment, PayGrade, SalaryStepGrade
+from .models import Employment, PartySkill, PayGrade, SalaryStepGrade
 
 class EmploymentForm(forms.ModelForm):
     class Meta:
@@ -21,3 +21,9 @@ class EmploymentForm(forms.ModelForm):
 
         if not salary_step_sequence_id and not manual_salary_step:
             raise forms.ValidationError("You must provide either a Salary Step Sequence or a Manual Salary Step.")
+
+class PartySkillForm(forms.ModelForm):
+    class Meta:
+        model = PartySkill
+        fields = ['hr_employee', 'skill_type', 'years_of_experience', 'rating', 'skill_level', 'description']
+

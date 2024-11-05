@@ -1,3 +1,6 @@
+<!-- ERP_project/crm_app/templates/hrms/skill_qual/lookup.html -->
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,7 +88,7 @@
 
         // This function sends the selected employee ID to the parent window
         function selectEmployee(employeeId) {
-            window.parent.selectEmployeeId(employeeId);  // Sends employee ID to parent window
+            window.parent.postMessage({ employeeId: employeeId }, window.location.origin);
             // Optionally, you can close the modal if needed:
             window.parent.closeLookupModal();  // Assuming you have a function to close the modal
         }

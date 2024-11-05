@@ -1,3 +1,5 @@
+<!-- ERP_project/crm_app/templates/hrms/skill_qual/Skills.html -->
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -106,7 +108,8 @@
                 <h4>Search Options</h4>
             </div>
             <div class="card-body">
-                <form method="post" action="/humanres/control/FindPartySkills" id="FindPartySkills" class="needs-validation" novalidate>
+                <!-- <form method="post" action="/humanres/control/FindPartySkills" id="FindPartySkills" class="needs-validation" novalidate> -->
+                    <form id="FindPartySkills" class="needs-validation" novalidate>
                     
                     
                     <div class="row mb-3">
@@ -132,7 +135,7 @@
                     <div id="myModal" class="modal">
                         <div class="modal-content">
                             <span class="close" id="close-modal-btn">&times;</span>
-                            <iframe src="{% url 'skill_lookupparty'%}" style="width:100%; height:400px;" frameborder="0"></iframe>
+                            <iframe src="{% url 'lookup' %}" style="width:100%; height:400px;" frameborder="0"></iframe>
                         </div>
                     </div>
 
@@ -143,12 +146,12 @@
                         <div class="col-sm-9">
                             <select name="skillTypeId" id="skillTypeId" class="form-select">
                                 <option value="">Select Skill Type</option>
-                                <option value="9002">HTML/FTL</option>
-                                <option value="9000">Java/Groovy/BSH</option>
-                                <option value="9003">Javascript/Dojo</option>
-                                <option value="9001">Mini Language</option>
-                                <option value="9005">OFBiz Installation</option>
-                                <option value="9004">Screens/Forms</option>
+                                <option value="HTML/FTL">HTML/FTL</option>
+                                <option value="Java/Groovy/BSH">Java/Groovy/BSH</option>
+                                <option value="JavaScript/Dojo">Javascript/Dojo</option>
+                                <option value="Mini Language">Mini Language</option>
+                                <option value="OFBiz Installation">OFBiz Installation</option>
+                                <option value="Screen/Forms">Screens/Forms</option>
                             </select>
                         </div>
                     </div>
@@ -300,6 +303,14 @@
         
     </script>
 <script>
+
+    // Define the function to handle employee selection from iframe
+    function selectEmployeeId(employeeId) {
+            // Fill the partyId input with the selected employeeId
+            const partyIdField = document.getElementById('partyId');
+            partyIdField.value = employeeId;  // Set the Party ID field value
+            modal.style.display = "none";  // Optionally close the modal after selecting
+    }
     // Get the modal
     var modal = document.getElementById("myModal");
 
@@ -325,6 +336,15 @@
             modal.style.display = "none";
         }
     }
+
+    window.addEventListener('message', function(event) {
+        // Check the origin of the message to ensure security
+        if (event.origin === window.location.origin && event.data.employeeId) {
+            const partyIdField = document.getElementById('partyId');
+            partyIdField.value = event.data.employeeId;
+            modal.style.display = "none";  // Auto-fill the Party ID field with the Employee ID
+        }
+    });
 </script> 
 
 

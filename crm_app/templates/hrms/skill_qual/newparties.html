@@ -1,3 +1,5 @@
+<!-- ERP_project/crm_app/templates/hrms/skill_qual/newparties.html -->
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -83,13 +85,15 @@
         </div>
 
         <div class="card-body p-4">
-            <form method="post" action="/humanres/control/createPartySkill" id="AddPartySkills" class="needs-validation" novalidate>
+            <!-- <form method="post" action="/humanres/control/createPartySkill" id="AddPartySkills" class="needs-validation" novalidate> -->
+            <form method="post" action="{% url 'create_party_skill' %}" id="AddPartySkills" class="needs-validation" novalidate>
+                {% csrf_token %}
                 <div class="row mb-3">
                     <label for="partyId" class="col-sm-3 col-form-label">Party ID</label>
                     
                     <div class="col-sm-9">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="partyId" name="partyId" placeholder="Enter Party ID">
+                            <input type="text" class="form-control" id="partyId" name="partyId" placeholder="Enter Party ID" required>
                             <span class="input-group-text" id="show-modal-btn" data-bs-toggle="modal" data-bs-target="#positionIDModal">
                                 📄
                             </span>
@@ -107,7 +111,7 @@
                 <div id="myModal" class="modal">
                     <div class="modal-content">
                         <span class="close" id="close-modal-btn">&times;</span>
-                        <iframe src="{% url 'skill_lookupparty'%}" style="width:100%; height:400px;" frameborder="0"></iframe>
+                        <iframe src="{% url 'lookup'%}" style="width:100%; height:400px;" frameborder="0"></iframe>
                     </div>
                 </div>
 
@@ -115,14 +119,13 @@
                     <label for="skillTypeId" class="col-sm-3 col-form-label">Skill Type</label>
                     <div class="col-sm-9">
                         <select class="form-select" id="skillTypeId" name="skillTypeId" required>
-                            <option value="">Select a skill type</option>
-                            <option value="9002">HTML/FTL</option>
-                            <option value="9000">Java/Groovy/BSH</option>
-                            <option value="9003">Javascript/Dojo</option>
-                            <option value="9001">Mini Language</option>
-                            <option value="_NA_">Not Applicable</option>
-                            <option value="9005">OFBiz Installation</option>
-                            <option value="9004">Screens/Forms</option>
+                            <option value="HTML/FTL">HTML/FTL</option>
+                            <option value="Java/Groovy/BSH">Java/Groovy/BSH</option>
+                            <option value="JavaScript/Dojo">JavaScript/Dojo</option>
+                            <option value="Mini Language">Mini Language</option>
+                            <option value="Not Applicable">Not Applicable</option>
+                            <option value="OFBiz Installation">OFBiz Installation</option>
+                            <option value="Screen/Forms">Screen/Forms</option>
                         </select>
                         <div class="invalid-feedback">
                             Please select a skill type.
@@ -143,7 +146,7 @@
                 <div class="row mb-3">
                     <label for="rating" class="col-sm-3 col-form-label">Rating</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="rating" name="rating" required>
+                        <input type="number" class="form-control" id="rating" name="rating" required>
                         <div class="invalid-feedback">
                             Please provide a rating.
                         </div>
@@ -171,8 +174,8 @@
                 </div>
 
                 <div class="d-flex justify-content-end">
-                    <a href="skills.html">
-                        <button type="button" class="btn btn-primary">Create</button>
+                    <a>
+                        <button type="submit" class="btn btn-primary">Create</button>
                     </a>
                 </div>
             </form>
@@ -183,25 +186,18 @@
 <!-- Bootstrap JS and dependencies -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Example starter JavaScript for disabling form submissions if there are invalid fields
-    (function () {
-        'use strict'
-        var forms = document.querySelectorAll('.needs-validation')
-
-        Array.prototype.slice.call(forms).forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-
-                form.classList.add('was-validated')
-            }, false)
-        })
-    })()
+    
 </script>
 
 <script>
+
+    function selectEmployeeId(employeeId) {
+            // Fill the partyId input with the selected employeeId
+            const partyIdField = document.getElementById('partyId');
+            partyIdField.value = employeeId;  // Set the Party ID field value
+            modal.style.display = "none";  // Optionally close the modal after selecting
+    }
+
     // Get the modal
     var modal = document.getElementById("myModal");
 
@@ -227,6 +223,16 @@
             modal.style.display = "none";
         }
     }
+
+    window.addEventListener('message', function(event) {
+        // Check the origin of the message to ensure security
+        if (event.origin === window.location.origin && event.data.employeeId) {
+            const partyIdField = document.getElementById('partyId');
+            partyIdField.value = event.data.employeeId;
+            modal.style.display = "none";  // Auto-fill the Party ID field with the Employee ID
+        }
+    });
+
 </script> 
 
 </body>

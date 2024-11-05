@@ -28,6 +28,8 @@ urlpatterns = [
 
     path('create-employee-position/', views.create_employee_position, name='create_employee_position'),
     path('api/get-employee-position-data/', views.get_employee_position, name='get_employee_position'),
+    path('employment-position-search/', views.employment_position_search, name='employment_position_search'),
+    path('api/employment-position-data/', views.employment_position_data, name='employment_position_data'),
     
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),

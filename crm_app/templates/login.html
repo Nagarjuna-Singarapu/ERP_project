@@ -34,8 +34,8 @@
                         <label>Email</label>
                     </div>
                     <div class="inputbox">
-                        <ion-icon name="lock-closed-outline"></ion-icon>
-                        <input type="password" name="password" required>
+                        <ion-icon id="toggle-password-icon" name="eye-off-outline" onclick="togglePasswordVisibility()"></ion-icon>
+                        <input type="password" id="password" name="password" required>
                         <label>Password</label>
                     </div>
                     <div class="forget">
@@ -50,6 +50,21 @@
             </div>
         </div>
     </section>
+
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.getElementById('toggle-password-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.setAttribute('name', 'eye-outline'); // Change to open eye icon
+            } else {
+                passwordInput.type = 'password';
+                icon.setAttribute('name', 'eye-off-outline'); // Change to closed eye icon
+            }
+        }
+    </script>
 </body>
 
 </html>

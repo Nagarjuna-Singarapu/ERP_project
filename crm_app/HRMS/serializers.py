@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import PayGrade, SalaryStepGrade, TerminationReason,TerminationType
+from .models import PayGrade, PositionType, SalaryStepGrade, TerminationReason,TerminationType
 
 class PayGradeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,3 +20,8 @@ class TerminationReasonSerializer(serializers.ModelSerializer):
     class Meta:
         model = TerminationReason
         fields = ['id', 'termination_reason']
+
+class PositionTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PositionType
+        fields = ['id', 'name', 'parent_type', 'has_table', 'description']

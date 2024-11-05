@@ -1,0 +1,453 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Training Approvals</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn-training-calendar {
+            background-color: #198754; /* Custom background color */
+            color: white!important;/* Text color */
+        }
+    .btn-training-calendar :hover{
+        background-color: #198754; /* Custom background color */
+        color: white !important;/* Text color */
+        border-color: transparent !important;
+    }
+
+
+        .btn-info{
+    color: black;
+    background-color: #0dcaf0;
+}
+
+ /* Disable hover effect for Training Approval button */
+ .btn-info:hover {
+    background-color: #0dcaf0;
+        color: black;
+        border: 1px solid #198754;
+}
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        /* Button styles for consistent alignment */
+        .button-group {
+            display: flex;
+            gap: 1rem; /* Spacing between buttons */
+            margin-bottom: 20px; /* Space below buttons */
+        }
+
+        .icon {
+            font-size: 20px; /* Size of the icon */
+            cursor: pointer; /* Cursor changes to pointer on hover */
+            color: #007bff; /* Icon color */
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+   <!-- Navigation Buttons -->
+   <div class="container my-4">
+   <div class="my-4 text-center button-group">
+    <button id="btnCalendar" class="btn btn-training-calendar" onclick="window.location.href=`{% url 'TrainingCalender' %}`">Training Calendar</button>
+    <button id="btnApproval" class="btn btn-info" onclick="window.location.href=`{% url 'TrainingApproval' %}`">Training Approval</button>
+</div>
+
+</div>
+
+<div class="container my-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="mb-0">Find Training Approvals</h3>
+        </div>
+        <div class="card-body">
+            <form action="/humanres/control/FindTrainingApprovals" method="post" id="FindTrainingApprovals">
+                <div class="form-row">
+                   
+                    <div class="form-group col-md-6">
+                        <label for="partyId">Employee Party ID</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="partyId" id="partyId" placeholder="Enter Employee Party ID">
+                            <span class="input-group-text" id="show-modal-btn" data-bs-toggle="modal" data-bs-target="#positionIDModal">
+                                📄
+                            </span>
+                        </div>
+                    </div> 
+
+                    <div id="myModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="close-modal-btn">&times;</span>
+                            <iframe src="{% url 'nagaslookup' %}" style="width:100%; height:400px;" frameborder="0"></iframe>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group col-md-6">
+                        <label for="trainingRequestId">Training Request ID</label>
+                        <div class="input-group">
+                            <select name="trainingRequestId_op" class="custom-select">
+                                <option value="equals">Equals</option>
+                                <option value="like">Begins With</option>
+                                <option value="contains" selected>Contains</option>
+                                <option value="empty">Is Empty</option>
+                                <option value="notEqual">Not Equal</option>
+                            </select>
+                            <input type="text" class="form-control" name="trainingRequestId" placeholder="Enter Training Request ID">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <input type="checkbox" name="trainingRequestId_ic" value="Y" checked> Ignore Case
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="trainingClassTypeId">Training Class Type</label>
+                        <select name="trainingClassTypeId" class="form-control" id="trainingClassTypeId">
+                            <option value="">Select Type</option>
+                            <option value="ADVAN_TRAINING">Advance Training</option>
+                            <option value="BASIC_TRAINING">Basic Training</option>
+                            <option value="IMPRO_TRAINING">Improvement Training</option>
+                            <option value="ONJOB_TRAINING">On Job Training</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="workEffortId">Work Effort ID</label>
+                        <div class="input-group">
+                            <select name="workEffortId_op" class="custom-select">
+                                <option value="equals">Equals</option>
+                                <option value="like">Begins With</option>
+                                <option value="contains" selected>Contains</option>
+                                <option value="empty">Is Empty</option>
+                                <option value="notEqual">Not Equal</option>
+                            </select>
+                            <input type="text" class="form-control" name="workEffortId" placeholder="Enter Work Effort ID">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <input type="checkbox" name="workEffortId_ic" value="Y" checked> Ignore Case
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date Fields -->
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>From Date</label>
+                        <div class="input-group">
+                            <input type="date" class="form-control" name="fromDate_fld0_value">
+                            <select name="fromDate_fld0_op" class="custom-select">
+                                <option value="equals">Equals</option>
+                                <option value="greaterThan" selected>Greater Than</option>
+                            </select>
+                            <input type="date" class="form-control" name="fromDate_fld1_value">
+                            <select name="fromDate_fld1_op" class="custom-select">
+                                <option value="opLessThan" selected>Less Than</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Through Date</label>
+                        <div class="input-group">
+                            <input type="date" class="form-control" name="thruDate_fld0_value">
+                            <select name="thruDate_fld0_op" class="custom-select">
+                                <option value="greaterThan" selected>Greater Than</option>
+                            </select>
+                            <input type="date" class="form-control" name="thruDate_fld1_value">
+                            <select name="thruDate_fld1_op" class="custom-select">
+                                <option value="opLessThan" selected>Less Than</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approver and Status Fields -->
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="approverId">Approver Party</label>
+                        <div class="input-group">
+                            <select name="approverId_op" class="custom-select">
+                                <option value="equals">Equals</option>
+                                <option value="contains" selected>Contains</option>
+                            </select>
+                            <input type="text" class="form-control" name="approverId">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <input type="checkbox" name="approverId_ic" value="Y" checked> Ignore Case
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="approvalStatus">Approver Status</label>
+                        <div class="input-group">
+                            <select name="approvalStatus_op" class="custom-select">
+                                <option value="equals">Equals</option>
+                                <option value="contains" selected>Contains</option>
+                            </select>
+                            <input type="text" class="form-control" name="approvalStatus">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <input type="checkbox" name="approvalStatus_ic" value="Y" checked> Ignore Case
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reason Field -->
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="reason">Reason</label>
+                        <div class="input-group">
+                            <select name="reason_op" class="custom-select">
+                                <option value="equals">Equals</option>
+                                <option value="contains" selected>Contains</option>
+                            </select>
+                            <input type="text" class="form-control" name="reason">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <input type="checkbox" name="reason_ic" value="Y" checked> Ignore Case
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <button type="submit" class="btn btn-primary">Find</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3 class="mb-0">Search Results</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Employee Party ID</th>
+                            <th>Training Request ID</th>
+                            <th>Training Class Type</th>
+                            <th>Work Effort ID</th>
+                            <th>From Date</th>
+                            <th>Through Date</th>
+                            <th>Approver Party</th>
+                            <th>Approver Status</th>
+                            <th>Reason</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Sample Data Rows -->
+                        <tr>
+                            <td>EMP001</td>
+                            <td>TR001</td>
+                            <td>Leadership Training</td>
+                            <td>WE1001</td>
+                            <td>2023-10-01</td>
+                            <td>2023-10-15</td>
+                            <td>John Doe</td>
+                            <td>Approved</td>
+                            <td>For career growth</td>
+                            <td><button class="btn btn-primary btn-sm">Update</button></td>
+                        </tr>
+                        <tr>
+                            <td>EMP002</td>
+                            <td>TR002</td>
+                            <td>Technical Workshop</td>
+                            <td>WE1002</td>
+                            <td>2023-11-05</td>
+                            <td>2023-11-10</td>
+                            <td>Jane Smith</td>
+                            <td>Pending</td>
+                            <td>Required for project</td>
+                            <td><button class="btn btn-primary btn-sm">Update</button></td>
+                        </tr>
+                        <tr>
+                            <td>EMP003</td>
+                            <td>TR003</td>
+                            <td>Compliance Training</td>
+                            <td>WE1003</td>
+                            <td>2023-12-01</td>
+                            <td>2023-12-03</td>
+                            <td>Michael Brown</td>
+                            <td>Rejected</td>
+                            <td>Not eligible</td>
+                            <td><button class="btn btn-primary btn-sm">Update</button></td>
+                        </tr>
+                        <tr>
+                            <td>EMP004</td>
+                            <td>TR004</td>
+                            <td>Project Management</td>
+                            <td>WE1004</td>
+                            <td>2024-01-15</td>
+                            <td>2024-01-20</td>
+                            <td>Emily White</td>
+                            <td>Approved</td>
+                            <td>Skill enhancement</td>
+                            <td><button class="btn btn-primary btn-sm">Update</button></td>
+                        </tr>
+                        <tr>
+                            <td>EMP005</td>
+                            <td>TR005</td>
+                            <td>Data Analysis</td>
+                            <td>WE1005</td>
+                            <td>2024-02-10</td>
+                            <td>2024-02-15</td>
+                            <td>Chris Green</td>
+                            <td>Pending</td>
+                            <td>For project requirements</td>
+                            <td><button class="btn btn-primary btn-sm">Update</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+<script>
+
+
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the icon that opens the modal
+    var icon = document.getElementById("show-modal-btn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementById("close-modal-btn");
+
+    // When the user clicks the icon, open the modal
+    icon.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    
+    // Function to load data based on the selected view
+    function loadData(view) {
+        let data = weekData[view];
+        let tableContent = document.getElementById('tableContent');
+        tableContent.innerHTML = ''; // Clear previous table content
+
+        data.forEach(entry => {
+            let row = `
+                <tr>
+                    <td class="text-center">
+                        <a href="${entry.link}">${entry.day} ${entry.date}</a><br>
+                        <a href="addnewEvent.html">Add New</a>
+                    </td>
+                    <td>&nbsp;</td>
+                </tr>
+            `;
+            tableContent.innerHTML += row; // Add new row
+        });
+
+        document.getElementById('displayDate').innerText = view.charAt(0).toUpperCase() + view.slice(1) + ' View';
+    }
+
+
+      // Function to show the Training Calendar section
+      function showSection(section) {
+            if (section === 'calendar') {
+                window.location.href = 'TrainingCalender.html'; // Link to Training Calendar page
+            }
+        }
+
+        // Modal functionality
+        document.getElementById('show-modal-btn').onclick = function() {
+            document.getElementById('myModal').style.display = "block";
+        }
+
+        document.getElementById('close-modal-btn').onclick = function() {
+            document.getElementById('myModal').style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('myModal')) {
+                document.getElementById('myModal').style.display = "none";
+            }
+        }
+</script> 
+
+
+</body>
+</html>

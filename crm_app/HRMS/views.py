@@ -3,17 +3,17 @@
 
 from rest_framework import viewsets, status
 import logging, json
-from django.http import JsonResponse
 from django.contrib import messages
 from .utils import load_country_data
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import HR_Employee, PerformanceReview, PayGrade,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
-from .forms import EmploymentForm, PartySkillForm
+# from .forms import EmploymentForm, PartySkillForm
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import PayGrade, SalaryStepGrade, PartySkill
+from .models import PartySkill
 from .serializers import HREmployeeSerializer,PerformanceReviewSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
 
 def NewEmploye(request):
@@ -146,25 +146,26 @@ def lookup(request):
     return render(request, 'hrms/emp_per/lookup.html')
 
 
-def get_employee(request, employee_id):
+def get_employee_data(request):
+    employee_id = request.GET.get('employee_id')
     try:
-        # Adjust the query to match the model's field names
         employee = Employment.objects.get(employment_id__employee_id=employee_id)
-        
         data = {
-            "success": True,
-            "internal_organization": employee.internal_organization.name,
-            "from_date": employee.from_date,
-            "amount": employee.amount,
-            "comments": employee.comments,
-            "pay_grade": employee.pay_grade_id.grade_name if employee.pay_grade_id else employee.manual_pay_grade,
-            "salary_step": employee.salary_step_sequence_id.step_name if employee.salary_step_sequence_id else employee.manual_salary_step,
-            "period_type": employee.period_type_id,
+            'internal_organization': employee.internal_organization.id,
+            'from_date': employee.from_date,
+            'amount': employee.amount,
+            'comments': employee.comments,
+            'pay_grade': employee.pay_grade_id.grade_name if employee.pay_grade_id else '',
+            'salary_step': employee.salary_step_sequence_id.step_name if employee.salary_step_sequence_id else '',
+            'period_type': employee.period_type_id,
+            'termination_type': employee.termination_type.termination_type if employee.termination_type else '',
+            'termination_reason': employee.termination_reason.termination_reason if employee.termination_reason else '',
         }
+        return JsonResponse(data)
     except Employment.DoesNotExist:
-        data = {"success": False}
-    
-    return JsonResponse(data)
+        return JsonResponse({'error': 'Employee not found'}, status=404)
+
+########################################################### Creating New Employment ###################################################
 
 def create_employment(request):
     if request.method == 'POST':
@@ -173,21 +174,36 @@ def create_employment(request):
         from_date = request.POST['from_date']
         amount = request.POST['amount']
         comments = request.POST.get('comments', '')
-        pay_grade_name = request.POST.get('pay_grade', '')
-        salary_step_name = request.POST.get('salary_step', '')
+        pay_grade_id = request.POST.get('pay_grade', '')
+        salary_step_id = request.POST.get('salary_step', '')
         period_type = request.POST['period_type']
 
         # New fields for termination
-        termination_type_name = request.POST.get('termination_type', '')  # Optional field
-        termination_reason_name = request.POST.get('termination_reason', '')  # Optional field
+        termination_type_id = request.POST.get('termination_type', '')
+        termination_reason_id = request.POST.get('termination_reason', '')
 
         # Fetch the related instances
         employee = get_object_or_404(HR_Employee, employee_id=employee_id)
         internal_org = get_object_or_404(HR_Department, id=internal_org_id)
-        pay_grade, _ = PayGrade.objects.get_or_create(grade_name=pay_grade_name)
-        salary_step, _ = SalaryStepGrade.objects.get_or_create(step_name=salary_step_name)
-        termination_type, _ = TerminationType.objects.get_or_create(termination_type=termination_type_name)
-        termination_reason, _ = TerminationReason.objects.get_or_create(termination_reason=termination_reason_name)
+
+        # Ensure that pay grade and salary step exist in the database
+        try:
+            pay_grade = PayGrade.objects.get(id=pay_grade_id)
+        except PayGrade.DoesNotExist:
+            return JsonResponse({'error': f'Invalid pay grade: {pay_grade_id}'}, status=400)
+
+        try:
+            salary_step = SalaryStepGrade.objects.get(id=salary_step_id)
+        except SalaryStepGrade.DoesNotExist:
+            return JsonResponse({'error': f'Invalid salary step: {salary_step_id}'}, status=400)
+
+        # Optional fields for termination
+        termination_type = None
+        termination_reason = None
+        if termination_type_id:
+            termination_type = get_object_or_404(TerminationType, id=termination_type_id)
+        if termination_reason_id:
+            termination_reason = get_object_or_404(TerminationReason, id=termination_reason_id)
 
         # Create or update Employment record
         employment, created = Employment.objects.update_or_create(
@@ -200,15 +216,103 @@ def create_employment(request):
                 'pay_grade_id': pay_grade,
                 'salary_step_sequence_id': salary_step,
                 'period_type_id': period_type,
-                # Add new fields for termination
                 'termination_type': termination_type,
                 'termination_reason': termination_reason,
             }
         )
 
+
         return redirect('Employment')
 
     return render(request, 'hrms/emp_per/NewEmployment.html')
+
+
+
+################################################### Filterring Employment Data ##############################################################
+
+def employment_search(request):
+    if request.method == 'POST':
+        # Parse the JSON body of the request
+        try:
+            body = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        # Fetch search parameters from the request body
+        employee_id = body.get('employee_id')
+        email = body.get('email')
+        first_name = body.get('first_name')
+        last_name = body.get('last_name')
+        phone_number = body.get('phone_number')
+
+        # Initialize queryset for HR_Employee
+        queryset = HR_Employee.objects.all()
+
+        # Filter queryset based on available parameters
+        if employee_id:
+            queryset = queryset.filter(employee_id=employee_id)
+        if email:
+            queryset = queryset.filter(email=email)
+        if first_name:
+            queryset = queryset.filter(first_name__icontains=first_name)  # Case-insensitive contains
+        if last_name:
+            queryset = queryset.filter(last_name__icontains=last_name)  # Case-insensitive contains
+        if phone_number:
+            queryset = queryset.filter(phone_number=phone_number)
+
+        # Prepare the response data
+        results = []
+        for employee in queryset:
+            employment_records = Employment.objects.filter(employment_id__employee_id=employee.employee_id)
+            for employment in employment_records:
+                results.append({
+                    'internal_organization': employment.internal_organization.name,  # Adjust to a field that returns a string
+                    'employment_id': {
+                        'employee_id': employee.employee_id,
+                        'first_name': employee.first_name,
+                        'last_name': employee.last_name,
+                    },
+                    'from_date': employee.planned_start_date,
+                    'through_date': employment.from_date,
+                    'termination_reason': str(employment.termination_reason),
+                    'termination_type': str(employment.termination_type),
+                })
+
+        return JsonResponse(results, safe=False)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+def employment_data(request):
+    if request.method == 'GET':
+        results = []
+
+        # Fetch all employees; you might want to apply filters if needed
+        employees = HR_Employee.objects.all()
+        # print(f"Total Employees: {employees.count()}")  # Debugging line
+
+        for employee in employees:
+            # Get all employment records for the current employee
+            employment_records = Employment.objects.filter(employment_id__employee_id=employee.employee_id)
+
+            # print(f"Employee ID: {employee.employee_id}, Employment Records Found: {employment_records.count()}")  # Debugging line
+            
+            for employment in employment_records:
+                results.append({
+                    'internal_organization': employment.internal_organization.name if employment.internal_organization else 'N/A',
+                    'employment_id': {
+                        'employee_id': employee.employee_id,  # Assuming employee_id is a field in HR_Employee
+                        'first_name': employee.first_name,
+                        'last_name': employee.last_name,
+                    },
+                    'from_date': employee.planned_start_date.strftime('%Y-%m-%d') if employee.planned_start_date else 'N/A',
+                    'through_date': employment.from_date.strftime('%Y-%m-%d') if employment.from_date else 'N/A',
+                    'termination_reason': str(employment.termination_reason) if employment.termination_reason else 'N/A',
+                    'termination_type': str(employment.termination_type) if employment.termination_type else 'N/A',
+                })
+
+        # print(f"Results: {results}")  # Debugging line to check the final results
+        return JsonResponse(results, safe=False)
 
 
 
@@ -231,6 +335,14 @@ def NewEmployement(request):
 def New_positions(request):
     return render(request, 'hrms/emp_per/New_positions.html')
 
+def performance(request):
+    return render(request, 'hrms/emp_per/performance.html')
+
+def EditPerformace(request):
+    return render(request, 'hrms/emp_per/EditPerformace.html')
+
+
+
 @xframe_options_exempt
 def lookup(request):
     return render(request, 'hrms/emp_per/lookup.html')
@@ -245,17 +357,21 @@ def Search_Emp_position(request):
 
 @xframe_options_exempt
 def Paygrad(request):
-    return render(request, 'hrms/emp_per/Paygrad.html')
+    return render(request, 'hrms/emp_per/Paygrad.html') 
 
 @xframe_options_exempt
 def EditSalary(request):
     return render(request, 'hrms/emp_per/EditSalary.html')
 
+@xframe_options_exempt
+def LookUpPerformace(request):
+    return render(request, 'hrms/emp_per/LookUpPerformace.html')
+
 
     
 # sunny
-def Employee_app(request):
-    return render(request, 'hrms/emp_res_lea/Employee_app.html')
+def employement_appli(request):
+    return render(request, 'hrms/emp_res_lea/employement_appli.html')
 
 def New_emp_app(request):
     return render(request, 'hrms/emp_res_lea/New_emp_app.html')
@@ -266,31 +382,75 @@ def resume(request):
 def leave(request):
     return render(request, 'hrms/emp_res_lea/leave.html')
 
-def Newresume(request):
-    return render(request, 'hrms/emp_res_lea/Newresume.html')
+def New_resume(request):
+    return render(request, 'hrms/emp_res_lea/New_resume.html')
 
-def leaveappr(request):
-    return render(request, 'hrms/emp_res_lea/leaveappr.html')
+def leave_approval(request):
+    return render(request, 'hrms/emp_res_lea/leave_approval.html')
 
-def addempleave(request):
-    return render(request, 'hrms/emp_res_lea/addempleave.html')
+def add_emp_leave(request):
+    return render(request, 'hrms/emp_res_lea/add_emp_leave.html')
 
-
-@xframe_options_exempt
-def lookupempapp(request):
-    return render(request, 'hrms/emp_res_lea/lookupempapp.html')
 
 @xframe_options_exempt
-def lookupempposi(request):
-    return render(request, 'hrms/emp_res_lea/lookupempposi.html')
+def lookup_emp_app(request):
+    return render(request, 'hrms/emp_res_lea/lookup_emp_app.html')
 
 @xframe_options_exempt
-def lookupparty(request):
-    return render(request, 'hrms/emp_res_lea/lookupparty.html')
+def lookup_emp_posi(request):
+    return render(request, 'hrms/emp_res_lea/lookup_emp_posi.html')
 
 @xframe_options_exempt
-def lookpartyresume(request):
-    return render(request, 'hrms/emp_res_lea/lookpartyresume.html')
+def lookup_party(request):
+    return render(request, 'hrms/emp_res_lea/lookup_party.html')
+
+@xframe_options_exempt
+def lookup_party_resume(request):
+    return render(request, 'hrms/emp_res_lea/lookup_party_resume.html')
+
+
+# global HR by sunny and amit 
+def skill_types(request):
+    return render(request, 'hrms/global_hr/skill_types.html')
+
+def responsibility_types(request):
+    return render(request, 'hrms/global_hr/responsibility_types.html')
+
+def termination_reasons(request):
+    return render(request, 'hrms/global_hr/termination_reasons.html')
+
+def termination_types(request):
+    return render(request, 'hrms/global_hr/termination_types.html')
+
+def position_types(request):
+    return render(request, 'hrms/global_hr/position_types.html')
+
+def emp_leave_types(request):
+    return render(request, 'hrms/global_hr/emp_leave_types.html')
+
+def pay_grades(request):
+    return render(request, 'hrms/global_hr/pay_grades.html')
+
+def job_interview_types(request):
+    return render(request, 'hrms/global_hr/job_interview_types.html')
+
+def tranning_class_types(request):
+    return render(request, 'hrms/global_hr/tranning_class_types.html')
+
+def public_holiday(request):
+    return render(request, 'hrms/global_hr/public_holiday.html')
+
+def EditPayGrade(request):
+    return render(request, 'hrms/global_hr/EditPayGrade.html')
+
+def EmpLeaveReasonType(request):
+    return render(request, 'hrms/global_hr/EmpLeaveReasonType.html')
+
+def emp_leave_types(request):
+    return render(request, 'hrms/global_hr/emp_leave_types.html')
+
+def Edit_PositionTypes(request):
+    return render(request, 'hrms/global_hr/Edit_PositionTypes.html')
 
 
 # gannu
@@ -306,9 +466,68 @@ def newparties(request):
 def newpartiesQualifivation(request):
     return render(request, 'hrms/skill_qual/newpartiesQualifivation.html')
 
+def Recruitment(request):
+    return render(request, 'hrms/skill_qual/Recruitment.html')
+
+def JobRequision(request):
+    return render(request, 'hrms/skill_qual/JobRequision.html')
+
+def NewJobRequision(request):
+    return render(request, 'hrms/skill_qual/NewJobRequision.html')
+
+def Approvals(request):
+    return render(request, 'hrms/skill_qual/Approvals.html')
+
+def jobInterview(request):
+    return render(request, 'hrms/skill_qual/jobInterview.html') 
+
+def newInternalJobPosting(request):
+    return render(request, 'hrms/skill_qual/newInternalJobPosting.html')
+
+def NewjobInterview(request):
+    return render(request, 'hrms/skill_qual/NewjobInterview.html')
+
+def Relocation(request):
+    return render(request, 'hrms/skill_qual/Relocation.html')
+
+
+
+def TrainingCalender(request):
+    return render(request, 'hrms/skill_qual/TrainingCalender.html')
+
+def dayView(request):
+    return render(request, 'hrms/skill_qual/dayView.html')
+
+def monthView(request):
+    return render(request, 'hrms/skill_qual/monthView.html')
+
+def upcomingEvent(request):
+    return render(request, 'hrms/skill_qual/upcomingEvent.html')
+
+def TrainingApproval(request):
+    return render(request, 'hrms/skill_qual/TrainingApproval.html')
+
+def weekView(request):
+    return render(request, 'hrms/skill_qual/weekView.html')
+
+def CalenderSection(request):
+    return render(request, 'hrms/skill_qual/CalenderSection.html')
+
+def addnewEventMonth(request):
+    return render(request, 'hrms/skill_qual/addnewEventMonth.html')
+
+def addnewEvent(request):
+    return render(request, 'hrms/skill_qual/addnewEvent.html')
+
+
+
 @xframe_options_exempt
 def skill_lookupparty(request):
     return render(request, 'hrms/skill_qual/skill_lookupparty.html')
+
+@xframe_options_exempt
+def nagaslookup(request):
+    return render(request, 'hrms/skill_qual/nagaslookup.html')
 
 
 

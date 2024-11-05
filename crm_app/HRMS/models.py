@@ -71,10 +71,8 @@ class Employment(models.Model):
     
     # Allowing foreign key to PayGrade but also enabling manual entry if needed
     pay_grade_id = models.ForeignKey(PayGrade, on_delete=models.SET_NULL, blank=True, null=True)
-    manual_pay_grade = models.CharField(max_length=50, blank=True, null=True)
     
     salary_step_sequence_id = models.ForeignKey(SalaryStepGrade, on_delete=models.SET_NULL, blank=True, null=True)
-    manual_salary_step = models.CharField(max_length=50, blank=True, null=True)
 
     # Period type with predefined choices
     PERIOD_TYPE_CHOICES = [

@@ -22,39 +22,63 @@ urlpatterns = [
     # path('lookup/', views.find_employee, name='lookup'),
 
     path('create-employment/', views.create_employment, name='create_employment'),
-    path('get-employee/<str:employee_id>/', views.get_employee, name='get_employee'),
+    path('api/get-employee-data/', views.get_employee_data, name='get_employee_data'),
     path('api/department/', views.get_departments, name='get_departments'),
     path('api/paygrades/', views.PayGradeList.as_view(), name='paygrade-list'),
     path('api/salarysteps/', views.SalaryStepList.as_view(), name='salarystep-list'),
     path('api/terminationtype/', views.TerminationTypeList.as_view(), name='terminationType-list'),
     path('api/terminationreason/', views.TerminationReasonList.as_view(), name='terminationReason-list'),
+
+    path('employment-search/', views.employment_search, name='employment_search'),
+    path('api/employment-data/', views.employment_data, name='employment_data'),
     
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
     path('emp_main/', views.emp_main, name='emp_main'),
     path('Employment/', views.Employments, name='Employment'),
-    path('Employe_position/', views.Employe_position, name='Employe_position'), 
-    
+    path('Employe_position/', views.Employe_position, name='Employe_position'),    
     path('lookup/', views.lookup, name='lookup'),
     path('NewEmployement/', views.NewEmployement, name='NewEmployement'),
     path('FindEmploye/', views.FindEmploye, name='FindEmploye'),
     path('New_positions/', views.New_positions, name='New_positions'),
     path('Search_Emp_position/', views.Search_Emp_position, name='Search_Emp_position'),
     path('Paygrad/', views.Paygrad, name='Paygrad'),
-    path('EditSalary/', views.EditSalary, name='EditSalary'), 
+    path('EditSalary/', views.EditSalary, name='EditSalary'),
+    path('performance/', views.performance, name='performance'),
+    path('EditPerformace/', views.EditPerformace, name='EditPerformace'),
+    path('LookUpPerformace/', views.LookUpPerformace, name='LookUpPerformace'),
      
     # sunny hrms
-    path('Employee_app/', views.Employee_app, name='Employee_app'),
+    path('employement_appli/', views.employement_appli, name='employement_appli'),
     path('New_emp_app/', views.New_emp_app, name='New_emp_app'),
     path('resume/', views.resume, name='resume'),
     path('leave/', views.leave, name='leave'),
-    path('lookupempapp/', views.lookupempapp, name='lookupempapp'),
-    path('lookupempposi/', views.lookupempposi, name='lookupempposi'),
-    path('lookupparty/', views.lookupparty, name='lookupparty'),
-    path('Newresume/', views.Newresume, name='Newresume'),
-    path('lookpartyresume/', views.lookpartyresume, name='lookpartyresume'),
-    path('addempleave/', views.addempleave, name='addempleave'),
-    path('leaveappr/', views.leaveappr, name='leaveappr'),
+    path('lookup_emp_app/', views.lookup_emp_app, name='lookup_emp_app'),
+    path('lookup_emp_posi/', views.lookup_emp_posi, name='lookup_emp_posi'),
+    path('lookup_party/', views.lookup_party, name='lookup_party'),
+    path('New_resume/', views.New_resume, name='New_resume'),
+    path('lookup_party_resume/', views.lookup_party_resume, name='lookup_party_resume'),
+    path('add_emp_leave/', views.add_emp_leave, name='add_emp_leave'),
+    path('leave_approval/', views.leave_approval, name='leave_approval'),
+    
+    
+    # global HR by sunny and amit 
+    path('skill_types/', views.skill_types, name='skill_types'),
+    path('responsibility_types/', views.responsibility_types, name='responsibility_types'),
+    path('termination_reasons/', views.termination_reasons, name='termination_reasons'),
+    path('termination_types/', views.termination_types, name='termination_types'),
+    path('position_types/', views.position_types, name='position_types'),
+    path('emp_leave_types/', views.emp_leave_types, name='emp_leave_types'),
+    path('pay_grades/', views.pay_grades, name='pay_grades'),
+    path('job_interview_types/', views.job_interview_types, name='job_interview_types'),
+    path('tranning_class_types/', views.tranning_class_types, name='tranning_class_types'),
+    path('public_holiday/', views.public_holiday, name='public_holiday'),
+    path('EditPayGrade/', views.EditPayGrade, name='EditPayGrade'),
+    path('EmpLeaveReasonType/', views.EmpLeaveReasonType, name='EmpLeaveReasonType'),
+    path('emp_leave_types/', views.emp_leave_types, name='emp_leave_types'),
+    path('Edit_PositionTypes/', views.Edit_PositionTypes, name='Edit_PositionTypes'),
+    
+    
     
     # gannu hrms
     path('Skills/', views.Skills, name='Skills'),
@@ -66,4 +90,25 @@ urlpatterns = [
     # path('', include(router.urls)),
 
     path('create-party-skill/', views.create_party_skill, name='create_party_skill'),
+    path('Recruitment/', views.Recruitment, name='Recruitment'),
+    path('JobRequision/', views.JobRequision, name='JobRequision'),
+    path('NewJobRequision/', views.NewJobRequision, name='NewJobRequision'),
+    path('Approvals/', views.Approvals, name='Approvals'),
+    path('jobInterview/', views.jobInterview, name='jobInterview'),
+    path('newInternalJobPosting/', views.newInternalJobPosting, name='newInternalJobPosting'),
+    path('NewjobInterview/', views.NewjobInterview, name='NewjobInterview'),
+    path('Relocation/', views.Relocation, name='Relocation'),
+    
+    
+    path('TrainingCalender/', views.TrainingCalender, name='TrainingCalender'),
+    path('dayView/', views.dayView, name='dayView'),
+    path('monthView/', views.monthView, name='monthView'),
+    path('upcomingEvent/', views.upcomingEvent, name='upcomingEvent'),
+    path('TrainingApproval/', views.TrainingApproval, name='TrainingApproval'),
+    path('weekView/', views.weekView, name='weekView'),
+    path('CalenderSection/', views.CalenderSection, name='CalenderSection'),
+    path('addnewEventMonth/', views.addnewEventMonth, name='addnewEventMonth'),
+    path('addnewEvent/', views.addnewEvent, name='addnewEvent'),
+    path('nagaslookup/', views.nagaslookup, name='nagaslookup'),
+    
 ]

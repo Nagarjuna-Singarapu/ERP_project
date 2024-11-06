@@ -21,25 +21,29 @@
             <!-- Employee Details -->
             {% csrf_token %}
 
-            <div class="mb-3">
-                <label for="title" class="form-label">
-                    <select id="title" name="title" required>
-                        <option value="">Select a title</option>
-                        <option value="Mr">Mr</option>
-                        <option value="Ms">Ms</option>
-                        <option value="Mrs">Mrs</option>
-                        <option value="Dr">Dr</option>
-                        <option value="Prof">Prof</option>
-                    </select><br><br>
-                </label>
 
-            </div>
             <div class="row">
+
+                    <div class="col-md-4 mb-2">
+
+                        <label for="title" class="form-label">Title</label>
+                        <select id="title" name="title" required>
+                            <option value="">Select a title</option>
+                            <option value="Mr">Mr</option>
+                            <option value="Ms">Ms</option>
+                            <option value="Mrs">Mrs</option>
+                            <option value="Dr">Dr</option>
+                            <option value="Prof">Prof</option>
+                        </select><br><br>
+                        </span></label>
+    
+                </div>
+
                 <div class="col-md-4 mb-2">
                     <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="firstName" placeholder="Enter first name" name="first_name" required>
                 </div>
-                <div class="col-md-3 mb-2">
+                <div class="col-md-4 mb-2">
                     <label for="middle_initial" class="form-label">Middle Initial</label>
                     <input type="text" class="form-control" id="middleInitial" name="middle_initial" placeholder="M.I.">
                 </div>
@@ -145,8 +149,8 @@
             <!-- Submit Button -->
             <div class="d-grid gap-2 d-md-flex justify-content-md">
                 <button class="btn btn-primary me-md-2 btn-sm" type="submit" role="button">save</button>
-                <button class="btn btn-primary btn-sm" type="button">
-                    <a class="btn btn-primary" href="{% url 'emp_main' %}" role="button">Find Employe</a></button>
+                {% comment %} <button class="btn btn-primary btn-sm" type="button">
+                    <a class="btn btn-primary" href="{% url 'emp_main' %}" role="button">Find Employe</a></button> {% endcomment %}
             </div>
     </div>
 

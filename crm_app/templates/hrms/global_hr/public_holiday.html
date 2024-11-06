@@ -95,7 +95,7 @@
   </head>
 
   <body>
-    <div class="container my-5">
+    {% comment %} <div class="container my-5"> {% endcomment %}
 
     <!-- Button Container -->
     <div class="button-container">
@@ -109,7 +109,7 @@
         <button class="btn btn-custom"  onclick="window.location.href=`{% url 'job_interview_types' %}`">Job Interview Type</button>
         <button class="btn btn-custom"  onclick="window.location.href=`{% url 'public_holiday' %}`">Public Holiday</button>
         <button class="btn btn-custom"  onclick="window.location.href=`{% url 'tranning_class_types' %}`">Training Class Type</button>
-      </div>
+    </div>
 
 
         <div class="container my-4">

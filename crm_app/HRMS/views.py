@@ -1,14 +1,24 @@
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
+import json
+import logging
+import re
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 from django.contrib import messages
+from django.urls import reverse
 from .utils import load_country_data
 from django.shortcuts import get_object_or_404, redirect, render
-from .models import HR_Employee, PayGrade,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
-from .forms import EmploymentForm
-from django.shortcuts import render
+from .models import EmployeePosition, EmployeeQualification, HR_Employee, PayGrade, PositionType,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
 import json, logging
 from django.db import IntegrityError
 from django.http import HttpResponse
@@ -17,6 +27,10 @@ from .models import SkillType, PayGrade, SalaryStepGrade ,Responsibility_Type,Te
 from .serializers import SkillTypeSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
 
 logger=logging.getLogger(__name__)
+
+from .models import PayGrade, SalaryStepGrade
+from .serializers import PayGradeSerializer, PositionTypeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
+
 
 def NewEmploye(request):
     return render(request, 'hrms/emp_per/NewEmploye.html')
@@ -310,25 +324,26 @@ def lookup(request):
     return render(request, 'hrms/emp_per/lookup.html')
 
 
-def get_employee(request, employee_id):
+def get_employee_data(request):
+    employee_id = request.GET.get('employee_id')
     try:
-        # Adjust the query to match the model's field names
         employee = Employment.objects.get(employment_id__employee_id=employee_id)
-        
         data = {
-            "success": True,
-            "internal_organization": employee.internal_organization.name,
-            "from_date": employee.from_date,
-            "amount": employee.amount,
-            "comments": employee.comments,
-            "pay_grade": employee.pay_grade_id.grade_name if employee.pay_grade_id else employee.manual_pay_grade,
-            "salary_step": employee.salary_step_sequence_id.step_name if employee.salary_step_sequence_id else employee.manual_salary_step,
-            "period_type": employee.period_type_id,
+            'internal_organization': employee.internal_organization.id,
+            'from_date': employee.from_date,
+            'amount': employee.amount,
+            'comments': employee.comments,
+            'pay_grade': employee.pay_grade_id.grade_name if employee.pay_grade_id else '',
+            'salary_step': employee.salary_step_sequence_id.step_name if employee.salary_step_sequence_id else '',
+            'period_type': employee.period_type_id,
+            'termination_type': employee.termination_type.termination_type if employee.termination_type else '',
+            'termination_reason': employee.termination_reason.termination_reason if employee.termination_reason else '',
         }
+        return JsonResponse(data)
     except Employment.DoesNotExist:
-        data = {"success": False}
-    
-    return JsonResponse(data)
+        return JsonResponse({'error': 'Employee not found'}, status=404)
+
+########################################################### Creating New Employment ###################################################
 
 def create_employment(request):
     if request.method == 'POST':
@@ -337,21 +352,36 @@ def create_employment(request):
         from_date = request.POST['from_date']
         amount = request.POST['amount']
         comments = request.POST.get('comments', '')
-        pay_grade_name = request.POST.get('pay_grade', '')
-        salary_step_name = request.POST.get('salary_step', '')
+        pay_grade_id = request.POST.get('pay_grade', '')
+        salary_step_id = request.POST.get('salary_step', '')
         period_type = request.POST['period_type']
 
         # New fields for termination
-        termination_type_name = request.POST.get('termination_type', '')  # Optional field
-        termination_reason_name = request.POST.get('termination_reason', '')  # Optional field
+        termination_type_id = request.POST.get('termination_type', '')
+        termination_reason_id = request.POST.get('termination_reason', '')
 
         # Fetch the related instances
         employee = get_object_or_404(HR_Employee, employee_id=employee_id)
         internal_org = get_object_or_404(HR_Department, id=internal_org_id)
-        pay_grade, _ = PayGrade.objects.get_or_create(grade_name=pay_grade_name)
-        salary_step, _ = SalaryStepGrade.objects.get_or_create(step_name=salary_step_name)
-        termination_type, _ = TerminationType.objects.get_or_create(termination_type=termination_type_name)
-        termination_reason, _ = TerminationReason.objects.get_or_create(termination_reason=termination_reason_name)
+
+        # Ensure that pay grade and salary step exist in the database
+        try:
+            pay_grade = PayGrade.objects.get(id=pay_grade_id)
+        except PayGrade.DoesNotExist:
+            return JsonResponse({'error': f'Invalid pay grade: {pay_grade_id}'}, status=400)
+
+        try:
+            salary_step = SalaryStepGrade.objects.get(id=salary_step_id)
+        except SalaryStepGrade.DoesNotExist:
+            return JsonResponse({'error': f'Invalid salary step: {salary_step_id}'}, status=400)
+
+        # Optional fields for termination
+        termination_type = None
+        termination_reason = None
+        if termination_type_id:
+            termination_type = get_object_or_404(TerminationType, id=termination_type_id)
+        if termination_reason_id:
+            termination_reason = get_object_or_404(TerminationReason, id=termination_reason_id)
 
         # Create or update Employment record
         employment, created = Employment.objects.update_or_create(
@@ -364,17 +394,535 @@ def create_employment(request):
                 'pay_grade_id': pay_grade,
                 'salary_step_sequence_id': salary_step,
                 'period_type_id': period_type,
-                # Add new fields for termination
                 'termination_type': termination_type,
                 'termination_reason': termination_reason,
             }
         )
+
 
         return redirect('Employment')
 
     return render(request, 'hrms/emp_per/NewEmployment.html')
 
 
+
+################################################### Filterring Employment Data ##############################################################
+
+logger = logging.getLogger(__name__)
+
+def employment_search(request):
+    if request.method == 'POST':
+        # Parse the JSON request body
+        try:
+            body = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        # Extract search parameters
+        employee_id = body.get('employee_id')
+        termination_reason_name = body.get('termination_reason')  # The name, e.g., "Company Downsizing"
+        first_name = body.get('first_name')
+        last_name = body.get('last_name')
+        termination_type = body.get('termination_type')
+        planned_start_date = body.get('from_date')  # Date in HR_Employee
+        from_date = body.get('through_date')  # Date in Employment
+
+        # Initialize querysets
+        queryset = HR_Employee.objects.all()
+        employment_queryset = Employment.objects.all()
+
+        # Apply filters to HR_Employee
+        if employee_id:
+            queryset = queryset.filter(employee_id=employee_id)
+        if first_name:
+            queryset = queryset.filter(first_name__icontains=first_name)
+        if last_name:
+            queryset = queryset.filter(last_name__icontains=last_name)
+        if planned_start_date:
+            queryset = queryset.filter(planned_start_date=planned_start_date)
+
+        # Apply filters to Employment based on TerminationReason
+        if termination_reason_name:
+            try:
+                termination_reason = TerminationReason.objects.get(termination_reason=termination_reason_name)
+                employment_queryset = employment_queryset.filter(termination_reason=termination_reason)
+            except TerminationReason.DoesNotExist:
+                return JsonResponse({'error': 'Termination reason not found'}, status=404)
+
+        # Additional Employment filters
+        if termination_type:
+            try:
+                termination_type_obj = TerminationType.objects.get(termination_type=termination_type)
+                employment_queryset = employment_queryset.filter(termination_type=termination_type_obj)
+            except TerminationType.DoesNotExist:
+                return JsonResponse({'error': 'Termination type not found'}, status=404)
+        if from_date:
+            employment_queryset = employment_queryset.filter(from_date=from_date)
+
+        # Prepare response data
+        results = []
+        for employee in queryset:
+            # Filter Employment records for each HR_Employee
+            employment_records = employment_queryset.filter(employment_id=employee)
+            logger.debug("Employment Records for Employee %s: %s", employee.employee_id, employment_records)
+
+            for employment in employment_records:
+                results.append({
+                    'internal_organization': employment.internal_organization.name,
+                    'employment_id': {
+                        'employee_id': employee.employee_id,
+                        'first_name': employee.first_name,
+                        'last_name': employee.last_name,
+                        'from_date': employee.planned_start_date,
+                    },
+                    'through_date': employment.from_date,
+                    'termination_reason': str(employment.termination_reason),
+                    'termination_type': str(employment.termination_type),
+                })
+
+        logger.debug("Results: %s", results)
+        print(results)
+
+        return JsonResponse(results, safe=False)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+
+def employment_data(request):
+    if request.method == 'GET':
+        results = []
+
+        # Fetch all employees; you might want to apply filters if needed
+        employees = HR_Employee.objects.all()
+        # print(f"Total Employees: {employees.count()}")  # Debugging line
+
+        for employee in employees:
+            # Get all employment records for the current employee
+            employment_records = Employment.objects.filter(employment_id__employee_id=employee.employee_id)
+
+            # print(f"Employee ID: {employee.employee_id}, Employment Records Found: {employment_records.count()}")  # Debugging line
+            
+            for employment in employment_records:
+                results.append({
+                    'internal_organization': employment.internal_organization.name if employment.internal_organization else 'N/A',
+                    'employment_id': {
+                        'employee_id': employee.employee_id,  # Assuming employee_id is a field in HR_Employee
+                        'first_name': employee.first_name,
+                        'last_name': employee.last_name,
+                    },
+                    'from_date': employee.planned_start_date.strftime('%Y-%m-%d') if employee.planned_start_date else 'N/A',
+                    'through_date': employment.from_date.strftime('%Y-%m-%d') if employment.from_date else 'N/A',
+                    'termination_reason': str(employment.termination_reason) if employment.termination_reason else 'N/A',
+                    'termination_type': str(employment.termination_type) if employment.termination_type else 'N/A',
+                })
+
+        # print(f"Results: {results}")  # Debugging line to check the final results
+        return JsonResponse(results, safe=False)
+
+
+
+##############################################################################################################################################
+
+from datetime import datetime
+
+def create_employee_position(request):
+    errors = {}
+    
+    if request.method == 'POST':
+        # Retrieve and validate form data from POST request
+        employee_id = request.POST.get('employee_id')
+        status = request.POST.get('status')
+        internal_organization_id = request.POST.get('internal_organization')
+        budget_id = request.POST.get('budgetID')
+        budget_item_sequence_id = request.POST.get('budgetItemSequenceID')
+        employee_position_type_id = request.POST.get('employeePositionTypeID')
+
+        # Validate employee_id
+        if not employee_id:
+            errors['employee_id'] = "Employee ID is required."
+        else:
+            try:
+                employee = HR_Employee.objects.get(employee_id=employee_id)
+            except HR_Employee.DoesNotExist:
+                errors['employee_id'] = "Employee ID does not exist."
+
+        # Validate internal_organization_id
+        if not internal_organization_id:
+            errors['internal_organization'] = "Internal Organization ID is required."
+        else:
+            try:
+                internal_organization = HR_Department.objects.get(id=internal_organization_id)
+            except HR_Department.DoesNotExist:
+                errors['internal_organization'] = "Internal Organization ID does not exist."
+            except ValueError:
+                errors['internal_organization'] = "Invalid format for Internal Organization ID."
+
+        # Validate employee_position_type_id
+        if not employee_position_type_id:
+            errors['employee_position_type'] = "Position Type ID is required."
+        else:
+            try:
+                employee_position_type = PositionType.objects.get(id=employee_position_type_id)
+            except PositionType.DoesNotExist:
+                errors['employee_position_type'] = "Position Type ID does not exist."
+            except ValueError:
+                errors['employee_position_type'] = "Invalid format for Position Type ID."
+
+        # Validate date fields and convert empty values to None
+        date_format = "%Y-%m-%d"
+        def parse_date(date_str, field_name):
+            try:
+                return datetime.strptime(date_str, date_format).date() if date_str else None
+            except ValueError:
+                errors[field_name] = f"Invalid date format for {field_name}. Expected YYYY-MM-DD."
+                return None
+
+        planned_start_date = parse_date(request.POST.get('plannedStartDate'), 'planned_start_date')
+        planned_end_date = parse_date(request.POST.get('plannedEndDate'), 'planned_end_date')
+        actual_start_date = parse_date(request.POST.get('actualStartDate'), 'actual_start_date')
+        actual_finish_date = parse_date(request.POST.get('actualFinishDate'), 'actual_finish_date')
+
+        # Validate date ranges
+        if planned_start_date and planned_end_date and planned_start_date > planned_end_date:
+            errors['planned_dates'] = "Planned Start Date must be before Planned End Date."
+        if actual_start_date and actual_finish_date and actual_start_date > actual_finish_date:
+            errors['actual_dates'] = "Actual Start Date must be before Actual Finish Date."
+
+        # Validate flag fields
+        def validate_flag(flag_value, field_name):
+            if flag_value not in ['YES', 'NO', None]:
+                errors[field_name] = f"{field_name} must be either 'YES' or 'NO'."
+            return flag_value == 'YES'
+
+        salary_flag = validate_flag(request.POST.get('salaryFlag'), 'salary_flag')
+        tax_exempt_flag = validate_flag(request.POST.get('taxExemptFlag'), 'tax_exempt_flag')
+        full_time_flag = validate_flag(request.POST.get('fullTimeFlag'), 'full_time_flag')
+        temporary_flag = validate_flag(request.POST.get('temporaryFlag'), 'temporary_flag')
+
+        # Validate budget_id and budget_item_sequence_id
+        if budget_id and not budget_id.isdigit():
+            errors['budget_id'] = "Budget ID must be a number."
+        if budget_item_sequence_id and not budget_item_sequence_id.isdigit():
+            errors['budget_item_sequence_id'] = "Budget Item Sequence ID must be a number."
+
+        # If there are errors, render the form with error messages
+        if errors:
+            return render(request, 'hrms/emp_per/New_positions.html', {
+                'errors': errors,
+                'employee_id': employee_id,
+            })
+
+        # Proceed to create or update the EmployeePosition if no errors are found
+        EmployeePosition.objects.update_or_create(
+            employee=employee,
+            defaults={
+                'status': status,
+                'internal_organization': internal_organization,
+                'budget_id': budget_id,
+                'budget_item_sequence_id': budget_item_sequence_id,
+                'employee_position_type': employee_position_type,
+                'planned_start_date': planned_start_date,
+                'planned_end_date': planned_end_date,
+                'salary_flag': salary_flag,
+                'tax_exempt_flag': tax_exempt_flag,
+                'full_time_flag': full_time_flag,
+                'temporary_flag': temporary_flag,
+                'actual_start_date': actual_start_date,
+                'actual_finish_date': actual_finish_date
+            }
+        )
+
+        # Redirect to a success page or back to the form
+        return render(request, 'hrms/emp_per/New_positions.html', {'success': True})
+
+    # Render the form with empty fields for a new instance or pre-filled data for update
+    return render(request, 'hrms/emp_per/New_positions.html')
+
+
+
+def get_employee_position(request):
+    employee_id = request.GET.get('employee_id')
+    try:
+        employee_position = EmployeePosition.objects.get(employee__employee_id=employee_id)
+        data = {
+            'status': employee_position.status,
+            'internal_organization': employee_position.internal_organization.id if employee_position.internal_organization else '',
+            'budget_id': employee_position.budget_id,
+            'budget_item_sequence_id': employee_position.budget_item_sequence_id,
+            'employee_position_type': employee_position.employee_position_type.id if employee_position.employee_position_type else '',
+            'planned_start_date': employee_position.planned_start_date,
+            'planned_end_date': employee_position.planned_end_date,
+            'salary_flag': employee_position.salary_flag,
+            'tax_exempt_flag': employee_position.tax_exempt_flag,
+            'full_time_flag': employee_position.full_time_flag,
+            'temporary_flag': employee_position.temporary_flag,
+            'actual_start_date': employee_position.actual_start_date,
+            'actual_finish_date': employee_position.actual_finish_date,
+        }
+        return JsonResponse(data)
+    except EmployeePosition.DoesNotExist:
+        return JsonResponse({'error': 'Employee position data not found'}, status=404)
+    
+
+
+def employment_position_search(request):
+    if request.method == 'POST':
+        # Parse the JSON request body
+        try:
+            body = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        # Extract search parameters
+        employee_id = body.get('employee_id')
+        employee_position_type = body.get('employee_position_type')
+        status = body.get('status')
+        budget_id = body.get('budget_id')
+        budget_item_sequence_id = body.get('budget_item_sequence_id')
+        salary_flag = body.get('salary_flag')
+        tax_exempt_flag = body.get('tax_exempt_flag')
+        full_time_flag = body.get('full_time_flag')
+        temporary_flag = body.get('temporary_flag')
+        actual_start_date = body.get('actual_start_date')
+        actual_finish_date = body.get('actual_finish_date')
+
+        # Initialize querysets
+        queryset = HR_Employee.objects.all()
+        position_queryset = EmployeePosition.objects.all()
+
+        # Apply filters to HR_Employee
+        if employee_id:
+            queryset = queryset.filter(employee_id=employee_id)
+
+        # Apply filters to EmployeePosition
+        if employee_position_type:
+            position_queryset = position_queryset.filter(employee_position_type=employee_position_type)
+        if status:
+            position_queryset = position_queryset.filter(status=status)
+        if budget_id:
+            position_queryset = position_queryset.filter(budget_id=budget_id)
+        if budget_item_sequence_id:
+            position_queryset = position_queryset.filter(budget_item_sequence_id=budget_item_sequence_id)
+        if salary_flag:
+            position_queryset = position_queryset.filter(salary_flag=salary_flag)
+        if tax_exempt_flag:
+            position_queryset = position_queryset.filter(tax_exempt_flag=tax_exempt_flag)
+        if full_time_flag:
+            position_queryset = position_queryset.filter(full_time_flag=full_time_flag)
+        if temporary_flag:
+            position_queryset = position_queryset.filter(temporary_flag=temporary_flag)
+        if actual_start_date:
+            position_queryset = position_queryset.filter(actual_start_date=actual_start_date)
+        if actual_finish_date:
+            position_queryset = position_queryset.filter(actual_finish_date=actual_finish_date)
+
+        # Prepare response data
+        results = []
+        for employee in queryset:
+            # Filter EmployeePosition records for each HR_Employee
+            position_records = position_queryset.filter(employee=employee)
+            logger.debug("Position Records for Employee %s: %s", employee.employee_id, position_records)
+
+            for position in position_records:
+                results.append({
+                    'employee': position.employee.employee_id,  # Employee Position ID
+                    'status_id': position.status,  # Directly access the status string
+                    'budget_id': position.budget_id,
+                    'budget_item_sequence_id': position.budget_item_sequence_id,
+                    'employee_position_type_id': position.employee_position_type.id if position.employee_position_type else None,
+                    'planned_start_date': position.planned_start_date,
+                    'planned_end_date': position.planned_end_date,
+                    'salary_flag': position.salary_flag,
+                    'tax_exempt_flag': position.tax_exempt_flag,
+                    'full_time_flag': position.full_time_flag,
+                    'temporary_flag': position.temporary_flag,
+                    'actual_start_date': position.actual_start_date,
+                    'actual_finish_date': position.actual_finish_date,
+                })
+
+        # logger.debug("Results: %s", results)
+        # print(results)
+
+        return JsonResponse(results, safe=False)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+def employment_position_data(request):
+    # Fetch employment position data
+    positions = EmployeePosition.objects.all().select_related('employee' , 'employee_position_type')  # Adjust as necessary
+
+    # Prepare the data to be returned
+    data = []
+    for position in positions:
+        data.append({
+            'employee': position.employee.employee_id,  # Assuming you want employee_id from the employee model
+            'status_id': position.status,
+            'budget_id': position.budget_id,
+            'budget_item_sequence_id': position.budget_item_sequence_id,
+            'employee_position_type_id': position.employee_position_type.name if position.employee_position_type else None,
+            'planned_start_date': position.planned_start_date,
+            'planned_end_date': position.planned_end_date,
+            'salary_flag': position.salary_flag,
+            'tax_exempt_flag': position.tax_exempt_flag,
+            'full_time_flag': position.full_time_flag,
+            'temporary_flag': position.temporary_flag,
+            'actual_start_date': position.actual_start_date,
+            'actual_finish_date': position.actual_finish_date,
+        })
+
+    return JsonResponse(data, safe=False)
+
+
+############################################################################################################################################
+
+def create_employee_qualification(request):
+    errors = {}  # Dictionary to store validation errors
+
+    if request.method == 'POST':
+        qualification_desc = request.POST.get('AddPartyQual_qualificationDesc')
+        title = request.POST.get('title')
+        status_id = request.POST.get('AddPartyQual_statusId')
+        verify_status_id = request.POST.get('AddPartyQual_verifStatusId')
+        through_date = request.POST.get('AddPartyQual_thruDate')
+        employee_id_value = request.POST.get('employee_id')
+        party_qual_type_id = request.POST.get('AddPartyQual_partyQualTypeId')
+        from_date = request.POST.get('AddPartyQual_fromDate')
+
+        # Validation for qualification description (cannot start with special characters)
+        if qualification_desc and re.match(r'^[^a-zA-Z0-9]', qualification_desc):
+            errors['qualification_desc'] = "Qualification description cannot start with a special character."
+
+        # Validation for title (no special characters allowed)
+        if title and re.search(r'[^a-zA-Z0-9 ]', title):
+            errors['title'] = "Title should not contain special characters."
+
+        # Validation for from_date and through_date (from_date < through_date)
+        if from_date and through_date:
+            try:
+                from_date_obj = datetime.strptime(from_date, '%Y-%m-%d')
+                through_date_obj = datetime.strptime(through_date, '%Y-%m-%d')
+                if from_date_obj >= through_date_obj:
+                    errors['date'] = "From date must be earlier than Through date."
+            except ValueError:
+                errors['date_format'] = "Dates must be in YYYY-MM-DD format."
+
+        # Check if employee_id exists
+        try:
+            employee = HR_Employee.objects.get(employee_id=employee_id_value)
+        except HR_Employee.DoesNotExist:
+            errors['employee_id'] = "Employee ID does not exist."
+
+        # If there are validation errors, render the form with errors
+        if errors:
+            return render(request, 'hrms/skill_qual/newpartiesQualifivation.html', {
+                'errors': errors,
+            })
+
+        # If no errors, create or update EmployeeQualification
+        qualification, created = EmployeeQualification.objects.update_or_create(
+            employee_id=employee,
+            defaults={
+                'qualification_desc': qualification_desc,
+                'title': title,
+                'status_id': status_id,
+                'verify_status_id': verify_status_id,
+                'through_date': through_date if through_date else None,
+                'party_qual_type_id': party_qual_type_id,
+                'from_date': from_date if from_date else None,
+            })
+
+        return render(request, 'hrms/skill_qual/newpartiesQualifivation.html', {'success': True})
+    return render(request, 'hrms/skill_qual/newpartiesQualifivation.html')
+
+
+def employee_qualification_search(request):
+    if request.method == 'POST':
+        # Get the search parameters from the request body
+        data = request.body.decode('utf-8')
+        json_data = json.loads(data)
+
+        employee_id = json_data.get('employee_id')
+        qualification_desc = json_data.get('qualification_desc')
+        title = json_data.get('title')
+        status_ids = json_data.get('status_id', [])  # List of selected status ids
+        verify_status_id = json_data.get('verify_status_id')
+        from_date = json_data.get('from_date')
+        through_date = json_data.get('through_date')
+        party_qual_type_id = json_data.get('party_qual_type_id')
+
+        # Build the query filters based on the provided parameters
+        filters = {}
+
+        if employee_id:
+            filters['employee_id__employee_id'] = employee_id
+        if qualification_desc:
+            filters['qualification_desc__icontains'] = qualification_desc
+        if title:
+            filters['title__icontains'] = title
+        if status_ids:
+            filters['status_id__in'] = status_ids
+        if verify_status_id:
+            filters['verify_status_id'] = verify_status_id
+        if from_date:
+            filters['from_date__gte'] = from_date
+        if through_date:
+            filters['through_date__lte'] = through_date
+        if party_qual_type_id:
+            filters['party_qual_type_id'] = party_qual_type_id
+
+        # Filter the EmployeeQualification records based on the filters
+        qualifications = EmployeeQualification.objects.filter(**filters)
+
+        # Prepare the response data
+        response_data = []
+        for qualification in qualifications:
+            response_data.append({
+                'employee_id': qualification.employee_id.employee_id,  # Assuming HR_Employee has employee_id
+                'party_qual_type_id': dict(EmployeeQualification.QUALIFICATION_TYPES).get(qualification.party_qual_type_id, 'N/A'),
+                'qualification_desc': qualification.qualification_desc,
+                'title': qualification.title,
+                'status_id': dict(EmployeeQualification.STATUS_CHOICES).get(qualification.status_id, 'N/A'),
+                'verify_status_id': dict(EmployeeQualification.VERIFICATION_CHOICES).get(qualification.verify_status_id, 'N/A'),
+                'from_date': qualification.from_date,
+                'through_date': qualification.through_date,
+            })
+
+        return JsonResponse(response_data, safe=False)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def employee_qualification_data(request):
+    # Fetch employee qualification data
+    qualifications = EmployeeQualification.objects.all().select_related('employee_id')  # Only fetch related 'employee_id'
+
+    # Prepare the data to be returned
+    data = []
+    for qualification in qualifications:
+        data.append({
+            'employee_id': qualification.employee_id.employee_id,  # Assuming you want employee_id from the HR_Employee model
+            'party_qual_type_id': dict(EmployeeQualification.QUALIFICATION_TYPES).get(qualification.party_qual_type_id, None),  # Convert party_qual_type_id to name
+            'qualification_desc': qualification.qualification_desc,
+            'title': qualification.title,
+            'status_id': qualification.status_id,
+            'verify_status_id': qualification.verify_status_id,
+            'from_date': qualification.from_date,
+            'through_date': qualification.through_date,
+        })
+
+    # Return the data as a JSON response
+    return JsonResponse(data, safe=False)
+
+
+@api_view(['DELETE'])
+def delete_employee_qualification(request, employee_id):
+    try:
+        qualification = EmployeeQualification.objects.get(employee_id=employee_id)
+        qualification.delete()
+        return Response({'message': 'Qualification deleted successfully'}, status=200)
+    except EmployeeQualification.DoesNotExist:
+        return Response({'error': 'Qualification not found'}, status=404)
 
 ##############################################################################################################################################
 
@@ -395,6 +943,12 @@ def NewEmployement(request):
 def New_positions(request):
     return render(request, 'hrms/emp_per/New_positions.html')
 
+def performance(request):
+    return render(request, 'hrms/emp_per/performance.html')
+
+def EditPerformace(request):
+    return render(request, 'hrms/emp_per/EditPerformace.html')
+
 
 
 @xframe_options_exempt
@@ -411,11 +965,15 @@ def Search_Emp_position(request):
 
 @xframe_options_exempt
 def Paygrad(request):
-    return render(request, 'hrms/emp_per/Paygrad.html')
+    return render(request, 'hrms/emp_per/Paygrad.html') 
 
 @xframe_options_exempt
 def EditSalary(request):
     return render(request, 'hrms/emp_per/EditSalary.html')
+
+@xframe_options_exempt
+def LookUpPerformace(request):
+    return render(request, 'hrms/emp_per/LookUpPerformace.html')
 
 
     
@@ -516,6 +1074,30 @@ def newparties(request):
 def newpartiesQualifivation(request):
     return render(request, 'hrms/skill_qual/newpartiesQualifivation.html')
 
+def Recruitment(request):
+    return render(request, 'hrms/skill_qual/Recruitment.html')
+
+def JobRequision(request):
+    return render(request, 'hrms/skill_qual/JobRequision.html')
+
+def NewJobRequision(request):
+    return render(request, 'hrms/skill_qual/NewJobRequision.html')
+
+def Approvals(request):
+    return render(request, 'hrms/skill_qual/Approvals.html')
+
+def jobInterview(request):
+    return render(request, 'hrms/skill_qual/jobInterview.html') 
+
+def newInternalJobPosting(request):
+    return render(request, 'hrms/skill_qual/newInternalJobPosting.html')
+
+def NewjobInterview(request):
+    return render(request, 'hrms/skill_qual/NewjobInterview.html')
+
+def Relocation(request):
+    return render(request, 'hrms/skill_qual/Relocation.html')
+
 
 
 def TrainingCalender(request):
@@ -581,3 +1163,11 @@ class TerminationReasonList(APIView):
         salary_steps = TerminationReason.objects.all()
         serializer = TerminationReasonSerializer(salary_steps, many=True)
         return Response(serializer.data)
+    
+class PositionTypeList(APIView):
+    def get(self, request):
+        position_types = PositionType.objects.all()
+        serializer = PositionTypeSerializer(position_types, many=True)
+        return Response(serializer.data)
+    
+

@@ -15,13 +15,27 @@ urlpatterns = [
     # path('lookup/', views.find_employee, name='lookup'),
 
     path('create-employment/', views.create_employment, name='create_employment'),
-    path('get-employee/<str:employee_id>/', views.get_employee, name='get_employee'),
+    path('api/get-employee-data/', views.get_employee_data, name='get_employee_data'),
     path('api/department/', views.get_departments, name='get_departments'),
     path('api/paygrades/', views.PayGradeList.as_view(), name='paygrade-list'),
     path('api/salarysteps/', views.SalaryStepList.as_view(), name='salarystep-list'),
     path('api/terminationtype/', views.TerminationTypeList.as_view(), name='terminationType-list'),
     path('api/terminationreason/', views.TerminationReasonList.as_view(), name='terminationReason-list'),
+    path('api/positiontypes/', views.PositionTypeList.as_view(), name='positiontype-list'),
+
+    path('employment-search/', views.employment_search, name='employment_search'),
+    path('api/employment-data/', views.employment_data, name='employment_data'),
+
+    path('create-employee-position/', views.create_employee_position, name='create_employee_position'),
+    path('api/get-employee-position-data/', views.get_employee_position, name='get_employee_position'),
+    path('employment-position-search/', views.employment_position_search, name='employment_position_search'),
+    path('api/employment-position-data/', views.employment_position_data, name='employment_position_data'),
     
+    path('create-employee-qualification/', views.create_employee_qualification, name='create_employee_qualification'),
+    path('employee-qualification-search/', views.employee_qualification_search, name='employee_qualification_search'),
+    path('api/employee-qualification-data/', views.employee_qualification_data, name='employee_qualification_data'),
+    path('api/delete-qualification/<str:employee_id>/', views.delete_employee_qualification, name='delete_employee_qualification'),
+
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
     path('emp_main/', views.emp_main, name='emp_main'),
@@ -33,7 +47,10 @@ urlpatterns = [
     path('New_positions/', views.New_positions, name='New_positions'),
     path('Search_Emp_position/', views.Search_Emp_position, name='Search_Emp_position'),
     path('Paygrad/', views.Paygrad, name='Paygrad'),
-    path('EditSalary/', views.EditSalary, name='EditSalary'), 
+    path('EditSalary/', views.EditSalary, name='EditSalary'),
+    path('performance/', views.performance, name='performance'),
+    path('EditPerformace/', views.EditPerformace, name='EditPerformace'),
+    path('LookUpPerformace/', views.LookUpPerformace, name='LookUpPerformace'),
      
     # sunny hrms
     path('employement_appli/', views.employement_appli, name='employement_appli'),
@@ -85,7 +102,14 @@ urlpatterns = [
     path('newparties/', views.newparties, name='newparties'),
     path('skill_lookupparty/', views.skill_lookupparty, name='skill_lookupparty'),
     path('newpartiesQualifivation/', views.newpartiesQualifivation, name='newpartiesQualifivation'),
-    
+    path('Recruitment/', views.Recruitment, name='Recruitment'),
+    path('JobRequision/', views.JobRequision, name='JobRequision'),
+    path('NewJobRequision/', views.NewJobRequision, name='NewJobRequision'),
+    path('Approvals/', views.Approvals, name='Approvals'),
+    path('jobInterview/', views.jobInterview, name='jobInterview'),
+    path('newInternalJobPosting/', views.newInternalJobPosting, name='newInternalJobPosting'),
+    path('NewjobInterview/', views.NewjobInterview, name='NewjobInterview'),
+    path('Relocation/', views.Relocation, name='Relocation'),
     
     
     path('TrainingCalender/', views.TrainingCalender, name='TrainingCalender'),

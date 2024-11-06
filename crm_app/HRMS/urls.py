@@ -31,6 +31,11 @@ urlpatterns = [
     path('employment-position-search/', views.employment_position_search, name='employment_position_search'),
     path('api/employment-position-data/', views.employment_position_data, name='employment_position_data'),
     
+    path('create-employee-qualification/', views.create_employee_qualification, name='create_employee_qualification'),
+    path('employee-qualification-search/', views.employee_qualification_search, name='employee_qualification_search'),
+     path('api/employee-qualification-data/', views.employee_qualification_data, name='employee_qualification_data'),
+     path('api/delete-qualification/<str:employee_id>/', views.delete_employee_qualification, name='delete_employee_qualification'),
+
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
     path('emp_main/', views.emp_main, name='emp_main'),

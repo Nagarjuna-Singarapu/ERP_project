@@ -1,3 +1,7 @@
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 import json
 import logging
 import re
@@ -5,6 +9,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+
 from django.contrib import messages
 from django.urls import reverse
 from .utils import load_country_data
@@ -13,8 +18,19 @@ from .models import EmployeePosition, EmployeeQualification, HR_Employee, PayGra
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
+import json, logging
+from django.db import IntegrityError
+from django.http import HttpResponse
+from rest_framework import status
+from .models import SkillType, PayGrade, SalaryStepGrade ,Responsibility_Type,TerminationReason
+from .serializers import SkillTypeSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
+
+logger=logging.getLogger(__name__)
+
 from .models import PayGrade, SalaryStepGrade
 from .serializers import PayGradeSerializer, PositionTypeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
+
 
 def NewEmploye(request):
     return render(request, 'hrms/emp_per/NewEmploye.html')
@@ -39,6 +55,168 @@ def get_states(request, country_name):
     countries = load_country_data()
     states = next((c["states"] for c in countries if c["name"] == country_name), [])
     return JsonResponse(states, safe=False)
+
+
+
+##########   Skill Type ##########################################################
+
+#View for fetching all stored skill types
+@csrf_exempt
+def get_skill_type(request):
+    if request.method == 'GET':
+          skill_types = SkillType.objects.all().values('skillTypeId', 'description')
+          return JsonResponse(list(skill_types), safe=False)
+
+
+#View for adding  skill types
+@csrf_exempt
+def skill_type(request):
+    if request.method == 'POST':
+        try:
+            # Parse JSON data from the request body
+            data = json.loads(request.body.decode('utf-8'))
+            skill_type_id = data.get('skillTypeId')
+            description = data.get('description')
+
+            # Validate received data
+            if not skill_type_id or not description:
+                return JsonResponse({'status': 'error', 'message': 'Missing skillTypeId or description'}, status=400)
+
+            # Create and save the new skill type
+            skill_type = SkillType(skillTypeId=skill_type_id, description=description)
+            skill_type.save()
+
+            return JsonResponse({'status': 'success', 'skillTypeId': skill_type.skillTypeId, 'description': skill_type.description})
+
+        except json.JSONDecodeError:
+            logger.error("Invalid JSON format received.")
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON format'}, status=400)
+        except Exception as e:
+            logger.error("Error creating skill type: %s", e)
+            return JsonResponse({'status': 'error', 'message': 'Failed to create skill type'}, status=500)
+
+    elif request.method == 'DELETE':
+        try:
+            # Parse JSON data for DELETE request
+            data = json.loads(request.body.decode('utf-8'))
+            skill_type_id = data.get('skillTypeId')
+
+            if not skill_type_id:
+                return JsonResponse({'status': 'error', 'message': 'Missing skillTypeId'}, status=400)
+
+            # Find and delete the skill type
+            skill_type = SkillType.objects.get(skillTypeId=skill_type_id)
+            skill_type.delete()
+
+            return JsonResponse({'status': 'success', 'message': 'Skill type deleted successfully'})
+
+        except SkillType.DoesNotExist:
+            logger.error("Skill type with ID %s does not exist", skill_type_id)
+            return JsonResponse({'status': 'error', 'message': 'Skill type not found'}, status=404)
+        except Exception as e:
+            logger.error("Error deleting skill type: %s", e)
+            return JsonResponse({'status': 'error', 'message': 'Failed to delete skill type'}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+
+#View for fetching all stored Responsibility types
+@csrf_exempt
+def get_responsibility_type(request):
+    if request.method == 'GET':
+          responsibility_type = Responsibility_Type.objects.all().values('responsibilityTypeId', 'description')
+          return JsonResponse(list(responsibility_type), safe=False)
+
+
+#View for adding Responsibility types
+@csrf_exempt
+def responsibility_type(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            responsibility_type_id = data.get('responsibilityTypeId')
+            description = data.get('description')
+
+            responsibility_type = Responsibility_Type(
+                responsibilityTypeId=responsibility_type_id,
+                description=description
+            )
+            responsibility_type.save()
+
+            return JsonResponse({
+                'status': 'success',
+                'responsibilityTypeId': responsibility_type.responsibilityTypeId,
+                'description': responsibility_type.description
+            })
+        except Exception as e:
+            logger.error("Error creating responsibility type: %s", e)
+            return JsonResponse({'status': 'error', 'message': 'Failed to create responsibility type'}, status=500)
+
+    elif request.method == 'DELETE':
+        data = json.loads(request.body)
+        responsibility_type_id = data.get('responsibilityTypeId')
+
+        try:
+            responsibility_type = Responsibility_Type.objects.get(responsibilityTypeId=responsibility_type_id)
+            responsibility_type.delete()
+            return JsonResponse({'status': 'success', 'message': 'Responsibility type deleted successfully'})
+        except Responsibility_Type.DoesNotExist:
+            logger.error("Responsibility type with ID %s does not exist", responsibility_type_id)
+            return JsonResponse({'status': 'error', 'message': 'Responsibility type not found'}, status=404)
+        except Exception as e:
+            logger.error("Error deleting responsibility type: %s", e)
+            return JsonResponse({'status': 'error', 'message': 'Failed to delete responsibility type'}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+
+#View for fetching all stored Termination Reasons 
+@csrf_exempt
+def get_termination_reason(request):
+    if request.method == 'GET':
+          reason = TerminationReason.objects.all().values('termination_reason', 'description')
+          return JsonResponse(list(reason), safe=False)
+
+
+#view for the Termination_Reason
+@csrf_exempt
+def termination_reason(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            termination_reason = data.get('termination_reason')
+            description = data.get('description')
+
+            # Create the termination reason object
+            reason = TerminationReason(termination_reason=termination_reason, description=description)
+            reason.save()
+
+            return JsonResponse({'status': 'success', 'termination_reason': reason.termination_reason, 'description': reason.description})
+
+        except IntegrityError:
+            # Return an error response for duplicate ID
+            return JsonResponse({'status': 'error', 'message': 'Termination Reason ID already exists. Please use a unique ID.'}, status=400)
+        except Exception as e:
+            # General error response
+            return JsonResponse({'status': 'error', 'message': 'Failed to create termination reason'}, status=500)
+
+    elif request.method == 'DELETE':
+        data = json.loads(request.body)
+        termination_reason = data.get('termination_reason')
+
+        try:
+            reason = TerminationReason.objects.get(termination_reason=termination_reason)
+            reason.delete()
+            return JsonResponse({'status': 'success', 'message': 'Termination reason deleted successfully'})
+        except TerminationReason.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Termination reason not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': 'Failed to delete termination reason'}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+
+
 
 def submit_employee(request):
     if request.method == 'POST':

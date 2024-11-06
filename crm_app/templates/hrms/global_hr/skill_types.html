@@ -90,7 +90,7 @@
 
     <!-- Button Container -->
     <div class="button-container">
-        <button class="btn btn-custom"  onclick="window.location.href=`{% url 'skill_types' %}`">Add Skill Type</button>
+        <button class="btn btn-custom"  onclick="window.location.href=`{% url 'skill_types' %}`" >Add Skill Type</button>
         <button class="btn btn-custom"  onclick="window.location.href=`{% url 'responsibility_types' %}`">Responsibility Type</button>
         <button class="btn btn-custom"  onclick="window.location.href=`{% url 'termination_reasons' %}`">Termination Reasons</button>
         <button class="btn btn-custom"  onclick="window.location.href=`{% url 'termination_types' %}`">Termination Types</button>
@@ -101,26 +101,22 @@
         <button class="btn btn-custom"  onclick="window.location.href=`{% url 'public_holiday' %}`">Public Holiday</button>
         <button class="btn btn-custom"  onclick="window.location.href=`{% url 'tranning_class_types' %}`">Training Class Type</button>
       </div>
-
-
-    <div class="container my-5">
-
-        <!-- Skill Type Form -->
-        <div class="card mb-4">
+      <div class="container my-5">
+          <!-- Skill Type Form -->
+          <div class="card mb-4">
             <div class="card-header">Add Skill Type</div>
             <div class="card-body">
                 <form id="skillTypeForm">
+                    {% csrf_token %}
                     <div class="mb-3">
                         <label for="skillTypeId" class="form-label">Skill Type ID</label>
-                        <input type="text" id="skillTypeId" class="form-control" placeholder="Enter Skill Type ID" />
+                        <input type="text" id="skillTypeId" name="skillTypeId" class="form-control" placeholder="Enter Skill Type ID">
                     </div>
                     <div class="mb-3">
-                        <label for="description" class="form-label">Description <span
-                                class="text-danger">*</span></label>
-                        <input type="text" id="description" class="form-control" placeholder="Enter Description"
-                            required />
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <input type="text" id="description" name="description" class="form-control" placeholder="Enter Description" required>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="addSkillType()">Create</button>
+                    <button type="button" class="btn btn-primary" onclick="createSkillType()">Create</button>
                 </form>
             </div>
         </div>
@@ -128,7 +124,7 @@
         <!-- Skill Type List Table -->
         <div class="card">
             <div class="card-header">Skill Types List</div>
-                <div class="card-body p-0"></div>
+            <div class="card-body p-0">
                 <table class="table table-striped mb-0">
                     <thead>
                         <tr>
@@ -138,69 +134,135 @@
                         </tr>
                     </thead>
                     <tbody id="skillTypeTable">
-                        <!-- Sample rows (you can dynamically populate this with backend data) -->
-                        <tr>
-                            <td>48445</td>
-                            <td>Django</td>
-                            <td><button class="btn btn-danger btn-sm" onclick="deleteSkillType(this)">Delete</button></td>
-                        </tr>
-                        <tr>
-                            <td>9000</td>
-                            <td>Java/Groovy/BSH</td>
-                            <td><button class="btn btn-danger btn-sm" onclick="deleteSkillType(this)">Delete</button></td>
-                        </tr>
-                        <!-- Additional rows can be populated here -->
+                        <!-- Rows will be populated by JavaScript -->
                     </tbody>
                 </table>
-
-                <!-- Submit Button -->
-                <button type="button" class="btn btn-success mt-3" onclick="submitSkillTypes()">Submit</button>
             </div>
+        </div>
     </div>
-    </div>
-
-
 
     <!-- Bootstrap and jQuery JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
+
     <script>
 
-        // Function to add a new skill type to the table
-        function addSkillType() {
-            const skillTypeId = document.getElementById('skillTypeId').value;
-            const description = document.getElementById('description').value;
+        let existingSkillTypeIds = [];
 
-            if (description.trim() === '') {
-                alert('Description is required');
-                return;
+        function loadSkillTypes() {
+            $.ajax({
+                url: "{% url 'get_skill_type' %}",
+                method: "GET",
+                success: function (skillTypes) {
+                    existingSkillTypeIds = skillTypes.map(skillType => skillType.skillTypeId);
+                    const skillTypeTable = document.getElementById('skillTypeTable');
+                    skillTypeTable.innerHTML = '';
+
+                    skillTypes.forEach(skillType => {
+                        console.log(skillType); // Log each skillType for debugging
+                        const newRow = `<tr>
+                                        <td>${skillType.skillTypeId}</td>
+                                        <td>${skillType.description}</td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteSkillType(this, '${skillType.skillTypeId}')">Delete</button>
+                                        </td>
+                                    </tr>`;
+                        skillTypeTable.insertAdjacentHTML('beforeend', newRow);
+                    });
+                },
+                error: function (error) {
+                    console.error("Error fetching skill types:", error);
+                }
+            });
+        }
+
+        function validateForm(skillTypeId, description) {
+            if (!description) {
+                alert("Description is required.");
+                return false;
             }
-
-            const table = document.getElementById('skillTypeTable');
-            const row = table.insertRow();
-            row.innerHTML = `
-                <td>${skillTypeId || 'Auto-generated'}</td>
-                <td>${description}</td>
-                <td><button class="btn btn-danger btn-sm" onclick="deleteSkillType(this)">Delete</button></td>
-            `;
-
-            // Clear the form inputs
-            document.getElementById('skillTypeId').value = '';
-            document.getElementById('description').value = '';
+            if (existingSkillTypeIds.includes(skillTypeId)) {
+                alert("Skill Type ID must be unique. This ID is already in use.");
+                return false;
+            }
+            return true;
         }
+        
+// Function to create a new skill type
+function createSkillType() {
+    const skillTypeId = $('#skillTypeId').val();
+    const description = $('#description').val();
 
-        // Function to delete a skill type row
-        function deleteSkillType(button) {
-            const row = button.closest('tr');
-            row.remove();
-        }
+    // Validate the form fields (assuming validateForm function is defined)
+    if (!validateForm(skillTypeId, description)) {
+        return;
+    }
 
-        // Function to submit the skill types (replace with actual backend submission)
-        function submitSkillTypes() {
-            alert('Skill types submitted successfully!');
+    $.ajax({
+        url: "{% url 'skill_type' %}", // Django URL for the skill_type view
+        method: "POST",
+        contentType: "application/json",  // JSON content type
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}' // CSRF token in the header
+        },
+        data: JSON.stringify({
+            skillTypeId: skillTypeId,
+            description: description
+        }),
+        success: function (response) {
+            console.log("Skill type created:", response);
+            if (response.status === 'success') {
+                // Append the new skill type row to the table
+                const newRow = `<tr>
+                    <td>${response.skillTypeId}</td>
+                    <td>${response.description}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="deleteSkillType(this, '${response.skillTypeId}')">Delete</button>
+                    </td>
+                </tr>`;
+                $('#skillTypeTable').append(newRow);
+                // Reset the form and update existingSkillTypeIds array
+                $('#skillTypeForm').trigger("reset");
+                existingSkillTypeIds.push(skillTypeId);
+            }
+        },
+        error: function (error) {
+            console.error("Error adding skill type:", error);
+            alert("Failed to add skill type. Please try again.");
         }
-    </script>
+    });
+}
+
+
+        // delete button java script here ...
+    function deleteSkillType(button, skillTypeId) {
+    console.log("Attempting to delete skill type with ID:", skillTypeId);
+    if (!confirm("Are you sure you want to delete this skill type?")) return;
+
+    $.ajax({
+        url: "{% url 'skill_type' %}",  // Use the same URL
+        method: "DELETE",
+        contentType: "application/json", // Set the content type
+        data: JSON.stringify({ skillTypeId: skillTypeId, csrfmiddlewaretoken: '{{ csrf_token }}' }), // Convert to JSON string
+        success: function(response) {
+            if (response.status === 'success') {
+                button.closest('tr').remove();  // Remove row from frontend table
+                alert(response.message);
+            } else {
+                alert("Error: " + response.message);
+            }
+        },
+        error: function(error) {
+            console.error("Error deleting skill type:", error);
+            alert("Failed to delete skill type. Please try again.");
+        }
+    });
+}
+
+        document.addEventListener('DOMContentLoaded', loadSkillTypes);
+    </script>   
 </body>
 
 </html>
+

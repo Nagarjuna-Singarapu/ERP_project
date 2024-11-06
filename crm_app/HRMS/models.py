@@ -37,6 +37,23 @@ class TerminationReason(models.Model):
     def __str__(self):
         return self.termination_reason
     
+class PositionType(models.Model):
+    # Fields for the PositionType model
+
+    name = models.CharField(max_length=100, unique=True)
+    parent_type = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, null=True, blank=True, related_name='sub_positions'
+    )
+    has_table = models.BooleanField(default=False)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Position Type"
+        verbose_name_plural = "Position Types"
+    
 ###################################################################################################################################
 
 
@@ -99,3 +116,24 @@ class Employment(models.Model):
 
     def __str__(self):
         return f"Employment of {self.employment_id} in {self.internal_organization} from {self.from_date}"
+    
+
+class EmployeePosition(models.Model):
+    employee = models.ForeignKey(HR_Employee, to_field='employee_id', on_delete=models.CASCADE, related_name="positions")
+    status = models.CharField(max_length=50, null=True, blank=True)  # Allows null and empty values
+    internal_organization = models.ForeignKey(HR_Department, on_delete=models.CASCADE, related_name="employee_positions", null=True, blank=True)
+    budget_id = models.CharField(max_length=50, null=True, blank=True)
+    budget_item_sequence_id = models.CharField(max_length=50, null=True, blank=True)
+    employee_position_type = models.ForeignKey(PositionType, on_delete=models.CASCADE, related_name="positions", null=True, blank=True)
+    planned_start_date = models.DateField(null=True, blank=True)
+    planned_end_date = models.DateField(null=True, blank=True)
+    salary_flag = models.BooleanField(default=False, null=True, blank=True)
+    tax_exempt_flag = models.BooleanField(default=False, null=True, blank=True)
+    full_time_flag = models.BooleanField(default=False, null=True, blank=True)
+    temporary_flag = models.BooleanField(default=False, null=True, blank=True)
+    actual_start_date = models.DateField(null=True, blank=True)
+    actual_finish_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Position for {self.employee} in {self.internal_organization} - {self.status}"
+

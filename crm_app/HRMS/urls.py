@@ -21,9 +21,15 @@ urlpatterns = [
     path('api/salarysteps/', views.SalaryStepList.as_view(), name='salarystep-list'),
     path('api/terminationtype/', views.TerminationTypeList.as_view(), name='terminationType-list'),
     path('api/terminationreason/', views.TerminationReasonList.as_view(), name='terminationReason-list'),
+    path('api/positiontypes/', views.PositionTypeList.as_view(), name='positiontype-list'),
 
     path('employment-search/', views.employment_search, name='employment_search'),
     path('api/employment-data/', views.employment_data, name='employment_data'),
+
+    path('create-employee-position/', views.create_employee_position, name='create_employee_position'),
+    path('api/get-employee-position-data/', views.get_employee_position, name='get_employee_position'),
+    path('employment-position-search/', views.employment_position_search, name='employment_position_search'),
+    path('api/employment-position-data/', views.employment_position_data, name='employment_position_data'),
     
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),

@@ -9,12 +9,12 @@ from django.contrib import messages
 from django.urls import reverse
 from .utils import load_country_data
 from django.shortcuts import get_object_or_404, redirect, render
-from .models import EmployeePosition, EmployeeQualification, HR_Employee, PayGrade, PositionType,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
+from .models import EmployeeLeave, EmployeePosition, EmployeeQualification, HR_Employee, LeaveReason, LeaveType, PayGrade, PositionType,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import PayGrade, SalaryStepGrade
-from .serializers import PayGradeSerializer, PositionTypeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
+from .serializers import LeaveReasonSerializer, LeaveTypeSerializer, PayGradeSerializer, PositionTypeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
 
 def NewEmploye(request):
     return render(request, 'hrms/emp_per/NewEmploye.html')
@@ -748,6 +748,82 @@ def delete_employee_qualification(request, employee_id):
 
 ##############################################################################################################################################
 
+def add_employee_leave(request):
+    if request.method == 'POST':
+        errors = {}
+        employee_id = request.POST.get('employee_id')
+        leave_type_id = request.POST.get('leaveTypeID')
+        leave_reason_id = request.POST.get('leaveReasonType')
+        from_date = request.POST.get('fromDate')
+        through_date = request.POST.get('throughDate')
+        approver_party_id = request.POST.get('approverParty')
+        description = request.POST.get('description', '')
+
+        # Validate required fields
+        if not employee_id:
+            errors['employee_id'] = 'Employee ID is required.'
+        if not leave_type_id:
+            errors['leaveTypeID'] = 'Leave Type ID is required.'
+        if not leave_reason_id:
+            errors['leaveReasonType'] = 'Leave Reason Type is required.'
+        if not from_date:
+            errors['fromDate'] = 'From Date is required.'
+        if not approver_party_id:
+            errors['approverParty'] = 'Approver Party is required.'
+
+        # Validate date formats and that from_date is less than through_date
+        try:
+            from_date_obj = datetime.strptime(from_date, "%Y-%m-%d")
+            if through_date:
+                through_date_obj = datetime.strptime(through_date, "%Y-%m-%d")
+                if from_date_obj >= through_date_obj:
+                    errors['date_range'] = 'From Date must be earlier than Through Date.'
+        except ValueError:
+            errors['date_format'] = 'Invalid date format. Please use YYYY-MM-DD.'
+
+        # Validate existence of employee and approver in HR_Employee table
+        try:
+            employee = HR_Employee.objects.get(employee_id=employee_id)
+        except HR_Employee.DoesNotExist:
+            errors['employee_id'] = 'Employee with the provided ID does not exist.'
+
+        try:
+            approver_party = HR_Employee.objects.get(employee_id=approver_party_id)
+        except HR_Employee.DoesNotExist:
+            errors['approverParty'] = 'Approver with the provided ID does not exist.'
+
+        # Validate leave type and reason IDs
+        try:
+            leave_type = LeaveType.objects.get(id=leave_type_id)
+        except LeaveType.DoesNotExist:
+            errors['leaveTypeID'] = 'Invalid Leave Type ID.'
+
+        try:
+            leave_reason = LeaveReason.objects.get(id=leave_reason_id)
+        except LeaveReason.DoesNotExist:
+            errors['leaveReasonType'] = 'Invalid Leave Reason Type.'
+
+        # If errors exist after validation, return them to the template
+        if errors:
+            return render(request, 'hrms/emp_res_lea/add_emp_leave.html', {'errors': errors})
+
+        # Create the EmployeeLeave record if no errors
+        employee_leave = EmployeeLeave.objects.create(
+            employee=employee,
+            leave_type=leave_type,
+            leave_reason=leave_reason,
+            from_date=from_date,
+            through_date=through_date if through_date else None,
+            approver=approver_party,
+            description=description
+        )
+
+        return render(request, 'hrms/emp_res_lea/add_emp_leave.html', {'success': True})
+    
+    return render(request, 'hrms/emp_res_lea/add_emp_leave.html')
+
+##############################################################################################################################################
+
 
 # anuj
 def emp_main(request):
@@ -990,6 +1066,18 @@ class PositionTypeList(APIView):
     def get(self, request):
         position_types = PositionType.objects.all()
         serializer = PositionTypeSerializer(position_types, many=True)
+        return Response(serializer.data)
+
+class LeaveTypeList(APIView):
+    def get(self, request):
+        leave_types = LeaveType.objects.all()
+        serializer = LeaveTypeSerializer(leave_types, many=True)
+        return Response(serializer.data)
+
+class LeaveReasonList(APIView):
+    def get(self, request):
+        leave_reasons = LeaveReason.objects.all()
+        serializer = LeaveReasonSerializer(leave_reasons, many=True)
         return Response(serializer.data)
     
 

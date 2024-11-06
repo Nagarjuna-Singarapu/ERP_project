@@ -53,6 +53,20 @@ class PositionType(models.Model):
     class Meta:
         verbose_name = "Position Type"
         verbose_name_plural = "Position Types"
+
+class LeaveReason(models.Model):
+    leave_reason = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.leave_reason
+
+class LeaveType(models.Model):
+    leave_type = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.leave_type
     
 ###################################################################################################################################
 
@@ -176,4 +190,16 @@ class EmployeeQualification(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.qualification_desc}"
+    
+class EmployeeLeave(models.Model):
+    employee = models.ForeignKey(HR_Employee, to_field='employee_id', on_delete=models.CASCADE, related_name="leaves")
+    leave_type = models.ForeignKey(LeaveType, on_delete=models.SET_NULL, null=True)
+    leave_reason = models.ForeignKey(LeaveReason, on_delete=models.SET_NULL, null=True)
+    from_date = models.DateField()
+    through_date = models.DateField(null=True, blank=True)
+    approver = models.ForeignKey(HR_Employee, on_delete=models.SET_NULL, to_field='employee_id', null=True, related_name="approved_leaves")
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Leave for {self.employee.employee_id} from {self.from_date} to {self.through_date}"
 

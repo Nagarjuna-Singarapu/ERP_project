@@ -140,7 +140,7 @@
                 <div class="row mb-3">
                     <label for="yearsExperience" class="col-sm-3 col-form-label">Years of Experience</label>
                     <div class="col-sm-9">
-                        <input type="number" class="form-control" id="yearsExperience" name="yearsExperience" pattern="^(?!0(\.0+)?$)(\d+(\.\d+)?$)" required>
+                        <input type="number" class="form-control" id="yearsExperience" name="yearsExperience" min="0" step="any" required>
                         <div class="invalid-feedback">
                             Please enter the years of experience.
                         </div>
@@ -150,9 +150,9 @@
                 <div class="row mb-3">
                     <label for="rating" class="col-sm-3 col-form-label">Rating</label>
                     <div class="col-sm-9">
-                        <input type="number" class="form-control" id="rating" name="rating" pattern="^(?!0(\.0+)?$)(\d+(\.\d+)?$)" required>
+                        <input type="number" class="form-control" id="rating" name="rating" min="1" step="any" required>
                         <div class="invalid-feedback">
-                            Please provide a rating.
+                            Please provide a positive rating.
                         </div>
                     </div>
                 </div>
@@ -160,9 +160,9 @@
                 <div class="row mb-3">
                     <label for="skillLevel" class="col-sm-3 col-form-label">Skill Level</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="skillLevel" name="skillLevel" required>
+                        <input type="number" class="form-control" id="skillLevel" name="skillLevel" min="1" step="any" required>
                         <div class="invalid-feedback">
-                            Please provide a skill level.
+                            Please provide a positive skill level.
                         </div>
                     </div>
                 </div>
@@ -234,22 +234,35 @@
         toggleSubmitButton();  // Recheck the button state when Party ID is filled
     }
 
-    // Function to enable/disable the submit button based on form validity
+     // Function to enable/disable the submit button based on form validity
     function toggleSubmitButton() {
         const form = document.getElementById("AddPartySkills");
-        const submitButton = document.getElementById("submit-btn");
-
-        // Enable the button only if the form is valid
-        if (form.checkValidity()) {
+        const submitButton = document.querySelector("button[type='submit']");
+        
+        // Check if all required fields are filled correctly
+        let allFieldsValid = form.checkValidity();  // Checks all form validity
+        
+        // Enable the button only if the form is valid (all fields are filled and valid)
+        if (allFieldsValid) {
             submitButton.disabled = false;  // Enable the Create button
+            submitButton.style.cursor = 'pointer'; // Enable the cursor (pointer)
         } else {
             submitButton.disabled = true;   // Keep the Create button disabled
+            submitButton.style.cursor = 'not-allowed'; // Set cursor to "not-allowed" for disabled state
         }
     }
 
     // Attach the toggleSubmitButton to form input events for real-time validation
     document.querySelectorAll('input, select, textarea').forEach((element) => {
-        element.addEventListener('input', toggleSubmitButton);  // Check validity when any field changes
+        element.addEventListener('input', function() {
+            // Add the 'is-invalid' class when the field is invalid, if not already added
+            if (!element.validity.valid) {
+                element.classList.add('is-invalid');
+            } else {
+                element.classList.remove('is-invalid');
+            }
+            toggleSubmitButton();  // Recheck the button state on input
+        });
     });
 
     // Initial check when the page loads to disable the button if any field is empty

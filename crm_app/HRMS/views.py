@@ -641,3 +641,39 @@ def create_party_skill(request):
 
     return render(request, 'hrms/skill_qual/newparties.html')  # Render the form again if not POST
 
+def search_party_skills(request):
+    skills = PartySkill.objects.all()
+    # Your filtering logic here, based on the query parameters.
+    party_id = request.GET.get('partyId', '')
+    skill_type = request.GET.get('skillTypeId', '')
+    years_experience = request.GET.get('yearsExperience', '')
+    rating = request.GET.get('rating', '')
+    skill_level = request.GET.get('skillLevel', '')
+
+    # Build the query dynamically based on available parameters
+    if party_id:
+        skills = skills.filter(hr_employee__employee_id=party_id)
+    if skill_type:
+        skills = skills.filter(skill_type=skill_type)
+
+    print(f"Skills queryset: {skills}")
+    
+
+    # Pass skills to the template
+    return render(request, 'hrms/skill_qual/Skills.html', {'skills': skills}
+)
+
+
+def delete_skill(request, skill_id):
+    skill = get_object_or_404(PartySkill, id=skill_id)
+
+    if request.method == 'POST':
+        skill.delete()
+        return JsonResponse({'status': 'success', 'message': 'Skill deleted successfully.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request.'}
+)
+
+
+
+        

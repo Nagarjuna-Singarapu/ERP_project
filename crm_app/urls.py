@@ -1,4 +1,4 @@
-# ERP_project/CRM_APP/urls.py
+# ERP_project/crm_app/urls.py
 from django.urls import include, path
 from . import views
 from django.conf import settings

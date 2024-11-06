@@ -1,4 +1,4 @@
-# CRM_APP/hr/models.py
+# ERP_project/crm_app/HRMS/models.py
 from django.db import models
 
 class HR_Company(models.Model):

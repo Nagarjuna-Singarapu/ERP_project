@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Employee Qualification</title>
     <!-- Include Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -82,11 +82,6 @@
         <!-- Begin Section Widget  -->
 
         <div id="content-main-section">
-            <!-- Begin Screen component://common/widget/CommonScreens.xml#FindScreenDecorator -->
-            <!-- Begin Screen component://common/widget/CommonScreens.xml#MinimalActions -->
-            <!-- End Screen component://common/widget/CommonScreens.xml#MinimalActions -->
-            <!-- Begin Screen component://common-theme/widget/CommonScreens.xml#FindScreenDecorator -->
-            <!-- Begin Section Widget  -->
 
             <div class="container mt-4">
                 <div class="page-title text-center bg-primary text-white py-3 rounded mb-4">
@@ -104,13 +99,14 @@
                 </div>
                 <div class="card-body">
                     <!-- Begin Form Widget -->
-                    <form method="post" action="/humanres/control/FindPartyQuals" id="FindPartyQuals" class="row g-3">
+                    <form id="FindPartyQuals" class="row g-3">
+                        {% csrf_token %}
                         <input type="hidden" name="noConditionFind" value="Y" id="FindPartyQuals_noConditionFind">
 
                         <div class="col-md-6">
-                            <label for="FindPartyQuals_partyId" class="form-label">Party ID</label>
+                            <label for="employee_id" class="form-label">Party ID</label>
                             <div class="input-group">
-                                <input type="text" name="partyId" class="form-control" id="FindPartyQuals_partyId" placeholder="Enter Party ID">
+                                <input type="text" name="employee_id" class="form-control" id="employee_id" placeholder="Enter Party ID">
                                 <!-- Button to open modal -->
                                 <span class="input-group-text" id="show-modal-btn" data-bs-toggle="modal" data-bs-target="#positionIDModal">
                                     📄
@@ -122,14 +118,14 @@
                         <div id="myModal" class="modal">
                             <div class="modal-content">
                                 <span class="close" id="close-modal-btn">&times;</span>
-                                <iframe src="{% url 'skill_lookupparty'%}" style="width:100%; height:400px;" frameborder="0"></iframe>
+                                <iframe src="{% url 'lookup'%}" style="width:100%; height:400px;" frameborder="0"></iframe>
                             </div>
                         </div>
 
 
                         <div class="col-md-6">
                             <label for="FindPartyQuals_partyQualTypeId" class="form-label">Party Qual Type ID</label>
-                            <select name="partyQualTypeId" class="form-select" id="FindPartyQuals_partyQualTypeId">
+                            <select name="FindPartyQuals_partyQualTypeId" class="form-select" id="FindPartyQuals_partyQualTypeId">
                                 <option value=""></option>
                                 <option value="BSC">Bachelor of Science</option>
                                 <option value="B.Tech">Bachelor of Technology</option>
@@ -151,7 +147,7 @@
                                     <option value="empty">Is Empty</option>
                                     <option value="notEqual">Not Equal</option>
                                 </select>
-                                <input type="text" name="qualificationDesc" class="form-control" maxlength="60">
+                                <input type="text" name="FindPartyQuals_qualificationDesc" id="FindPartyQuals_qualificationDesc" class="form-control" maxlength="60">
                                 <div class="form-check ms-3">
                                     <input class="form-check-input" type="checkbox" name="qualificationDesc_ic" value="Y" checked>
                                     <label class="form-check-label">Ignore Case</label>
@@ -160,7 +156,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label for="FindPartyQuals_title" class="form-label">Title</label>
+                            <label for="title" class="form-label">Title</label>
                             <div class="input-group">
                                 <select name="title_op" class="form-select">
                                     <option value="equals">Equals</option>
@@ -169,7 +165,7 @@
                                     <option value="empty">Is Empty</option>
                                     <option value="notEqual">Not Equal</option>
                                 </select>
-                                <input type="text" name="title" class="form-control" maxlength="60">
+                                <input type="text" name="title" class="form-control" maxlength="60" id="title">
                                 <div class="form-check ms-3">
                                     <input class="form-check-input" type="checkbox" name="title_ic" value="Y" checked>
                                     <label class="form-check-label">Ignore Case</label>
@@ -180,22 +176,22 @@
                         <div class="col-md-6">
                             <label class="form-label">Status ID</label>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="statusId" value="HR_DS_COMPLETE">
+                                <input class="form-check-input" type="checkbox" name="statusId" id="statusId_complete" value="HR_DS_COMPLETE">
                                 <label class="form-check-label">Completed</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="statusId" value="HR_DS_DEFERRED">
+                                <input class="form-check-input" type="checkbox" name="statusId" id="statusId_deferred" value="HR_DS_DEFERRED">
                                 <label class="form-check-label">Deferred</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="statusId" value="HR_DS_INCOMPLETE">
+                                <input class="form-check-input" type="checkbox" name="statusId" id="statusId_incomplete" value="HR_DS_INCOMPLETE">
                                 <label class="form-check-label">Incomplete</label>
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="FindPartyQuals_verifStatusId" class="form-label">Verif Status ID</label>
-                            <select name="verifStatusId" class="form-select">
+                            <label for="FindPartyQuals_verifStatusId" class="form-label">Verify Status ID</label>
+                            <select name="FindPartyQuals_verifStatusId" id="FindPartyQuals_verifStatusId" class="form-select">
                                 <option value=""></option>
                                 <option value="PQV_NOT_VERIFIED">Not verified</option>
                                 <option value="PQV_VERIFIED">Verified</option>
@@ -204,12 +200,12 @@
 
                         <div class="col-md-6">
                             <label for="FindPartyQuals_fromDate" class="form-label">From Date</label>
-                            <input type="date" class="form-control" name="fromDate_fld0_value">
+                            <input type="date" class="form-control" name="FindPartyQuals_fromDate" id="FindPartyQuals_fromDate">
                         </div>
 
                         <div class="col-md-6">
                             <label for="FindPartyQuals_thruDate" class="form-label">Through Date</label>
-                            <input type="date" class="form-control" name="thruDate_fld0_value">
+                            <input type="date" class="form-control" name="FindPartyQuals_thruDate" id="FindPartyQuals_thruDate">
                         </div>
 
                         <div class="col-12">
@@ -239,7 +235,7 @@
                                     <th>Qualification Desc</th>
                                     <th>Title</th>
                                     <th>Status ID</th>
-                                    <th>Verif Status ID</th>
+                                    <th>Verify Status ID</th>
                                     <th>Through Date</th>
                                     <th>Delete</th>
                                 </tr>
@@ -265,6 +261,12 @@
 
 
 <script>
+    ///////////////////////// Model Lookup //////////////////////////////////////////////////////
+    function selectEmployeeId(employeeId) {
+            console.log('Selected Employee ID:', employeeId);
+            document.getElementById("employee_id").value = employeeId; // Set the value in the input field
+            document.getElementById("myModal").style.display = "none"; // Optionally close the modal
+        }
     // Get the modal
     var modal = document.getElementById("myModal");
 
@@ -294,51 +296,155 @@
 
 
 <script>
-    // Sample data array
-    let demoData = [
-        { partyId: "1", partyQualTypeId: "BSC", fromDate: "2021-01-10", qualificationDesc: "Bachelor of Science", title: "Software Engineer", statusId: "HR_DS_COMPLETE", verifStatusId: "PQV_VERIFIED", thruDate: "2023-01-10" },
-        { partyId: "2", partyQualTypeId: "MBA", fromDate: "2020-05-15", qualificationDesc: "Masters of Business Administration", title: "Project Manager", statusId: "HR_DS_COMPLETE", verifStatusId: "PQV_NOT_VERIFIED", thruDate: "2024-05-15" },
-        { partyId: "3", partyQualTypeId: "MSC", fromDate: "2019-09-10", qualificationDesc: "Masters of Science", title: "Data Scientist", statusId: "HR_DS_INCOMPLETE", verifStatusId: "PQV_VERIFIED", thruDate: "2023-09-10" },
-        // Add more entries as needed
-    ];
 
-    // Function to display data in the table
-    function displayResults() {
-        const resultsBody = document.getElementById("resultsBody");
-        resultsBody.innerHTML = ""; // Clear previous rows
+function populateResultsTable(data) {
+    const tbody = document.querySelector('#resultsBody');
+    tbody.innerHTML = '';  // Clear existing results
 
-        demoData.forEach((item, index) => {
-            const row = `
-                <tr>
-                    <td>${item.partyId}</td>
-                    <td>${item.partyQualTypeId}</td>
-                    <td>${item.fromDate}</td>
-                    <td>${item.qualificationDesc}</td>
-                    <td>${item.title}</td>
-                    <td>${item.statusId}</td>
-                    <td>${item.verifStatusId}</td>
-                    <td>${item.thruDate}</td>
-                    <td>
+    if (data.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = '<td colspan="9">No results found.</td>'; // Updated colspan to match the number of columns
+        tbody.appendChild(emptyRow);
+    } else {
+        data.forEach((employee, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${employee.employee_id || 'N/A'}</td>
+                <td>${employee.party_qual_type_id || 'N/A'}</td>
+                <td>${employee.from_date || 'N/A'}</td>
+                <td>${employee.qualification_desc || 'N/A'}</td>
+                <td>${employee.title || 'N/A'}</td>
+                <td>${employee.status_id || 'N/A'}</td>
+                <td>${employee.verify_status_id || 'N/A'}</td>
+                <td>${employee.through_date || 'N/A'}</td>
+                <td>
                         <button class="btn btn-sm btn-danger" onclick="deleteRow(${index})">
                             <i class="bi bi-trash"></i>
                         </button>
-                    </td>
-                </tr>
+                </td>
             `;
-            resultsBody.insertAdjacentHTML('beforeend', row);
+            tbody.appendChild(row);
         });
     }
+}
+    // Function to handle form submission and get data
+document.getElementById('FindPartyQuals').addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent default form submission
 
-    // Function to delete a row based on its index
-    function deleteRow(index) {
-        // Remove the item from the data array
-        demoData.splice(index, 1);
-        // Refresh the table to reflect changes
-        displayResults();
+        // Collect form data
+        const employeeId = document.getElementById('employee_id').value;
+        const FindPartyQuals_partyQualTypeId = document.getElementById('FindPartyQuals_partyQualTypeId').value;
+        const FindPartyQuals_qualificationDesc = document.getElementById('FindPartyQuals_qualificationDesc').value;
+        const title = document.getElementById('title').value;
+
+        const selectedStatus = [];
+        const statusCheckboxes = document.querySelectorAll('input[name="statusId"]:checked');
+        statusCheckboxes.forEach(checkbox => selectedStatus.push(checkbox.value));
+        
+        const FindPartyQuals_verifStatusId = document.getElementById('FindPartyQuals_verifStatusId').value;
+        const FindPartyQuals_fromDate = document.getElementById('FindPartyQuals_fromDate').value;
+        const FindPartyQuals_thruDate = document.getElementById('FindPartyQuals_thruDate').value;
+
+        // Create a payload to send to the server
+        const payload = {
+            employee_id: employeeId,
+            qualification_desc: FindPartyQuals_qualificationDesc,
+            title: title,
+            status_id: selectedStatus,
+            verify_status_id: FindPartyQuals_verifStatusId,
+            through_date: FindPartyQuals_thruDate,
+            party_qual_type_id: FindPartyQuals_partyQualTypeId,
+            from_date: FindPartyQuals_fromDate,
+        };
+
+        // Make the AJAX request
+        fetch('/hrms/employee-qualification-search/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token if needed
+            },
+            body: JSON.stringify(payload),
+        })
+        .then(response => response.json())
+        .then(data => populateResultsTable(data))
+        .catch(error => console.error('Error fetching employee data:', error));
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Check if this cookie string begins with the name we want
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 
-    // Load initial data into the table on page load
-    window.onload = displayResults;
+
+            // Function to fetch employment position data
+function loadEmployeeQualificationData() {
+    fetch('/hrms/api/employee-qualification-data/')  // Call the API endpoint
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();  // Parse JSON from the response
+        })
+        .then(data => {
+            populateResultsTable(data);  // Call the function to populate the table
+        })
+        .catch(error => {
+            console.error('Error fetching employment position data:', error);
+        });
+}
+window.onload = function() {  
+    loadEmployeeQualificationData();  // Load employment position data
+};
+
+
+///////////////////////////////////////////// Deleting Row /////////////////////////////////////////
+
+function deleteRow(index) {
+    const row = document.querySelectorAll('#resultsBody tr')[index];  // Get the row element by index
+    const employee_id = row.querySelector('td:first-child').textContent;  // Get employee_id from the first column
+
+    // Show a confirmation dialog
+    const confirmation = window.confirm("Are you sure you want to delete this record?");
+
+    if (confirmation) {
+        // User clicked "OK", proceed with the DELETE request
+        fetch(`/hrms/api/delete-qualification/${employee_id}/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),  // Add CSRF token for security
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                row.remove();  // Remove the row from the table
+                alert('Record deleted successfully');
+            } else {
+                alert('Failed to delete record');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    } else {
+        // User clicked "Cancel", do nothing
+        console.log('Delete action canceled');
+    }
+}
+
+
 </script>
 
 <!-- Include Bootstrap Icons for delete icon -->

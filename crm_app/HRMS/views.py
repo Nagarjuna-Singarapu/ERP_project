@@ -1,10 +1,15 @@
 import json
 import logging
+import re
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from django.contrib import messages
+from django.urls import reverse
 from .utils import load_country_data
 from django.shortcuts import get_object_or_404, redirect, render
-from .models import EmployeePosition, HR_Employee, PayGrade, PositionType,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
+from .models import EmployeePosition, EmployeeQualification, HR_Employee, PayGrade, PositionType,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -558,8 +563,8 @@ def employment_position_search(request):
                     'actual_finish_date': position.actual_finish_date,
                 })
 
-        logger.debug("Results: %s", results)
-        print(results)
+        # logger.debug("Results: %s", results)
+        # print(results)
 
         return JsonResponse(results, safe=False)
 
@@ -591,7 +596,157 @@ def employment_position_data(request):
 
     return JsonResponse(data, safe=False)
 
+
 ############################################################################################################################################
+
+def create_employee_qualification(request):
+    errors = {}  # Dictionary to store validation errors
+
+    if request.method == 'POST':
+        qualification_desc = request.POST.get('AddPartyQual_qualificationDesc')
+        title = request.POST.get('title')
+        status_id = request.POST.get('AddPartyQual_statusId')
+        verify_status_id = request.POST.get('AddPartyQual_verifStatusId')
+        through_date = request.POST.get('AddPartyQual_thruDate')
+        employee_id_value = request.POST.get('employee_id')
+        party_qual_type_id = request.POST.get('AddPartyQual_partyQualTypeId')
+        from_date = request.POST.get('AddPartyQual_fromDate')
+
+        # Validation for qualification description (cannot start with special characters)
+        if qualification_desc and re.match(r'^[^a-zA-Z0-9]', qualification_desc):
+            errors['qualification_desc'] = "Qualification description cannot start with a special character."
+
+        # Validation for title (no special characters allowed)
+        if title and re.search(r'[^a-zA-Z0-9 ]', title):
+            errors['title'] = "Title should not contain special characters."
+
+        # Validation for from_date and through_date (from_date < through_date)
+        if from_date and through_date:
+            try:
+                from_date_obj = datetime.strptime(from_date, '%Y-%m-%d')
+                through_date_obj = datetime.strptime(through_date, '%Y-%m-%d')
+                if from_date_obj >= through_date_obj:
+                    errors['date'] = "From date must be earlier than Through date."
+            except ValueError:
+                errors['date_format'] = "Dates must be in YYYY-MM-DD format."
+
+        # Check if employee_id exists
+        try:
+            employee = HR_Employee.objects.get(employee_id=employee_id_value)
+        except HR_Employee.DoesNotExist:
+            errors['employee_id'] = "Employee ID does not exist."
+
+        # If there are validation errors, render the form with errors
+        if errors:
+            return render(request, 'hrms/skill_qual/newpartiesQualifivation.html', {
+                'errors': errors,
+            })
+
+        # If no errors, create or update EmployeeQualification
+        qualification, created = EmployeeQualification.objects.update_or_create(
+            employee_id=employee,
+            defaults={
+                'qualification_desc': qualification_desc,
+                'title': title,
+                'status_id': status_id,
+                'verify_status_id': verify_status_id,
+                'through_date': through_date if through_date else None,
+                'party_qual_type_id': party_qual_type_id,
+                'from_date': from_date if from_date else None,
+            })
+
+        return render(request, 'hrms/skill_qual/newpartiesQualifivation.html', {'success': True})
+    return render(request, 'hrms/skill_qual/newpartiesQualifivation.html')
+
+
+def employee_qualification_search(request):
+    if request.method == 'POST':
+        # Get the search parameters from the request body
+        data = request.body.decode('utf-8')
+        json_data = json.loads(data)
+
+        employee_id = json_data.get('employee_id')
+        qualification_desc = json_data.get('qualification_desc')
+        title = json_data.get('title')
+        status_ids = json_data.get('status_id', [])  # List of selected status ids
+        verify_status_id = json_data.get('verify_status_id')
+        from_date = json_data.get('from_date')
+        through_date = json_data.get('through_date')
+        party_qual_type_id = json_data.get('party_qual_type_id')
+
+        # Build the query filters based on the provided parameters
+        filters = {}
+
+        if employee_id:
+            filters['employee_id__employee_id'] = employee_id
+        if qualification_desc:
+            filters['qualification_desc__icontains'] = qualification_desc
+        if title:
+            filters['title__icontains'] = title
+        if status_ids:
+            filters['status_id__in'] = status_ids
+        if verify_status_id:
+            filters['verify_status_id'] = verify_status_id
+        if from_date:
+            filters['from_date__gte'] = from_date
+        if through_date:
+            filters['through_date__lte'] = through_date
+        if party_qual_type_id:
+            filters['party_qual_type_id'] = party_qual_type_id
+
+        # Filter the EmployeeQualification records based on the filters
+        qualifications = EmployeeQualification.objects.filter(**filters)
+
+        # Prepare the response data
+        response_data = []
+        for qualification in qualifications:
+            response_data.append({
+                'employee_id': qualification.employee_id.employee_id,  # Assuming HR_Employee has employee_id
+                'party_qual_type_id': dict(EmployeeQualification.QUALIFICATION_TYPES).get(qualification.party_qual_type_id, 'N/A'),
+                'qualification_desc': qualification.qualification_desc,
+                'title': qualification.title,
+                'status_id': dict(EmployeeQualification.STATUS_CHOICES).get(qualification.status_id, 'N/A'),
+                'verify_status_id': dict(EmployeeQualification.VERIFICATION_CHOICES).get(qualification.verify_status_id, 'N/A'),
+                'from_date': qualification.from_date,
+                'through_date': qualification.through_date,
+            })
+
+        return JsonResponse(response_data, safe=False)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def employee_qualification_data(request):
+    # Fetch employee qualification data
+    qualifications = EmployeeQualification.objects.all().select_related('employee_id')  # Only fetch related 'employee_id'
+
+    # Prepare the data to be returned
+    data = []
+    for qualification in qualifications:
+        data.append({
+            'employee_id': qualification.employee_id.employee_id,  # Assuming you want employee_id from the HR_Employee model
+            'party_qual_type_id': dict(EmployeeQualification.QUALIFICATION_TYPES).get(qualification.party_qual_type_id, None),  # Convert party_qual_type_id to name
+            'qualification_desc': qualification.qualification_desc,
+            'title': qualification.title,
+            'status_id': qualification.status_id,
+            'verify_status_id': qualification.verify_status_id,
+            'from_date': qualification.from_date,
+            'through_date': qualification.through_date,
+        })
+
+    # Return the data as a JSON response
+    return JsonResponse(data, safe=False)
+
+
+@api_view(['DELETE'])
+def delete_employee_qualification(request, employee_id):
+    try:
+        qualification = EmployeeQualification.objects.get(employee_id=employee_id)
+        qualification.delete()
+        return Response({'message': 'Qualification deleted successfully'}, status=200)
+    except EmployeeQualification.DoesNotExist:
+        return Response({'error': 'Qualification not found'}, status=404)
+
+##############################################################################################################################################
 
 
 # anuj

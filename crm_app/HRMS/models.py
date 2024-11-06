@@ -136,4 +136,44 @@ class EmployeePosition(models.Model):
 
     def __str__(self):
         return f"Position for {self.employee} in {self.internal_organization} - {self.status}"
+    
+
+class EmployeeQualification(models.Model):
+    QUALIFICATION_TYPES = [
+        ('BSC', 'Bachelor of Science'),
+        ('B.Tech', 'Bachelor of Technology'),
+        ('CERTIFICATION', 'Certification'),
+        ('DEGREE', 'Degree'),
+        ('MSC', 'Masters of Science'),
+        ('MBA', 'Masters of Business Administration'),
+        ('EXPERIENCE', 'Work Experience'),
+    ]
+
+    STATUS_CHOICES = [
+        ('HR_DS_COMPLETE', 'Completed'),
+        ('HR_DS_DEFERRED', 'Deferred'),
+        ('HR_DS_INCOMPLETE', 'Incomplete'),
+    ]
+
+    VERIFICATION_CHOICES = [
+        ('PQV_NOT_VERIFIED', 'Not verified'),
+        ('PQV_VERIFIED', 'Verified'),
+    ]
+
+    qualification_desc = models.CharField(max_length=60)
+    title = models.CharField(max_length=60)
+    status_id = models.CharField(max_length=20, choices=STATUS_CHOICES)
+    verify_status_id = models.CharField(max_length=20, choices=VERIFICATION_CHOICES)
+    through_date = models.DateField(null=True, blank=True)
+    employee_id = models.ForeignKey(
+        HR_Employee,
+        to_field='employee_id',  # Link to employee_id field in HR_Employee
+        on_delete=models.CASCADE,
+        related_name="qualification"
+    )
+    party_qual_type_id = models.CharField(max_length=20, choices=QUALIFICATION_TYPES)
+    from_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.qualification_desc}"
 

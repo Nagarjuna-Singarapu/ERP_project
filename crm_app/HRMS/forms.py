@@ -1,6 +1,7 @@
 from django import forms
 from .models import Employment, PayGrade, SalaryStepGrade
 
+
 class EmploymentForm(forms.ModelForm):
     class Meta:
         model = Employment

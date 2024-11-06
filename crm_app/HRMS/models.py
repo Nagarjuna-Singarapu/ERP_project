@@ -8,7 +8,22 @@ class HR_Department(models.Model):
     company = models.ForeignKey(HR_Company, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
-#################################################################################################################################
+######################By Amit #################################
+#Add SkillType Model...
+class SkillType(models.Model):
+    skillTypeId = models.CharField(max_length=100,unique=True, blank=True, null=True)  # Assuming you want to store an ID
+    description = models.CharField(max_length=255)  # Description field
+
+    def __str__(self):
+        return self.description
+
+#Responsibility Type Model...
+class Responsibility_Type(models.Model):
+    responsibilityTypeId = models.CharField(max_length=100,unique=True, blank=True, null=True)  # Assuming you want to store an ID
+    description = models.CharField(max_length=255)  # Description field
+
+    def __str__(self):
+        return self.description
 
 class PayGrade(models.Model):
     grade_name = models.CharField(max_length=50)
@@ -29,9 +44,9 @@ class TerminationType(models.Model):
     def __str__(self):
         return self.termination_type
 
-
+#Termination Reason Model...
 class TerminationReason(models.Model):
-    termination_reason = models.CharField(max_length=100, unique=True)
+    termination_reason = models.CharField(max_length=100, unique=True,blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):

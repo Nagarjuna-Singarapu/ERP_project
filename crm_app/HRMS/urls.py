@@ -50,9 +50,21 @@ urlpatterns = [
     
     
     # global HR by sunny and amit 
-    path('skill_types/', views.skill_types, name='skill_types'),
+    path('skill-types/', views.skill_types, name='skill_types'),
+
+    path('api/get-skill-type/', views.get_skill_type, name='get_skill_type'),
+    path('skill-type/', views.skill_type, name='skill_type'),
+
     path('responsibility_types/', views.responsibility_types, name='responsibility_types'),
+
+    path('api/get_responsibility_type/', views.get_responsibility_type, name='get_responsibility_type'),
+    path('responsibility_type/', views.responsibility_type, name='responsibility_type'),
+
     path('termination_reasons/', views.termination_reasons, name='termination_reasons'),
+
+    path('api/get_termination_reason/', views.get_termination_reason, name='get_termination_reason'),
+    path('termination_reason/', views.termination_reason, name='termination_reason'),
+
     path('termination_types/', views.termination_types, name='termination_types'),
     path('position_types/', views.position_types, name='position_types'),
     path('emp_leave_types/', views.emp_leave_types, name='emp_leave_types'),

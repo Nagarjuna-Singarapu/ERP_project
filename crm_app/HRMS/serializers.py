@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import PayGrade, SalaryStepGrade, TerminationReason,TerminationType
+from .models import SkillType, PayGrade, SalaryStepGrade, TerminationReason,TerminationType
+
+
+class SkillTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SkillType
+        fields = ['skillTypeId','description']
 
 class PayGradeSerializer(serializers.ModelSerializer):
     class Meta:

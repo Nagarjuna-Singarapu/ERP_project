@@ -120,35 +120,14 @@
         <div class="card-body">
           <form id="responsibilityTypeForm">
             <div class="mb-3">
-              <label for="responsibilityTypeId" class="form-label">
-                Responsibility Type ID</label
-              >
-              <input
-                type="text"
-                id="responsibilityTypeId"
-                class="form-control"
-                placeholder="Enter Responsibility Type ID"
-              />
+              <label for="responsibilityTypeId" class="form-label">Responsibility Type ID</label>
+              <input type="text" id="responsibilityTypeId" class="form-control" placeholder="Enter Responsibility Type ID"/>
             </div>
             <div class="mb-3">
-              <label for="description" class="form-label"
-                >Description <span class="text-danger">*</span></label
-              >
-              <input
-                type="text"
-                id="description"
-                class="form-control"
-                placeholder="Enter Description"
-                required
-              />
+              <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+              <input type="text" id="description" class="form-control" placeholder="Enter Description" required />
             </div>
-            <button
-              type="button"
-              class="btn btn-primary"
-              onclick="addresponsibilityType()"
-            >
-              Create
-            </button>
+            <button type="button" class="btn btn-primary" onclick="createResponsibilityType()" >Create </button>
           </form>
         </div>
       </div>
@@ -166,43 +145,8 @@
               </tr>
             </thead>
             <tbody id="responsibilityTypeTable">
-              <!-- Sample rows (you can dynamically populate this with backend data) -->
-              <tr>
-                <td>48445</td>
-                <td>Django</td>
-                <td>
-                  <button
-                    class="btn btn-danger btn-sm"
-                    onclick="deleteresponsibilityType(this)"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>9000</td>
-                <td>Java/Groovy/BSH</td>
-                <td>
-                  <button
-                    class="btn btn-danger btn-sm"
-                    onclick="deleteresponsibilityType(this)"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-              <!-- Additional rows can be populated here -->
             </tbody>
           </table>
-
-          <!-- Submit Button -->
-          <button
-            type="button"
-            class="btn btn-success mt-3"
-            onclick="submitresponsibilityTypes()"
-          >
-            Submit
-          </button>
         </div>
       </div>
     </div>
@@ -210,58 +154,120 @@
     <!-- Bootstrap and jQuery JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const currentPage = window.location.pathname.split("/").pop(); // Get the current page name
-        const navLinks = document.querySelectorAll(".nav-link");
 
-        navLinks.forEach((link) => {
-          const linkHref = link.getAttribute("href").split("/").pop(); // Get the link's page name
-
-          if (linkHref === currentPage) {
-            link.classList.add("active"); // Add active class to the current page link
-          } else {
-            link.classList.remove("active"); // Remove active class from other links
+      let existingResponsibilityTypeIds = [];
+  
+      // Load existing responsibility types and populate the table
+      function loadResponsibilityTypes() {
+          $.ajax({
+              url: "{% url 'get_responsibility_type' %}",
+              method: "GET",
+              success: function (responsibilityTypes) {
+                  existingResponsibilityTypeIds = responsibilityTypes.map(type => type.responsibilityTypeId);
+                  const responsibilityTypeTable = document.getElementById('responsibilityTypeTable');
+                  responsibilityTypeTable.innerHTML = '';
+  
+                  responsibilityTypes.forEach(type => {
+                      const newRow = `<tr>
+                                      <td>${type.responsibilityTypeId}</td>
+                                      <td>${type.description}</td>
+                                      <td>
+                                          <button class="btn btn-danger btn-sm" onclick="deleteResponsibilityType(this, '${type.responsibilityTypeId}')">Delete</button>
+                                      </td>
+                                  </tr>`;
+                      responsibilityTypeTable.insertAdjacentHTML('beforeend', newRow);
+                  });
+              },
+              error: function (error) {
+                  console.error("Error fetching responsibility types:", error);
+              }
+          });
+      }
+  
+      // Form validation for responsibility type creation
+      function validateForm(responsibilityTypeId, description) {
+          if (!description) {
+              alert("Description is required.");
+              return false;
           }
-        });
-      });
-
-      // Function to add a new responsibility type to the table
-      function addresponsibilityType() {
-        const responsibilityTypeId = document.getElementById(
-          "responsibilityTypeId"
-        ).value;
-        const description = document.getElementById("description").value;
-
-        if (description.trim() === "") {
-          alert("Description is required");
-          return;
-        }
-
-        const table = document.getElementById("responsibilityTypeTable");
-        const row = table.insertRow();
-        row.innerHTML = `
-            <td>${responsibilityTypeId || "Auto-generated"}</td>
-            <td>${description}</td>
-            <td><button class="btn btn-danger btn-sm" onclick="deleteresponsibilityType(this)">Delete</button></td>
-        `;
-
-        // Clear the form inputs
-        document.getElementById("responsibilityTypeId").value = "";
-        document.getElementById("description").value = "";
+          if (existingResponsibilityTypeIds.includes(responsibilityTypeId)) {
+              alert("Responsibility Type ID must be unique. This ID is already in use.");
+              return false;
+          }
+          return true;
       }
-
-      // Function to delete a responsibility type row
-      function deleteresponsibilityType(button) {
-        const row = button.closest("tr");
-        row.remove();
+  
+      // Function to create a new responsibility type
+      function createResponsibilityType() {
+          const responsibilityTypeId = $('#responsibilityTypeId').val();
+          const description = $('#description').val();
+  
+          if (!validateForm(responsibilityTypeId, description)) {
+              return;
+          }
+  
+          $.ajax({
+              url: "{% url 'responsibility_type' %}",
+              method: "POST",
+              contentType: "application/json",
+              headers: {
+                  'X-CSRFToken': '{{ csrf_token }}'
+              },
+              data: JSON.stringify({
+                  responsibilityTypeId: responsibilityTypeId,
+                  description: description
+              }),
+              success: function (response) {
+                  console.log("Responsibility type created:", response);
+                  if (response.status === 'success') {
+                      const newRow = `<tr>
+                          <td>${response.responsibilityTypeId}</td>
+                          <td>${response.description}</td>
+                          <td>
+                              <button class="btn btn-danger btn-sm" onclick="deleteResponsibilityType(this, '${response.responsibilityTypeId}')">Delete</button>
+                          </td>
+                      </tr>`;
+                      $('#responsibilityTypeTable').append(newRow);
+                      $('#responsibilityTypeForm').trigger("reset");
+                      existingResponsibilityTypeIds.push(responsibilityTypeId);
+                  }
+              },
+              error: function (error) {
+                  console.error("Error adding responsibility type:", error);
+                  alert("Failed to add responsibility type. Please try again.");
+              }
+          });
       }
-
-      // Function to submit the responsibility types (replace with actual backend submission)
-      function submitresponsibilityTypes() {
-        alert("Responsibility types submitted successfully!");
+  
+      // Function to delete a responsibility type
+      function deleteResponsibilityType(button, responsibilityTypeId) {
+          console.log("Attempting to delete responsibility type with ID:", responsibilityTypeId);
+          if (!confirm("Are you sure you want to delete this responsibility type?")) return;
+  
+          $.ajax({
+              url: "{% url 'responsibility_type' %}",
+              method: "DELETE",
+              contentType: "application/json",
+              data: JSON.stringify({ responsibilityTypeId: responsibilityTypeId }),
+              success: function(response) {
+                  if (response.status === 'success') {
+                      button.closest('tr').remove();
+                      alert(response.message);
+                  } else {
+                      alert("Error: " + response.message);
+                  }
+              },
+              error: function(error) {
+                  console.error("Error deleting responsibility type:", error);
+                  alert("Failed to delete responsibility type. Please try again.");
+              }
+          });
       }
-    </script>
+  
+      document.addEventListener('DOMContentLoaded', loadResponsibilityTypes);
+  
+  </script>
+  
   </body>
 </html>

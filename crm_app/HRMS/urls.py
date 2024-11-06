@@ -33,8 +33,8 @@ urlpatterns = [
     
     path('create-employee-qualification/', views.create_employee_qualification, name='create_employee_qualification'),
     path('employee-qualification-search/', views.employee_qualification_search, name='employee_qualification_search'),
-     path('api/employee-qualification-data/', views.employee_qualification_data, name='employee_qualification_data'),
-     path('api/delete-qualification/<str:employee_id>/', views.delete_employee_qualification, name='delete_employee_qualification'),
+    path('api/employee-qualification-data/', views.employee_qualification_data, name='employee_qualification_data'),
+    path('api/delete-qualification/<str:employee_id>/', views.delete_employee_qualification, name='delete_employee_qualification'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),

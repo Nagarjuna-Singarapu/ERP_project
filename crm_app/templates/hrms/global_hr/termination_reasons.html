@@ -120,12 +120,12 @@
         <div class="card-body">
           <form id="terminationTypeForm">
             <div class="mb-3">
-              <label for="terminationTypeId" class="form-label"
+              <label for="termination_reason" class="form-label"
                 >Termination Reason ID</label
               >
               <input
                 type="text"
-                id="terminationTypeId"
+                id="termination_reason"
                 class="form-control"
                 placeholder="Enter Termination Reason ID"
               />
@@ -142,13 +142,7 @@
                 required
               />
             </div>
-            <button
-              type="button"
-              class="btn btn-primary"
-              onclick="addterminationType()"
-            >
-              Create
-            </button>
+            <button type="button" class="btn btn-primary" onclick="createTerminationReason()"> Create </button>
           </form>
         </div>
       </div>
@@ -166,43 +160,8 @@
               </tr>
             </thead>
             <tbody id="terminationTypeTable">
-              <!-- Sample rows (you can dynamically populate this with backend data) -->
-              <tr>
-                <td>48445</td>
-                <td>Django</td>
-                <td>
-                  <button
-                    class="btn btn-danger btn-sm"
-                    onclick="deleteterminationType(this)"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>9000</td>
-                <td>Java/Groovy/BSH</td>
-                <td>
-                  <button
-                    class="btn btn-danger btn-sm"
-                    onclick="deleteterminationType(this)"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-              <!-- Additional rows can be populated here -->
             </tbody>
           </table>
-
-          <!-- Submit Button -->
-          <button
-            type="button"
-            class="btn btn-success mt-3"
-            onclick="submitterminationTypes()"
-          >
-            Submit
-          </button>
         </div>
       </div>
     </div>
@@ -210,43 +169,123 @@
     <!-- Bootstrap and jQuery JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
 
-      // Function to add a new termination type to the table
-      function addterminationType() {
-        const terminationTypeId =
-          document.getElementById("terminationTypeId").value;
-        const description = document.getElementById("description").value;
+      let existingTerminationReasonIds = [];
+  
+      // Load Termination Reasons
+  function loadTerminationReasons() {
+    $.ajax({
+        url: "{% url 'get_termination_reason' %}",  // Django URL for the get_termination_reason view
+        method: "GET",
+        success: function (data) {  // Using 'data' as the parameter for clarity
+            const terminationReasonTable = document.getElementById('terminationTypeTable');
+            terminationReasonTable.innerHTML = ''; // Clear existing rows
 
-        if (description.trim() === "") {
-          alert("Description is required");
-          return;
+            data.forEach(reason => {
+                const newRow = `<tr>
+                    <td>${reason.termination_reason}</td>
+                    <td>${reason.description}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="deleteTerminationReason(this, '${reason.termination_reason}')">Delete</button>
+                    </td>
+                </tr>`;
+                terminationReasonTable.insertAdjacentHTML('beforeend', newRow);
+            });
+        },
+        error: function (error) {
+            console.error("Error fetching termination reasons:", error);
+            alert("Failed to load termination reasons.");
         }
-
-        const table = document.getElementById("terminationTypeTable");
-        const row = table.insertRow();
-        row.innerHTML = `
-                <td>${terminationTypeId || "Auto-generated"}</td>
-                <td>${description}</td>
-                <td><button class="btn btn-danger btn-sm" onclick="deleteterminationType(this)">Delete</button></td>
-            `;
-
-        // Clear the form inputs
-        document.getElementById("terminationTypeId").value = "";
-        document.getElementById("description").value = "";
+    });
+}
+  
+      // Validate Form
+      function validateForm(termination_reason, description) {
+          if (!termination_reason) {
+              alert("Termination Reason is required.");
+              return false;
+          }
+          if (existingTerminationReasonIds.includes(termination_reason)) {
+              alert("Termination Reason ID must be unique. This ID is already in use.");
+              return false;
+          }
+          return true;
       }
+  
+      // Create Termination Reason
+      function createTerminationReason() {
+    const termination_reason = $('#termination_reason').val();
+    const description = $('#description').val();
 
-      // Function to delete a termination type row
-      function deleteterminationType(button) {
-        const row = button.closest("tr");
-        row.remove();
-      }
+    // Validate the form fields
+    if (!validateForm(termination_reason, description)) {
+        return;
+    }
 
-      // Function to submit the termination types (replace with actual backend submission)
-      function submitterminationTypes() {
-        alert("Termination types submitted successfully!");
+    $.ajax({
+        url: "{% url 'termination_reason' %}", // Django URL for the termination_reason view
+        method: "POST",
+        contentType: "application/json",
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        data: JSON.stringify({
+            termination_reason: termination_reason,
+            description: description
+        }),
+        success: function (response) {
+            if (response.status === 'success') {
+                // Append the new termination reason row to the table without refreshing
+                const newRow = `<tr>
+                    <td>${response.termination_reason}</td>
+                    <td>${response.description}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="deleteTerminationReason(this, '${response.termination_reason}')">Delete</button>
+                    </td>
+                </tr>`;
+                $('#terminationTypeTable').append(newRow);
+
+                // Reset the form and update existingTerminationReasonIds array
+                $('#terminationTypeForm').trigger("reset");
+                existingTerminationReasonIds.push(termination_reason);
+            } else if (response.status === 'error') {
+                alert(response.message); // Show backend error for duplicate ID
+            }
+        },
+        error: function (error) {
+            console.error("Error adding termination reason:", error);
+            alert("Failed to add termination reason. Please try again.");
+        }
+    });
+}
+  
+      // Delete Termination Reason
+      function deleteTerminationReason(button, termination_reason) {
+          if (!confirm("Are you sure you want to delete this termination reason?")) return;
+  
+          $.ajax({
+              url: "{% url 'termination_reason' %}",
+              method: "DELETE",
+              contentType: "application/json",
+              data: JSON.stringify({ termination_reason: termination_reason, csrfmiddlewaretoken: '{{ csrf_token }}' }),
+              success: function(response) {
+                  if (response.status === 'success') {
+                      button.closest('tr').remove();
+                      alert(response.message);
+                  } else {
+                      alert("Error: " + response.message);
+                  }
+              },
+              error: function(error) {
+                  console.error("Error deleting termination reason:", error);
+                  alert("Failed to delete termination reason. Please try again.");
+              }
+          });
       }
-    </script>
+  
+      document.addEventListener('DOMContentLoaded', loadTerminationReasons);
+  </script>
+  
   </body>
 </html>

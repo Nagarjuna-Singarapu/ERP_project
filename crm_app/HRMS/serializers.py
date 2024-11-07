@@ -21,11 +21,6 @@ class TerminationReasonSerializer(serializers.ModelSerializer):
         model = TerminationReason
         fields = ['id', 'termination_reason']
 
-class HREmployeeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HR_Employee
-        fields = '__all__'  # Serialize all fields
-
 class PerformanceReviewSerializer(serializers.ModelSerializer):
     hr_employee = serializers.PrimaryKeyRelatedField(queryset=HR_Employee.objects.all())
     class Meta:

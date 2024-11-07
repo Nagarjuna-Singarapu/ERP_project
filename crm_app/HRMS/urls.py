@@ -39,6 +39,8 @@ urlpatterns = [
     path('api/delete-qualification/<str:employee_id>/', views.delete_employee_qualification, name='delete_employee_qualification'),
 
     path('add-employee-leave/', views.add_employee_leave, name='add_employee_leave'),
+    path('employee-leave-search/', views.employee_leave_search, name='employee_leave_search'),
+    path('api/delete-leave/', views.delete_leave, name='delete_leave'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),

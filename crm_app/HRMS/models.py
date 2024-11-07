@@ -8,7 +8,7 @@ class HR_Department(models.Model):
     company = models.ForeignKey(HR_Company, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
-######################By Amit #################################
+###################### Global HR Section #################################
 #Add SkillType Model...
 class SkillType(models.Model):
     skillTypeId = models.CharField(max_length=100,unique=True, blank=True, null=True)  # Assuming you want to store an ID
@@ -207,6 +207,12 @@ class EmployeeQualification(models.Model):
         return f"{self.title} - {self.qualification_desc}"
     
 class EmployeeLeave(models.Model):
+    STATUS_CHOICES = [
+        ('Created', 'Created'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
     employee = models.ForeignKey(HR_Employee, to_field='employee_id', on_delete=models.CASCADE, related_name="leaves")
     leave_type = models.ForeignKey(LeaveType, on_delete=models.SET_NULL, null=True)
     leave_reason = models.ForeignKey(LeaveReason, on_delete=models.SET_NULL, null=True)
@@ -214,7 +220,8 @@ class EmployeeLeave(models.Model):
     through_date = models.DateField(null=True, blank=True)
     approver = models.ForeignKey(HR_Employee, on_delete=models.SET_NULL, to_field='employee_id', null=True, related_name="approved_leaves")
     description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Created')  # New field with default status "Created"
 
     def __str__(self):
-        return f"Leave for {self.employee.employee_id} from {self.from_date} to {self.through_date}"
+        return f"Leave for {self.employee.employee_id} from {self.from_date} to {self.through_date}, Status: {self.status}"
 

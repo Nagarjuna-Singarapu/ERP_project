@@ -1,13 +1,10 @@
 from rest_framework import serializers
-from .models import LeaveReason, LeaveType, PayGrade, PositionType, SalaryStepGrade, TerminationReason,TerminationType, SkillType
+from .models import HR_Employee, PerformanceReview, PayGrade, PositionType, SalaryStepGrade, TerminationReason,TerminationType, SkillType, LeaveReason, LeaveType
 
 class SkillTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = SkillType
         fields = ['skillTypeId','description']
-
-from .models import PayGrade, PositionType, SalaryStepGrade, TerminationReason,TerminationType
-
 
 class PayGradeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,6 +26,13 @@ class TerminationReasonSerializer(serializers.ModelSerializer):
         model = TerminationReason
         fields = ['id', 'termination_reason']
 
+class PerformanceReviewSerializer(serializers.ModelSerializer):
+    hr_employee = serializers.PrimaryKeyRelatedField(queryset=HR_Employee.objects.all())
+    class Meta:
+        model = PerformanceReview
+        fields = '__all__'
+
+
 class PositionTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PositionType
@@ -43,3 +47,4 @@ class LeaveTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeaveType
         fields = ['id', 'leave_type', 'description']
+

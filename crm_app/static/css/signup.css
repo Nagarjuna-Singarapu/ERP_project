@@ -7,6 +7,45 @@ body{
     background-color: rgba(100, 58, 252, 0.651);
 }
 
+.alert-box {
+    display: none; /* Default to hidden */
+    position: fixed; /* Fixed position for the alert */
+    top: 20px; /* Position at the top */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Center the alert */
+    background-color: #4cabff; /* Alert background color for error */
+    color: rgb(0, 0, 0); /* Text color */
+    padding: 15px; /* Padding around the content */
+    border-radius: 5px; /* Rounded corners */
+    z-index: 1000; /* Ensure it is on top */
+}
+
+.alert-box.success {
+    background-color: #28a745; /* Green background for success */
+}
+
+.alert-box.visible {
+    display: block; /* Show when visible class is added */
+}
+
+.ok-link {
+    color: white;
+    font-size: 14px;
+    text-decoration: underline; /* Underline to make it look like a link */
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.ok-link:hover {
+    color: #ddd;
+}
+
+.alert-box ul {
+    list-style-type: disc;
+    margin-left: 20px;
+}
+
 section {
     display: flex;
     justify-content: center;
@@ -65,7 +104,12 @@ input:valid ~ label {
     top: -5px;
     font-size: 0.9em; /* Slightly smaller when floating */
 }
-
+/* Additional styling for autofill */
+input:-webkit-autofill ~ label,
+input:-moz-autofill ~ label {
+    top: -5px; /* Position label above when autofilled */
+    font-size: 0.9em;
+}
 /* Input styling */
 .inputbox input {
     width: 100%;
@@ -168,6 +212,21 @@ p {
     color: #ddd; /* Light gray color on hover */
     text-decoration: underline; /* Add underline on hover */
   }
+
+/* Chrome, Safari, Edge autofill styling */
+input:-webkit-autofill {
+    -webkit-box-shadow: #5A3ACF inset !important; /* Match the form background */
+    -webkit-text-fill-color: #ffffff !important; /* White text to match design */
+    transition: background-color 5000s ease-in-out 0s; /* Prevent flashing */
+}
+
+/* Firefox autofill styling */
+input:-moz-autofill {
+    box-shadow: #5A3ACF inset !important;
+    -moz-text-fill-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
 
 @media screen and (max-width: 480px) {
     .form-box {

@@ -26,7 +26,7 @@
                     <input type="text" id="employee_id" name="employee_id" class="form-control" />
                     <div class="icons" id="show-modal-btn3" style="cursor: pointer;">📄</div><br>
                 </div>
-                <button type="button" onclick="fetchEmployeeData()">Fetch</button>
+                <button type="button" class="btn btn-animated" onclick="fetchEmployeeData()">Fetch</button>
             </div>
 
             <div id="myModal3" class="modal">
@@ -105,26 +105,28 @@
 
     <script>
 
-function selectEmployeeId(employeeId) {
+        function selectEmployeeId(employeeId) {
             console.log('Selected Employee ID:', employeeId);
             document.getElementById("employee_id").value = employeeId; // Set the value in the input field
             document.getElementById("myModal3").style.display = "none"; // Optionally close the modal
         }
 
+        // Loading Departments
+
         async function loadDepartments() {
-        const response = await fetch('/hrms/api/department/');
-        const departments = await response.json();
-        const departmentSelect = document.getElementById('internal_organization');
+            const response = await fetch('/hrms/api/department/');
+            const departments = await response.json();
+            const departmentSelect = document.getElementById('internal_organization');
 
-        departments.forEach(department => {
-            const option = document.createElement('option');
-            option.value = department.id;  // Store department ID as the value
-            option.textContent = `${department.name} (Company: ${department.company_name})`;
-            departmentSelect.appendChild(option);
-        });
-    }
+            departments.forEach(department => {
+                const option = document.createElement('option');
+                option.value = department.id;  // Store department ID as the value
+                option.textContent = `${department.name} (Company: ${department.company_name})`;
+                departmentSelect.appendChild(option);
+            });
+        }
 
-    document.addEventListener('DOMContentLoaded', loadDepartments);
+        document.addEventListener('DOMContentLoaded', loadDepartments);
 
          // Show modal for employee ID
          document.getElementById("show-modal-btn3").onclick = function () {

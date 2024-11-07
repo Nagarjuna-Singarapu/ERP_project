@@ -151,75 +151,75 @@ button {
     <div class="container">
         <h2 class="text-center mb-4">Edit Employee Position</h2>
         <div class="card p-4">
-            <form>
+            <form action="{% url 'create_employee_position' %}" method="POST">
+                {% csrf_token %}
                 <div class="form-group">
-                    <label for="emp-id">Employee Position ID</label>
+                    <label for="employee_id">Employee Position ID</label>
                     <div class="input-container">
-                        <input type="text" id="emp-id" class="form-control uniform-size" placeholder="Enter Employee Position ID">
+                        <input type="text" id="employee_id" class="form-control uniform-size" placeholder="Enter Employee Position ID" name="employee_id"  value="{{ employee_id|default:'' }}">
                         <span class="hover-text">
                             <div class="icons" id="show-modal-btn">📄</div>
                             <span class="hidden-text">Search</span>
                         </span>
                     </div>
+                    <button type="button" onclick="fetchEmployeePositionData()">Fetch</button>
                 </div>
                 
                 <div id="myModal" class="modal">
                     <div class="modal-content">
                         <span class="close" id="close-modal-btn">&times;</span>
-                        <iframe src="{% url 'Search_Emp_position' %}" style="width:100%; height: 610px;" frameborder="0"></iframe>
+                        <iframe src="{% url 'lookup' %}" style="width:100%; height: 610px;" frameborder="0"></iframe>
                     </div>
                 </div>
 
     
                 <div class="form-group">
                     <label for="status">Status</label>
-                    <select id="status" class="form-control uniform-size">
+                    <select id="status" class="form-control uniform-size" name="status">
                         <option>Active/Open</option>
                         <option>Closed</option>
                     </select>
                 </div>
     
                 <div class="form-group">
-                    <label for="internalOrganization">Internal Organization</label>
-                    <select id="internalOrganization" class="form-control uniform-size">
-                        <option>Accounting Department</option>
-                        <option>HR Department</option>
+                    <label for="internal_organization">Internal Organization</label>
+                    <select id="internal_organization" name="internal_organization" class="form-control">
+                        <option value="">Select an Organization</option>
                     </select>
                     <small class="form-text text-muted">The internal organization in which the employee works</small>
                 </div>
     
                 <div class="form-group">
                     <label for="budgetID">Budget ID</label>
-                    <input type="text" class="form-control uniform-size" id="budgetID" placeholder="Enter Budget ID">
+                    <input type="text" class="form-control uniform-size" id="budgetID" placeholder="Enter Budget ID" name="budgetID">
                 </div>
     
                 <div class="form-group">
                     <label for="budgetItemSequenceID">Budget Item Sequence ID</label>
-                    <input type="text" class="form-control uniform-size" id="budgetItemSequenceID" placeholder="Enter Budget Item Sequence ID">
+                    <input type="text" class="form-control uniform-size" id="budgetItemSequenceID" placeholder="Enter Budget Item Sequence ID" name="budgetItemSequenceID">
                 </div>
     
                 <div class="form-group">
                     <label for="employeePositionTypeID">Employee Position Type ID</label>
-                    <select id="employeePositionTypeID" class="form-control uniform-size">
-                        <option>Business Analyst</option>
-                        <option>Manager</option>
+                    <select id="employeePositionTypeID" class="form-control uniform-size" name="employeePositionTypeID">
+                        <option value="">Select the Position Type</option>
                     </select>
                 </div>
     
                 <div class="form-group">
                     <label for="plannedStartDate">Planned Start Date</label>
-                    <input type="date" class="form-control uniform-size" id="plannedStartDate">
+                    <input type="date" class="form-control uniform-size" id="plannedStartDate" name="plannedStartDate" value="{{ planned_start_date|default:'' }}">
                 </div>
     
                 <div class="form-group">
                     <label for="plannedEndDate">Planned End Date</label>
-                    <input type="date" class="form-control uniform-size" id="plannedEndDate">
+                    <input type="date" class="form-control uniform-size" id="plannedEndDate" name="plannedEndDate" value="{{ planned_end_date|default:'' }}">
                 </div>
     
                 <div class="form-group">
                     <label for="salaryFlag">Salary Flag</label>
-                    <select id="salaryFlag" class="form-control uniform-size">
-                        <option>Defult</option>
+                    <select id="salaryFlag" class="form-control uniform-size" name="salaryFlag">
+                        <option>Select</option>
                         <option>YES</option>
                         <option>NO</option>
                     </select>
@@ -227,8 +227,8 @@ button {
     
                 <div class="form-group">
                     <label for="taxExemptFlag">Tax Exempt Flag</label>
-                    <select id="taxExemptFlag" class="form-control uniform-size">
-                        <option>Defult</option>
+                    <select id="taxExemptFlag" class="form-control uniform-size" name="taxExemptFlag">
+                        <option>Select</option>
                         <option>YES</option>
                         <option>NO</option>
                     </select>
@@ -236,8 +236,8 @@ button {
     
                 <div class="form-group">
                     <label for="fullTimeFlag">Full-time Flag</label>
-                    <select id="fullTimeFlag" class="form-control uniform-size">
-                        <option>Defult</option>
+                    <select id="fullTimeFlag" class="form-control uniform-size" name="fullTimeFlag">
+                        <option>Select</option>
                         <option>YES</option>
                         <option>NO</option>
                     </select>
@@ -245,8 +245,8 @@ button {
     
                 <div class="form-group">
                     <label for="temporaryFlag">Temporary Flag</label>
-                    <select id="temporaryFlag" class="form-control uniform-size">
-                        <option>Defult</option>
+                    <select id="temporaryFlag" class="form-control uniform-size" name="temporaryFlag">
+                        <option>select</option>
                         <option>YES</option>
                         <option>NO</option>
                     </select>
@@ -254,12 +254,12 @@ button {
     
                 <div class="form-group">
                     <label for="actualStartDate">Actual Start Date</label>
-                    <input type="date" class="form-control uniform-size" id="actualStartDate">
+                    <input type="date" class="form-control uniform-size" id="actualStartDate" name="actualStartDate" value="{{ actual_start_date|default:'' }}">
                 </div>
     
                 <div class="form-group">
                     <label for="actualFinishDate">Actual Finish Date</label>
-                    <input type="date" class="form-control uniform-size" id="actualFinishDate">
+                    <input type="date" class="form-control uniform-size" id="actualFinishDate" name="actualFinishDate" value="{{ actual_finish_date|default:'' }}">
                 </div>
     
                 <button type="submit" class="btn btn-primary btn-lg mt-3">Create</button>
@@ -267,13 +267,146 @@ button {
         </div>
     </div>
     
+<!-- ############################ Displaying form validation error messages in an alert box using JavaScript ##############################################-->
+
+    {% if errors %}
+    <script>
+        let errorMessage = "";
+
+        `{% for field, message in errors.items %}`
+            errorMessage += `{{ message|escapejs }}\n`;
+        `{% endfor %}`
+
+        if (errorMessage) {
+            alert(errorMessage);
+        }
+    </script>
+    {% endif %}
+
+    
+    {% if success %}
+    <script>
+        alert("Employee Position has been successfully created/Updated...!");
+    </script>
+    {% endif %}
 
             
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script>
-    var modal = document.getElementById("myModal");
+        
+        // Loading Departments
+
+        async function loadDepartments() {
+            const response = await fetch('/hrms/api/department/');
+            const departments = await response.json();
+            const departmentSelect = document.getElementById('internal_organization');
+
+            departments.forEach(department => {
+                const option = document.createElement('option');
+                option.value = department.id;  // Store department ID as the value
+                option.textContent = `${department.name} (Company: ${department.company_name})`;
+                departmentSelect.appendChild(option);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDepartments);
+
+        async function loadDropdowns() {
+
+            // Load pay grades
+            const positionTypeResponse = await fetch('/hrms/api/positiontypes/');
+            const positionTypes = await positionTypeResponse.json();
+            const positionTypeSelect = document.getElementById('employeePositionTypeID');
+
+            positionTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.id;  
+                option.textContent = type.name;  
+                positionTypeSelect.appendChild(option);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', loadDropdowns);
+
+////////////////////// Fetching the Employment Position details //////////////////////
+
+async function fetchEmployeePositionData() {
+    const employeeId = document.getElementById('employee_id').value;
+
+    if (!employeeId) {
+        alert('Please enter an Employee ID.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/hrms/api/get-employee-position-data/?employee_id=${employeeId}`);
+        if (!response.ok) throw new Error('Employee position data not found.');
+
+        const data = await response.json();
+
+        console.log('Employee Position Data:', data);
+
+        // Set values if the element exists and data is not null
+        if (document.getElementById('status')) {
+            document.getElementById('status').value = data.status || '';
+        }
+        if (document.getElementById('internal_organization')) {
+            document.getElementById('internal_organization').value = data.internal_organization || '';
+        }
+        if (document.getElementById('budgetID')) {
+            document.getElementById('budgetID').value = data.budget_id || '';
+        }
+        if (document.getElementById('budgetItemSequenceID')) {
+            document.getElementById('budgetItemSequenceID').value = data.budget_item_sequence_id || '';
+        }
+        if (document.getElementById('employeePositionTypeID')) {
+            document.getElementById('employeePositionTypeID').value = data.employee_position_type || '';
+        }
+
+        if (document.getElementById('plannedStartDate')) {
+            document.getElementById('plannedStartDate').value = data.planned_start_date || '';
+        }
+        if (document.getElementById('plannedEndDate')) {
+            document.getElementById('plannedEndDate').value = data.planned_end_date || '';
+        }
+
+        // Checkboxes
+        if (document.getElementById('salaryFlag')) {
+            document.getElementById('salaryFlag').value = data.salary_flag ? 'YES' : 'NO';
+        }
+        if (document.getElementById('taxExemptFlag')) {
+            document.getElementById('taxExemptFlag').value = data.tax_exempt_flag ? 'YES' : 'NO';
+        }
+        if (document.getElementById('fullTimeFlag')) {
+            document.getElementById('fullTimeFlag').value = data.full_time_flag ? 'YES' : 'NO';
+        }
+        if (document.getElementById('temporaryFlag')) {
+            document.getElementById('temporaryFlag').value = data.temporary_flag ? 'YES' : 'NO';
+        }
+
+        if (document.getElementById('actualStartDate')) {
+            document.getElementById('actualStartDate').value = data.actual_start_date || '';
+        }
+        if (document.getElementById('actualFinishDate')) {
+            document.getElementById('actualFinishDate').value = data.actual_finish_date || '';
+        }
+
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+
+///////////////////// Model Lookup /////////////////////////////////////
+
+function selectEmployeeId(employeeId) {
+            console.log('Selected Employee ID:', employeeId);
+            document.getElementById("employee_id").value = employeeId; // Set the value in the input field
+            document.getElementById("myModal").style.display = "none"; // Optionally close the modal
+        }
+
+var modal = document.getElementById("myModal");
 
 // Get the icon that opens the modal
 var icon = document.getElementById("show-modal-btn");

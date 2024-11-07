@@ -24,73 +24,74 @@
 
     <style>
       /* Custom styling for Skill Types Management Page */
-      body {
-          background-color: #f8f9fa;
-          font-family: Arial, sans-serif; /* Updated font family */
-      }
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif; /* Updated font family */
+        }
 
-      /* Button styling */
-      .btn-custom {
-          background-color: #0066cc; /* New button color */
-          color: white;
-          border-radius: 4px;
-          font-size: 14px;
-          margin: 5px; /* Adds spacing between buttons */
-          padding: 8px 15px;
-          transition: background-color 0.3s;
-      }
+        /* Button styling */
+        .btn-custom {
+            background-color: #0066cc; /* New button color */
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 5px; /* Adds spacing between buttons */
+            padding: 8px 15px;
+            transition: background-color 0.3s;
+        }
 
-      /* Button hover effect */
-      .btn-custom:hover {
-          background-color: #004c99; /* Darker shade on hover */
-          color: #ffffff;
-      }
+        /* Button hover effect */
+        .btn-custom:hover {
+            background-color: #004c99; /* Darker shade on hover */
+            color: #ffffff;
+        }
 
-      /* Center-align buttons */
-      .button-container {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          padding: 20px;
-      }
+        /* Center-align buttons */
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
 
-      .card-header {
-          background-color: grey;
-          color: #fff;
-          font-weight: bold;
-      }
+        .card-header {
+            background-color: grey;
+            color: #fff;
+            font-weight: bold;
+        }
 
-      .table th,
-      .table td {
-          vertical-align: middle;
-      }
+        .table th,
+        .table td {
+            vertical-align: middle;
+        }
 
-      .table .btn {
-          font-size: 0.9rem;
-      }
+        .table .btn {
+            font-size: 0.9rem;
+        }
 
-      .nav-tabs .nav-link.active {
-          background-color: grey;
-          color: #fff;
-          font-weight: bold;
-      }
+        .nav-tabs .nav-link.active {
+            background-color: grey;
+            color: #fff;
+            font-weight: bold;
+        }
 
-      /* Additional form and table styling */
-      .btn-primary,
-      .btn-success {
-          width: 100%;
-      }
+        /* Additional form and table styling */
+        .btn-primary,
+        .btn-success {
+            width: 100%;
+        }
 
-      .card-body form .mb-3 {
-          display: flex;
-          align-items: center;
-      }
+        .card-body form .mb-3 {
+            display: flex;
+            align-items: center;
+        }
 
-      .card-body form .mb-3 label {
-          width: 120px;
-          margin-right: 10px;
-          font-weight: bold;
-      }
+        .card-body form .mb-3 label {
+            width: 120px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+    </style>
     </style>
   </head>
 
@@ -112,7 +113,7 @@
 
 
       <!-- Job Interview Types Form -->
-      <div class="card mb-4">
+      <div class="card mb-4 container">
         <div class="card-header">Add Job Interview Types</div>
         <div class="card-body">
           <form id="jobinterviweTypeForm">
@@ -151,7 +152,7 @@
       </div>
 
       <!-- Job Interview Types List Table -->
-      <div class="card">
+      <div class="card container">
         <div class="card-header">Job Interview Types List</div>
         <div class="card-body p-0">
           <table class="table table-striped mb-0">

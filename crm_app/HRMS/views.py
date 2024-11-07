@@ -927,6 +927,33 @@ def delete_employee_qualification(request, employee_id):
 ##############################################################################################################################################
 
 def add_employee_leave(request):
+    if request.method == 'POST' and request.headers.get('Content-Type') == 'application/json':
+        # Handle status update via AJAX
+        json_data = json.loads(request.body)
+        employee_id = json_data.get('employee_id')
+        from_date = json_data.get('from_date')
+        through_date = json_data.get('through_date')
+        status = json_data.get('status')
+
+        try:
+            from_date_obj = datetime.strptime(from_date, "%Y-%m-%d")
+            through_date_obj = datetime.strptime(through_date, "%Y-%m-%d")
+
+            # Filter the EmployeeLeave record by employee_id, from_date, and through_date
+            employee_leave = EmployeeLeave.objects.get(
+                employee__employee_id=employee_id,
+                from_date=from_date_obj,
+                through_date=through_date_obj
+            )
+            employee_leave.status = status
+            employee_leave.save()
+            return JsonResponse({'success': True})
+        except EmployeeLeave.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'EmployeeLeave not found'})
+        except ValueError:
+            return JsonResponse({'success': False, 'error': 'Invalid date format'})
+        
+
     if request.method == 'POST':
         errors = {}
         employee_id = request.POST.get('employee_id')
@@ -936,6 +963,7 @@ def add_employee_leave(request):
         through_date = request.POST.get('throughDate')
         approver_party_id = request.POST.get('approverParty')
         description = request.POST.get('description', '')
+        status = request.POST.get('status', 'Created')
 
         # Validate required fields
         if not employee_id:
@@ -989,19 +1017,105 @@ def add_employee_leave(request):
             return render(request, 'hrms/emp_res_lea/add_emp_leave.html', {'errors': errors})
 
         # Create the EmployeeLeave record if no errors
-        employee_leave = EmployeeLeave.objects.create(
+        employee_leave, created = EmployeeLeave.objects.update_or_create(
             employee=employee,
-            leave_type=leave_type,
-            leave_reason=leave_reason,
-            from_date=from_date,
+            from_date=from_date, 
             through_date=through_date if through_date else None,
-            approver=approver_party,
-            description=description
+            defaults={
+                'leave_type': leave_type,
+                'leave_reason': leave_reason,
+                'approver': approver_party,
+                'description': description,
+                #'status': status if 'status' in request.POST else 'Created'  # New records get "Created"; updates use the provided status
+            }
         )
 
-        return render(request, 'hrms/emp_res_lea/add_emp_leave.html', {'success': True})
+        if created:
+            employee_leave.status = 'Created'  # New records get "Created" status
+            employee_leave.save()
+            return render(request, 'hrms/emp_res_lea/add_emp_leave.html', {'success': True})
+        else:
+            employee_leave.status = status  # Updates use the provided status
+            employee_leave.save()
+            return render(request, 'hrms/emp_res_lea/leave.html')
     
     return render(request, 'hrms/emp_res_lea/add_emp_leave.html')
+
+def employee_leave_search(request):
+    if request.method == 'POST':
+        # Decode and parse JSON data from the request
+        data = request.body.decode('utf-8')
+        json_data = json.loads(data)
+
+        # Extract search parameters from the JSON data
+        employee_id = json_data.get('employee')
+        leave_type = json_data.get('leave_type')
+        leave_reason = json_data.get('leave_reason')
+        from_date = json_data.get('from_date')
+        through_date = json_data.get('through_date')
+        approver = json_data.get('approver')
+        status_ids = json_data.get('status', [])  # Status filter as list of IDs
+
+        # Build the filter dictionary
+        filters = {}
+
+        if employee_id:
+            filters['employee__employee_id'] = employee_id
+        if leave_type:
+            filters['leave_type__id'] = leave_type  # Assuming `leave_type` uses an ID field for lookup
+        if leave_reason:
+            filters['leave_reason__id'] = leave_reason  # Assuming `leave_reason` uses an ID field for lookup
+        if from_date:
+            filters['from_date__gte'] = from_date
+        if through_date:
+            filters['through_date__lte'] = through_date
+        if approver:
+            filters['approver__employee_id'] = approver
+        if status_ids:
+            filters['status__in'] = status_ids
+
+        # Query the EmployeeLeave model based on the filters
+        leaves = EmployeeLeave.objects.filter(**filters)
+
+        # Prepare response data
+        response_data = []
+        for leave in leaves:
+            response_data.append({
+                'employee_id': leave.employee.employee_id,  # FK to HR_Employee with employee_id as identifier
+                'leave_type': leave.leave_type.leave_type if leave.leave_type else 'N/A',  # Display leave type name if available
+                'leave_reason': leave.leave_reason.leave_reason if leave.leave_reason else 'N/A',  # Display leave reason name if available
+                'from_date': leave.from_date,
+                'through_date': leave.through_date,
+                'approver': leave.approver.employee_id if leave.approver else 'N/A',
+                'description': leave.description,
+                'status': leave.status,
+            })
+
+        return JsonResponse(response_data, safe=False)
+
+    # Return error response if the request method is not POST
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def delete_leave(request):
+    if request.method == 'DELETE':
+        employee_id = request.GET.get('employee_id')
+        from_date = request.GET.get('from_date')
+        through_date = request.GET.get('through_date')
+
+        try:
+            # Find and delete the specific record
+            leave_record = EmployeeLeave.objects.get(
+                employee_id=employee_id, 
+                from_date=from_date, 
+                through_date=through_date
+            )
+            leave_record.delete()
+            return JsonResponse({'message': 'Leave record deleted successfully'}, status=200)
+        except EmployeeLeave.DoesNotExist:
+            return JsonResponse({'error': 'Leave record not found'}, status=404)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 ##############################################################################################################################################
 

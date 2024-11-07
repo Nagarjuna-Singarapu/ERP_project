@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Reporting</title>
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'Performance_CSS/report.css' %}">
+    {% endblock %}
+</head>
+<body>
+
+    <nav class="navbar animate__animated animate__fadeInDown">
+        <ul>
+          
+          <li><a href="{% url 'PerDeshbord' %}">Dashboard</a></li>
+          <li><a href="{% url 'improvement' %}">Performance improvement</a></li> 
+          <li><a href="{% url 'viewreport' %}">Viewreport</a></li>
+          <li><a href="{% url 'review' %}">Feedback</a></li>
+          
+    
+        </ul>
+      </nav>
+    <div class="container">
+        <h1>Custom Employee Performance Reports</h1>
+
+        <div class="report-form">
+            <h2>Generate Report</h2>
+            <form id="reportForm">
+                <label for="employeeName">Employee Name:</label>
+                <input type="text" id="employeeName">
+
+                <label for="department">Department:</label>
+                <select id="department">
+                    <option value="">All Departments</option>
+                    <option value="HR">HR</option>
+                    <option value="Sales">Sales</option>
+                    <option value="IT">IT</option>
+                    <option value="Marketing">Marketing</option>
+                </select>
+
+                <label for="rating">Performance Rating:</label>
+                <select id="rating">
+                    <option value="">All Ratings</option>
+                    <option value="1">1 - Unsatisfactory</option>
+                    <option value="2">2 - Needs Improvement</option>
+                    <option value="3">3 - Satisfactory</option>
+                    <option value="4">4 - Good</option>
+                    <option value="5">5 - Excellent</option>
+                </select>
+
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate">
+
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate">
+
+                <button type="submit" >Generate Report</button>
+                <button type="submit" ><a style="list-style: none;" href="{% url 'viewreport' %}">ViewReport</a></button>
+            </form>
+        </div>
+
+        <div class="report-results">
+            <h2>Generated Reports</h2>
+            <ul id="reportList"></ul>
+        </div>
+    </div>
+
+    <script>
+        // script.js
+document.getElementById('reportForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const employeeName = document.getElementById('employeeName').value || 'All Employees';
+    const department = document.getElementById('department').value || 'All Departments';
+    const rating = document.getElementById('rating').value || 'All Ratings';
+    const startDate = document.getElementById('startDate').value || 'Not Specified';
+    const endDate = document.getElementById('endDate').value || 'Not Specified';
+
+    const reportItem = document.createElement('li');
+    reportItem.innerHTML = `<strong>Report for:</strong> ${employeeName}<br>
+                            <strong>Department:</strong> ${department}<br>
+                            <strong>Performance Rating:</strong> ${rating}<br>
+                            <strong>Period:</strong> ${startDate} to ${endDate}`;
+    
+    document.getElementById('reportList').appendChild(reportItem);
+    
+    // Clear the form fields after submission
+    document.getElementById('reportForm').reset();
+
+    // Optional: Notification or alert can be added here
+    alert(`Report generated for ${employeeName} in ${department} department with rating ${rating}.`);
+});
+
+    </script>
+</body>
+</html>

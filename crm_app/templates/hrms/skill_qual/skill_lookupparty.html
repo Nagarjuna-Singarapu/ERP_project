@@ -1,0 +1,267 @@
+<!-- ##ERP_project/crm_app/templates/hrms/skill_qual/skill_lookupparty.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lookup Party by Name</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f7f7f7;
+        }
+
+        .lookup-container {
+            background-color: #ffffff;
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-width: 900px;
+            margin: auto;
+            position: relative;
+        }
+
+        .cancel-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: red;
+        }
+
+        .form-label {
+            min-width: 120px;
+            text-align: right;
+        }
+
+        .form-check-inline {
+            margin-left: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            flex-grow: 1;
+            max-width: 600px;
+        }
+
+        /* Adjust table styling */
+        .table {
+            width: 100%;
+            margin-top: 20px;
+            color: #212529;
+            border: 1px solid #dee2e6;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.5rem;
+            vertical-align: middle;
+            border: 1px solid #dee2e6;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .pagination-nav {
+            display: flex;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .pagination-nav li {
+            margin-right: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container lookup-container position-relative">
+
+        <h3 class="text-center mb-4">Lookup Party by Name</h3>
+
+        <!-- Search Form -->
+        <form id="lookupForm" class="g-3">
+            <div class="form-group">
+                <label for="partyId" class="form-label">Party ID</label>
+                <div class="input-group">
+                    <select class="form-select" id="partyIdFilter" style="width: 50px;">
+                        <option value="contains">Contains</option>
+                            <option value="equals">Equals</option>
+                            <option value="beginswith">Begins With</option>
+                            <option value="notequal">Not Equal</option>
+                            <option value="isempty">Is Empty</option>
+                    </select>
+                    <input type="text" class="form-control ms-2" id="partyId" placeholder="Party ID">
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="ignoreCasePartyId" checked>
+                    <label class="form-check-label" for="ignoreCasePartyId">Ignore Case</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="partyTypeId" class="form-label">Party Type ID</label>
+                <div class="input-group">
+                    <select class="form-select" id="partyTypeIdFilter" style="width: 50px;">
+                            <option value="contains">Contains</option>
+                            <option value="equals">Equals</option>
+                            <option value="beginswith">Begins With</option>
+                            <option value="notequal">Not Equal</option>
+                            <option value="isempty">Is Empty</option>
+                    </select>
+                    <input type="text" class="form-control ms-2" id="partyTypeId" placeholder="Party Type ID">
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="ignoreCasePartyTypeId" checked>
+                    <label class="form-check-label" for="ignoreCasePartyTypeId">Ignore Case</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="firstName" class="form-label">First Name</label>
+                <div class="input-group">
+                    <select class="form-select" id="firstNameFilter" style="width: 50px;">
+                            <option value="contains">Contains</option>
+                            <option value="equals">Equals</option>
+                            <option value="beginswith">Begins With</option>
+                            <option value="notequal">Not Equal</option>
+                            <option value="isempty">Is Empty</option>
+                    </select>
+                    <input type="text" class="form-control ms-2" id="firstName" placeholder="First Name">
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="ignoreCaseFirstName" checked>
+                    <label class="form-check-label" for="ignoreCaseFirstName">Ignore Case</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName" class="form-label">Last Name</label>
+                <div class="input-group">
+                    <select class="form-select" id="lastNameFilter" style="width: 50px;">
+                        <option value="contains">Contains</option>
+                            <option value="equals">Equals</option>
+                            <option value="beginswith">Begins With</option>
+                            <option value="notequal">Not Equal</option>
+                            <option value="isempty">Is Empty</option>
+                    </select>
+                    <input type="text" class="form-control ms-2" id="lastName" placeholder="Last Name">
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="ignoreCaseLastName" checked>
+                    <label class="form-check-label" for="ignoreCaseLastName">Ignore Case</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="groupName" class="form-label">Group Name</label>
+                <div class="input-group">
+                    <select class="form-select" id="groupNameFilter" style="width: 50px;">
+                        <option value="contains">Contains</option>
+                            <option value="equals">Equals</option>
+                            <option value="beginswith">Begins With</option>
+                            <option value="notequal">Not Equal</option>
+                            <option value="isempty">Is Empty</option>
+                    </select>
+                    <input type="text" class="form-control ms-2" id="groupName" placeholder="Group Name">
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="ignoreCaseGroupName" checked>
+                    <label class="form-check-label" for="ignoreCaseGroupName">Ignore Case</label>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="button" class="btn btn-primary mt-3" id="findButton">Find</button>
+            </div>
+        </form>
+
+        <!-- Table Results -->
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Party ID</th>
+                        <th>Party Type ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Group Name</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTable">
+                    <!-- Sample data; replace with dynamic content -->
+                    <tr>
+                        <td>10000</td>
+                        <td>Person</td>
+                        <td>Test</td>
+                        <td>User</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>ACCOUNTING</td>
+                        <td>Party Group</td>
+                        <td></td>
+                        <td></td>
+                        <td>Accounting department</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <ul class="pagination-nav">
+                <li><button type="button" class="btn btn-secondary" id="firstPage">First</button></li>
+                <li><button type="button" class="btn btn-secondary" id="previousPage">Previous</button></li>
+                <li><button type="button" class="btn btn-secondary" id="nextPage">Next</button></li>
+                <li><button type="button" class="btn btn-secondary" id="lastPage">Last</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        // Placeholder for the Find button event
+        document.querySelector('#findButton').addEventListener('click', function () {
+            alert('Find functionality goes here.');
+        });
+
+        // Placeholder for pagination buttons
+        document.querySelector('#firstPage').addEventListener('click', function () {
+            alert('Go to the first page!');
+        });
+        document.querySelector('#previousPage').addEventListener('click', function () {
+            alert('Go to the previous page!');
+        });
+        document.querySelector('#nextPage').addEventListener('click', function () {
+            alert('Go to the next page!');
+        });
+        document.querySelector('#lastPage').addEventListener('click', function () {
+            alert('Go to the last page!');
+        });
+    </script>
+
+</body>
+
+</html>

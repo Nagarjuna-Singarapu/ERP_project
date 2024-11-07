@@ -1,0 +1,109 @@
+/* styles.css */
+
+/* Global Styles */
+body {
+  background-color: #f8f9fa; /* Light background color */
+  font-family: 'Arial', sans-serif; /* Font style */
+}
+
+/* Main Container */
+.container {
+  max-width: 800px; /* Max width for the container */
+  margin: 20px auto; /* Center the container */
+  padding: 20px; /* Padding around the container */
+  background-color: #ffffff; /* White background for the container */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Heading Styles */
+h3 {
+  color: black; /* Primary color for headings */
+  margin-bottom: 20px; /* Space below heading */
+}
+
+/* Form Elements */
+.form-label {
+  font-weight: bold; /* Bold labels */
+  color: #495057; /* Darker color for labels */
+}
+
+.form-control, .form-select {
+  border-radius: 5px; /* Rounded corners for input fields */
+  border: 1px solid #ced4da; /* Light border */
+  transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #80bdff; /* Change border color on focus */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Add shadow on focus */
+}
+
+/* Checkbox Styles */
+.form-check-label {
+  margin-left: 5px; /* Space between checkbox and label */
+}
+
+/* Button Styles */
+.btn {
+  border-radius: 5px; /* Rounded corners for buttons */
+  padding: 10px 15px; /* Padding for buttons */
+  font-weight: bold; /* Bold text for buttons */
+}
+
+/* Table Styles */
+.table {
+  width: 100%; /* Full width for table */
+  margin-top: 20px; /* Space above table */
+}
+
+.table th {
+  background-color: #007bff; /* Primary color for table header */
+  color: white; /* White text color */
+}
+
+.table td {
+  vertical-align: middle; /* Center content in table cells */
+}
+
+/* Pagination Styles */
+.pagination-container {
+  margin-top: 20px; /* Space above pagination */
+  text-align: center; /* Center pagination */
+}
+
+.pagination-nav {
+  list-style: none; /* Remove default list styles */
+  padding: 0; /* Remove padding */
+}
+
+.pagination-nav li {
+  display: inline; /* Inline display for pagination buttons */
+  margin: 0 5px; /* Space between buttons */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .container {
+      padding: 15px; /* Reduce padding on smaller screens */
+  }
+
+  .form-control, .form-select {
+      font-size: 14px; /* Smaller font size for inputs */
+  }
+
+  .btn {
+      width: 100%; /* Full width for buttons */
+      margin-top: 10px; /* Space above buttons */
+  }
+
+  .table th, .table td {
+      font-size: 14px; /* Smaller font size for table */
+  }
+}
+
+@media (max-width: 576px) {
+  h3 {
+      font-size: 20px; /* Smaller heading size */
+  }
+}

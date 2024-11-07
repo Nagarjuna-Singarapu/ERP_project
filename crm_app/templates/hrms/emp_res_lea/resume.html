@@ -1,0 +1,288 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Party Resume</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_res_lea/resume.css' %}">
+    {% endblock %}
+    
+</head>
+<body>
+    <!-- Navbar placeholder -->
+    <div class="nav-placeholder"></div>
+
+    <div class="container">
+        <div class="search-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Find Party Resume</h2>
+                <a href="{% url 'New_resume' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Party Resume
+                </a>
+            </div>
+            <div class="card-header">
+                <h4>Search Options</h4>
+            </div>
+
+            <form id="searchForm">
+                <div class="row g-3">
+                    <!-- Resume ID -->
+                    <div class="col-md-5">
+                        <label for="appID" class="form-label">Resume ID</label>
+                        <div class="input-group">
+                            <input type="text" id="appID" class="form-control" placeholder="Enter Application ID">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#appIDModal">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Party ID -->
+                    <div class="col-md-5">
+                        <label for="applyingParty" class="form-label">Party ID</label>
+                        <div class="input-group">
+                            <input type="text" id="applyingParty" class="form-control" placeholder="Enter Applying Party ID">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#applyingPartyModal">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Content ID -->
+                    <!-- <div class="col-md-5">
+                        <label for="referredByParty" class="form-label">Content ID</label>
+                        <div class="input-group">
+                            <input type="text" id="referredByParty" class="form-control" placeholder="Enter Referred By Party ID">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#referredByPartyModal">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div> -->
+
+                    <!-- Resume Date Range -->
+                    <div class="col-md-12">
+                        <label class="form-label">Resume Date</label>
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <input type="date" id="applicationDateStart" class="form-control">
+                                    <select id="dateConditionStart" class="form-select" style="max-width: 200px;">
+                                        <option value="equals">Equals</option>
+                                        <option value="sameDay">Same Day</option>
+                                        <option value="greaterThan">Greater Than</option>
+                                        <option value="greaterThanFromDayStart">Greater Than From Day Start</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <input type="date" id="applicationDateEnd" class="form-control">
+                                    <select id="dateConditionEnd" class="form-select" style="max-width: 200px;">
+                                        <option value="lessThan">Less Than</option>
+                                        <option value="upToDay">Up To Day</option>
+                                        <option value="upThroughDay">Up Through Day</option>
+                                        <option value="isEmpty">Is Empty</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Button -->
+                    <div class="col-12">
+                        <button type="button" id="findBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Find
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div class="result-section">
+            <h3 class="mb-4">Search Results</h3>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="resultTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Resume ID</th>
+                            <th>Party ID</th>
+                            <th>Content ID</th>
+                            <th>Resume Date</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dynamic content will be inserted here via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Resume ID Modal -->
+    <div class="modal fade" id="appIDModal" tabindex="-1" aria-labelledby="appIDModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="appIDModalLabel">Resume ID Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe src="{% url 'lookup_party_resume' %}" width="100%" height="800px" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Party ID Modal -->
+    <div class="modal fade" id="applyingPartyModal" tabindex="-1" aria-labelledby="applyingPartyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="applyingPartyModalLabel">Applying Party ID Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe src="{% url 'lookup_party' %}" width="100%" height="800px" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Sample data for demonstration
+const mockData = [
+{
+    appID: '4561',
+    positionID: '4852',
+    applyingParty: 'Developer1',
+    contentID: 'CNT1234',
+    appDate: '2024-10-31'
+}
+];
+
+// Find button click handler
+document.getElementById('findBtn').addEventListener('click', function () {
+const resultTable = document.getElementById('resultTable').querySelector('tbody');
+resultTable.innerHTML = ''; // Clear previous results
+
+// Add rows to the table based on mock data
+mockData.forEach(data => {
+    const row = `
+        <tr>
+            <td>
+                <input type="text" class="form-control" value="${data.appID}" readonly>
+            </td>
+            <td>
+                <input type="text" class="form-control" value="${data.positionID}">
+            </td>
+            <td>
+                <input type="text" class="form-control" value="${data.contentID}">
+            </td>
+            <td>
+                <input type="date" class="form-control" value="${data.appDate}" readonly>
+            </td>
+            <td>
+                <button class="btn btn-danger deleteBtn">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+    resultTable.innerHTML += row;
+});
+
+// Attach delete functionality to buttons after rows are added
+attachDeleteFunctionality();
+});
+
+// Clear form button handler
+document.getElementById('clearBtn').addEventListener('click', function () {
+clearForm();
+});
+
+// Attach delete functionality to dynamically added rows
+function attachDeleteFunctionality() {
+document.querySelectorAll('.deleteBtn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        if (confirm('Are you sure you want to delete this record?')) {
+            this.closest('tr').remove();
+        }
+    });
+});
+}
+
+// Clear form function
+function clearForm() {
+document.querySelector('form').reset();
+const resultTable = document.getElementById('resultTable').querySelector('tbody');
+resultTable.innerHTML = ''; // Clear table data
+}
+
+// Form validation
+function validateForm() {
+let isValid = true;
+const requiredFields = document.querySelectorAll('[required]');
+
+requiredFields.forEach(field => {
+    if (!field.value) {
+        field.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        field.classList.remove('is-invalid');
+    }
+});
+
+return isValid;
+}
+
+// Date range validation
+function validateDateRange() {
+const startDate = document.getElementById('applicationDateStart').value;
+const endDate = document.getElementById('applicationDateEnd').value;
+
+if (startDate && endDate && startDate > endDate) {
+    alert('Start date cannot be later than end date');
+    return false;
+}
+return true;
+}
+
+// Initialize modals (optional)
+document.querySelectorAll('[data-bs-toggle="modal"]').forEach(modalTrigger => {
+modalTrigger.addEventListener('click', function () {
+    // Dynamically load content into modal if needed
+    const targetModal = document.querySelector(modalTrigger.getAttribute('data-bs-target'));
+    const iframe = targetModal.querySelector('iframe');
+    if (iframe) {
+        iframe.src = iframe.getAttribute('src'); // Refresh iframe content if needed
+    }
+});
+});
+
+// Add form submission prevention on enter key
+document.querySelector('form').addEventListener('keypress', function (e) {
+if (e.key === 'Enter') {
+    e.preventDefault();
+    return false;
+}
+});
+
+</script>
+
+
+
+</body>
+</html>

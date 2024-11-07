@@ -1,0 +1,177 @@
+* {
+    margin: 0;
+    padding: 0; /* Add padding reset */
+    box-sizing: border-box; /* Ensure consistent box model */
+}
+
+body {
+    background-color: #e8f5ff;
+    font-family: Arial, sans-serif;
+    overflow: hidden;     
+}
+
+/* Main */
+.main {
+    margin-top: 2%;
+    margin-left: 29%;
+    font-size: 28px;
+    padding: 0 10px;
+    width: 40%;
+    
+}
+
+/* Heading Styles */
+.main h2 {
+    color: #333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+/* Card Styles */
+.main .card {
+    margin-top: 20%;
+    background-color: #c1bcc7;
+    border-radius: 30px;
+    /* box-shadow: 1px 1px 20px 0 rgb(212, 40, 40); */
+    height: auto;
+    margin-bottom: 20px;
+    padding: 20px 0 40px 50px;
+}
+.main .card:hover::before {
+    transform: scale(1.05); /* Slightly scale up on hover */
+}
+
+/* Table Styles */
+.main .card table {
+    border: none;
+    font-size: 16px;
+    height: 270px;
+    width: 80%;
+    border-radius: 5px;
+}
+
+/* Edit Icon */
+.edit {
+    position: absolute;
+    color: #e7e7e8;
+    right: 14%;
+}
+
+/* Social Media Icons */
+.social-media {
+    text-align: center;
+    width: 90%;
+}
+
+.social-media span {
+    margin: 0 10px;
+}
+
+/* Social Media Hover Effects */
+.fa-facebook:hover { color: #4267b3 !important; }
+.fa-twitter:hover { color: #1da1f2 !important; }
+.fa-instagram:hover { color: #ce2b94 !important; }
+.fa-invision:hover { color: #f83263 !important; }
+.fa-github:hover { color: #161414 !important; }
+.fa-whatsapp:hover { color: #25d366 !important; }
+.fa-snapchat:hover { color: #fffb01 !important; }
+
+/* Responsive Media Queries */
+@media (max-width: 1024px) {
+    .main {
+        margin-left: 15%; /* Adjust margin for smaller screens */
+        width: 70%; /* Increase width */
+        font-size: 24px; /* Slightly smaller font size */
+    }
+
+    .main h2 {
+        font-size: 22px; /* Smaller heading font size */
+    }
+
+    .main .card {
+        padding: 20px 10px; /* Adjust padding */
+    }
+
+    .main .card table {
+        width: 90%; /* Increase table width */
+    }
+
+    .edit {
+        right: 10%; /* Adjust icon position */
+    }
+}
+
+@media (max-width: 768px) {
+    .main {
+        margin-left: 5%; /* Less margin for mobile */
+        width: 90%; /* Full width */
+        font-size: 20px; /* Smaller font size */
+    }
+
+    .main h2 {
+        font-size: 20px; /* Smaller heading font size */
+    }
+
+    .main .card {
+        padding: 15px; /* Adjust padding */
+    }
+
+    .main .card table {
+        font-size: 14px; /* Smaller font size in table */
+    }
+
+    .edit {
+        right: 5%; /* Adjust icon position */
+    }
+}
+
+@media (max-width: 480px) {
+    .main {
+        margin-left: 0; /* Remove margin */
+        width: 100%; /* Full width */
+        font-size: 18px; /* Smaller font size */
+    }
+
+    .main h2 {
+        font-size: 18px; /* Smaller heading font size */
+    }
+
+    .main .card {
+        padding: 10px; /* Further adjust padding */
+    }
+
+    .main .card table {
+        font-size: 12px; /* Smaller font size in table */
+    }
+
+    .edit {
+        right: 2%; /* Adjust icon position */
+    }
+}
+.back-dashboard {
+    margin-top: 1rem; /* Space above the button */
+}
+
+.btn {
+    display: inline-block; 
+    padding: 0.5rem 1rem; 
+    background-color: #c1bcc7; 
+    color: white; 
+    border: none; 
+    
+    border-radius: 4px; 
+    font-size: 1rem; /* Font size */
+    font-weight: bold; /* Bold text */
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+    cursor: pointer; /* Pointer cursor on hover */
+    border-radius: 5%;
+
+}
+
+.btn:hover {
+    background-color: #b2aeb8; /* Darker shade on hover */
+    transform: translateY(-2px); /* Lift effect on hover */
+    text-decoration: none;
+}

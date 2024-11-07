@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+    {% endblock %}
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+
+    <!-- Alert Box -->
+    <div id="error-popup" class="alert-box {% if error_messages %}visible{% elif success_message %}success visible{% endif %}" data-success="{% if success_message %}true{% else %}false{% endif %}">
+        <ul>
+            {% if error_messages %}
+                {% for errors in error_messages.values %}
+                    {% for error in errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            {% elif success_message %}
+                <li>{{ success_message }}</li>
+            {% endif %}
+        </ul>
+        <a href="#" id="ok-link" class="ok-link">Okay</a>
+    </div>
+
+    <section>
+        <div class="form-box">
+            <div class="form-value">
+                <form method="post">
+                    {% csrf_token %}
+                    <h2>Sign Up</h2>
+
+                    <!-- Username Field -->
+                    <div class="inputbox">
+                        <input type="text" name="username" id="id_username" value="{{ form.username.value|default_if_none:'' }}" required>
+                        <label for="id_username">Username:</label>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="inputbox">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <input type="email" name="email" id="id_email" value="{{ form.email.value|default_if_none:'' }}" required>
+                        <label for="id_email">Email:</label>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="inputbox">
+                        <ion-icon id="toggle-password1-icon" name="eye-off-outline" onclick="togglePasswordVisibility('id_password1', 'toggle-password1-icon')"></ion-icon>
+                        <input type="password" name="password1" id="id_password1" required>
+                        <label for="id_password1">Password:</label>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="inputbox">
+                        <ion-icon id="toggle-password2-icon" name="eye-off-outline" onclick="togglePasswordVisibility('id_password2', 'toggle-password2-icon')"></ion-icon>
+                        <input type="password" name="password2" id="id_password2" required>
+                        <label for="id_password2">Confirm Password:</label>
+                    </div>
+
+                    <div class="forget">
+                        <label><input type="checkbox">Remember Me</label>
+                    </div>
+
+                    <button type="submit">Signup</button>
+                    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var okLink = document.getElementById("ok-link");
+            var errorPopup = document.getElementById("error-popup");
+            var isSuccess = errorPopup.getAttribute("data-success") === "true";
+
+            // Add event listener to the "Okay" link
+            okLink.addEventListener("click", function(event) {
+                event.preventDefault();
+                hideAlert(isSuccess);
+            });
+        });
+
+        // Hide alert and handle redirection for success
+        function hideAlert(isSuccess) {
+            document.getElementById('error-popup').classList.remove('visible');
+            if (isSuccess) {
+                window.location.href = "{% url 'login' %}";
+            }
+        }
+
+        // Function to toggle password visibility
+        function togglePasswordVisibility(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.setAttribute('name', 'eye-outline');
+            } else {
+                passwordInput.type = 'password';
+                icon.setAttribute('name', 'eye-off-outline');
+            }
+        }
+    </script>
+</body>
+</html>

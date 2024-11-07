@@ -1,0 +1,96 @@
+<!-- ERP_project/crm_app/templates/hrms/skill_qual/lookup.html -->
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lookup Person</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Search Form -->
+        <form id="lookupForm">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" class="form-control" placeholder="Enter First Name">
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" class="form-control" placeholder="Enter Last Name">
+            </div>
+            <div class="form-group">
+                <label for="phone_number">Phone Number:</label>
+                <input type="text" id="phone_number" class="form-control" placeholder="Enter Phone Number">
+            </div>
+            <button id="lookupSearchButton" type="button" class="btn btn-primary">Search</button>
+        </form>
+
+        <h3 class="mt-4">Search Results</h3>
+        <table class="table table-striped" id="lookup-results-table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Title</th>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Lookup results will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.getElementById('lookupSearchButton').addEventListener('click', function (event) {
+            event.preventDefault();  // Prevent form submission
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const phoneNumber = document.getElementById('phone_number').value;
+
+            const url = `/hrms/search-employees/?first_name=${firstName}&last_name=${lastName}&phone_number=${phoneNumber}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => populateLookupTable(data))
+                .catch(error => console.error('Error fetching lookup data:', error));
+        });
+
+        function populateLookupTable(data) {
+            const tbody = document.querySelector('#lookup-results-table tbody');
+            tbody.innerHTML = '';  // Clear previous results
+
+            data.forEach(employee => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><a href="#" class="employee-id-link">${employee.employee_id}</a></td>
+                    <td>${employee.title}</td>
+                    <td>${employee.first_name} ${employee.last_name}</td>
+                    <td>${employee.phone_number}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Add click event to each employee ID link
+            document.querySelectorAll('.employee-id-link').forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const employeeId = this.textContent;
+                    selectEmployee(employeeId);  // Call the function to send ID to the parent
+                });
+            });
+        }
+
+        // This function sends the selected employee ID to the parent window
+        function selectEmployee(employeeId) {
+            window.parent.selectEmployeeId(employeeId);  // Sends employee ID to parent window
+            // Optionally, you can close the modal if needed:
+            window.parent.closeLookupModal();  // Assuming you have a function to close the modal
+        }
+    </script>
+</body>
+</html>

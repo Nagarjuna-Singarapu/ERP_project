@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Resume</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_res_lea/New_resume.css' %}">
+    {% endblock %}
+    
+</head>
+<body>
+    <!-- Placeholder for Navbar -->
+    <div class="nav-placeholder" style="height: 60px; background-color: #f8f9fa; margin-bottom: 20px;"></div>
+
+    <div class="container">
+        <div class="search-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Party Resume</h2>
+            </div>
+            <div class="card-header">
+                <h4>Search Options</h4>
+            </div>
+
+            <form id="searchForm">
+                <div class="row g-3">
+                    <!-- Resume ID (full width) -->
+                    <div class="col-6">
+                        <label for="appID" class="form-label">Resume ID</label>
+                        <div class="input-group">
+                            <input type="text" id="appID" class="form-control" placeholder="Enter Resume ID" aria-label="Resume ID">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#appIDModal">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Party ID  -->
+                    <div class="col-6">
+                        <label for="applyingParty" class="form-label">Party ID</label>
+                        <div class="input-group">
+                            <input type="text" id="applyingParty" class="form-control" placeholder="Enter Party ID" aria-label="Party ID">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#applyingPartyModal">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Content ID  -->
+                    <div class="col-6">
+                        <label for="contentID" class="form-label">Content ID</label>
+                        <div class="input-group">
+                            <input type="text" id="contentID" class="form-control" placeholder="Enter Content ID" aria-label="Content ID">
+                            <!-- <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#contentIDModal">
+                                <i class="fas fa-info-circle"></i>
+                            </button> -->
+                        </div>
+                    </div>
+
+                    <!-- Resume Date -->
+                    <div class="col-6">
+                        <label for="resumeDate" class="form-label">Resume Date</label>
+                        <input type="date" id="resumeDate" class="form-control" aria-label="Resume Date">
+                    </div>
+
+                    <!-- Create button -->
+                    <div class="col-12">
+                        <button type="button" class="btn btn-primary w-100" id="create-btn">Create</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Template for Resume ID -->
+    <div class="modal fade" id="appIDModal" tabindex="-1" aria-labelledby="appIDModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="appIDModalLabel">Resume ID Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe src="{% url 'lookup_party_resume' %}" title="Resume Details"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Party ID Modal -->
+    <div class="modal fade" id="applyingPartyModal" tabindex="-1" aria-labelledby="applyingPartyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="applyingPartyModalLabel">Applying Party ID Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe src="{% url 'lookup_party' %}" width="100%" height="400px" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Initialize modals (optional)
+        document.querySelectorAll('[data-bs-toggle="modal"]').forEach(modalTrigger => {
+        modalTrigger.addEventListener('click', function () {
+        // Dynamically load content into modal if needed
+        const targetModal = document.querySelector(modalTrigger.getAttribute('data-bs-target'));
+        const iframe = targetModal.querySelector('iframe');
+        if (iframe) {
+            iframe.src = iframe.getAttribute('src'); // Refresh iframe content if needed
+        }
+    });
+    });
+    </script>
+
+</body>
+</html>

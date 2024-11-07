@@ -1,0 +1,281 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Employment</title>
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/NewEmployement.css' %}">
+    {% endblock %}
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+</head>
+
+<body>
+    <div class="container animate__animated animate__fadeIn">
+        <h2>Edit Employment</h2>
+        <form method="post" action="{% url 'create_employment' %}" id="employment-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="employee_id">Employee Party ID</label>
+                <div class="input-wrapper">
+                    <input type="text" id="employee_id" name="employee_id" class="form-control" />
+                    <div class="icons" id="show-modal-btn3" style="cursor: pointer;">📄</div><br>
+                </div>
+                <button type="button" class="btn btn-animated" onclick="fetchEmployeeData()">Fetch</button>
+            </div>
+
+            <div id="myModal3" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="close-modal-btn3">&times;</span>
+                    <iframe src="{% url 'lookup' %}" style="width: 100%; height: 600px" frameborder="0"></iframe>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="internal_organization">Internal Organization</label>
+                <select id="internal_organization" name="internal_organization" class="form-control">
+                    <option value="">Select an Organization</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="from-date">From Date</label>
+                <input type="date" id="from-date" name="from_date" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" name="amount" class="form-control" placeholder="Enter Amount" />
+            </div>
+
+            <div class="form-group">
+                <label for="comments">Comments</label>
+                <input type="text" id="comments" name="comments" class="form-control" placeholder="Add any comments" />
+            </div>
+
+            <div class="form-group">
+                <label for="pay_grade">Pay Grade</label>
+                <select id="pay_grade" name="pay_grade" class="form-control">
+                    <option value="">Select a Pay Grade</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="salary_step">Salary Step</label>
+                <select id="salary_step" name="salary_step" class="form-control">
+                    <option value="">Select a Salary Step</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="period-type">Period Type</label>
+                <select id="period_type" name="period_type" class="form-control">
+                    <option value="FISCAL_BIWEEK">Fiscal Bi-Week</option>
+                    <option value="FISCAL_MONTH">Fiscal Month</option>
+                    <option value="FISCAL_QUARTER">Fiscal Quarter</option>
+                    <option value="FISCAL_WEEK">Fiscal Week</option>
+                    <option value="FISCAL_YEAR">Fiscal Year</option>
+                    <option value="RATE_HOUR">Rate per Hour</option>
+                    <option value="RATE_MONTH">Rate per Month</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="termination_type">Termination Type</label>
+                <select id="termination_type" name="termination_type" class="form-control">
+                    <option value="">Select the Type</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="termination_reason">Termination Reason</label>
+                <select id="termination_reason" name="termination_reason" class="form-control">
+                    <option value="">Select a Reason</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-animated">Create</button>
+        </form>
+    </div>
+
+    <script>
+
+        function selectEmployeeId(employeeId) {
+            console.log('Selected Employee ID:', employeeId);
+            document.getElementById("employee_id").value = employeeId; // Set the value in the input field
+            document.getElementById("myModal3").style.display = "none"; // Optionally close the modal
+        }
+
+        // Loading Departments
+
+        async function loadDepartments() {
+            const response = await fetch('/hrms/api/department/');
+            const departments = await response.json();
+            const departmentSelect = document.getElementById('internal_organization');
+
+            departments.forEach(department => {
+                const option = document.createElement('option');
+                option.value = department.id;  // Store department ID as the value
+                option.textContent = `${department.name} (Company: ${department.company_name})`;
+                departmentSelect.appendChild(option);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDepartments);
+
+         // Show modal for employee ID
+         document.getElementById("show-modal-btn3").onclick = function () {
+            document.getElementById("myModal3").style.display = "block";
+        }
+
+        // Close modal functionality
+        document.getElementById("close-modal-btn3").onclick = function () {
+            document.getElementById("myModal3").style.display = "none";
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function (event) {
+            const modal = document.getElementById("myModal3");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+    <script>
+        async function loadDropdowns() {
+
+    // Load pay grades
+    const payGradeResponse = await fetch('/hrms/api/paygrades/');
+    const payGrades = await payGradeResponse.json();
+    const payGradeSelect = document.getElementById('pay_grade');
+    
+    payGrades.forEach(grade => {
+        const option = document.createElement('option');
+        option.value = grade.id;  
+        option.textContent = grade.grade_name;  
+        payGradeSelect.appendChild(option);
+    });
+
+    // Load salary steps
+    const salaryStepResponse = await fetch('/hrms/api/salarysteps/');
+    const salarySteps = await salaryStepResponse.json();
+    const salaryStepSelect = document.getElementById('salary_step');
+    
+    salarySteps.forEach(step => {
+        const option = document.createElement('option');
+        option.value = step.id;  
+        option.textContent = step.step_name;  
+        salaryStepSelect.appendChild(option);
+    });
+
+    // Load termination types
+    const terminationTypeResponse = await fetch('/hrms/api/terminationtype/');
+    const terminationTypes = await terminationTypeResponse.json();
+    const terminationTypeSelect = document.getElementById('termination_type');
+    
+    terminationTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type.id;  
+        option.textContent = type.termination_type;  
+        terminationTypeSelect.appendChild(option);
+    });
+
+    // Load termination reasons
+    const terminationReasonResponse = await fetch('/hrms/api/terminationreason/');
+    const terminationReasons = await terminationReasonResponse.json();
+    const terminationReasonSelect = document.getElementById('termination_reason');
+    
+    terminationReasons.forEach(reason => {
+        const option = document.createElement('option');
+        option.value = reason.id;  
+        option.textContent = reason.termination_reason;  
+        terminationReasonSelect.appendChild(option);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', loadDropdowns);
+
+
+
+async function fetchEmployeeData() {
+        const employeeId = document.getElementById('employee_id').value;
+
+        if (!employeeId) {
+            alert('Please enter an Employee ID.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/hrms/api/get-employee-data/?employee_id=${employeeId}`);
+            if (!response.ok) throw new Error('Employee not found.');
+
+            const data = await response.json();
+
+            console.log('Employee Data:', data);
+            
+            document.getElementById('internal_organization').value = data.internal_organization;
+            document.getElementById('from-date').value = data.from_date;
+            document.getElementById('amount').value = data.amount;
+            document.getElementById('comments').value = data.comments;
+            const payGradeSelect = document.getElementById('pay_grade');
+            payGradeSelect.value = data.pay_grade; // Try direct match
+
+            if (!payGradeSelect.value) { // If no direct match, try finding by grade_name
+                for (let option of payGradeSelect.options) {
+                    if (option.textContent === data.pay_grade) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            }
+
+            const salaryStepSelect = document.getElementById('salary_step');
+            salaryStepSelect.value = data.salary_step;
+
+            if (!salaryStepSelect.value) {
+                for (let option of salaryStepSelect.options) {
+                    if (option.textContent === data.salary_step) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            }
+            document.getElementById('period_type').value = data.period_type;
+            const terminationTypeSelect = document.getElementById('termination_type');
+            terminationTypeSelect.value = data.termination_type;
+
+            if (!terminationTypeSelect.value) {
+                for (let option of terminationTypeSelect.options) {
+                    if (option.textContent === data.termination_type) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            }
+
+            const terminationReasonSelect = document.getElementById('termination_reason');
+            terminationReasonSelect.value = data.termination_reason;
+
+            if (!terminationReasonSelect.value) {
+                for (let option of terminationReasonSelect.options) {
+                    if (option.textContent === data.termination_reason) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            }
+            
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    </script>
+</body>
+
+</html>

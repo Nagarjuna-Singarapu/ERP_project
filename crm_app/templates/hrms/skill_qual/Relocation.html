@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="ba4d78b2-feb3-4692-b800-0a9ef487759d" class="container mt-4">
+        <!-- Begin section widget -->
+        <div class="page-title mb-4 text-center">
+            <h1>Find Relocation Details</h1>
+        </div>
+
+        <!-- Search Options Form -->
+        <div id="searchOptions" class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">Search Options</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/humanres/control/FindRelocation" id="FindRelocation" name="FindRelocation">
+                    <div class="mb-3">
+                        <label for="FindRelocation_partyId" class="form-label">Employee Party ID</label>
+                        <input type="text" class="form-control" id="FindRelocation_partyId" name="partyId" placeholder="Enter Employee Party ID">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="FindRelocation_emplPositionId" class="form-label">Empl Position ID</label>
+                        <input type="text" class="form-control" id="FindRelocation_emplPositionId" name="emplPositionId"
+                            placeholder="Enter Position ID">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="FindRelocation_emplPositionIdReportingTo" class="form-label">Empl Position Id Reporting To</label>
+                        <input type="text" class="form-control" id="FindRelocation_emplPositionIdReportingTo"
+                            name="emplPositionIdReportingTo" placeholder="Enter Reporting Position ID">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="FindRelocation_internalOrganisation" class="form-label">Internal Organisation</label>
+                        <select class="form-select" id="FindRelocation_internalOrganisation" name="internalOrganisation">
+                            <option selected>Select Organisation</option>
+                            <option value="Company">Company</option>
+                            <option value="MARKETING">MARKETING</option>
+                            <option value="ACCOUNTING">ACCOUNTING</option>
+                            <option value="SALES">SALES</option>
+                            <!-- Add more options as needed -->
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="FindRelocation_reportingDate" class="form-label">Reporting Date</label>
+                        <input type="text" class="form-control" id="FindRelocation_reportingDate" name="reportingDate_fld0_value"
+                            placeholder="yyyy-MM-dd HH:mm:ss">
+                        <!-- Include datepicker here if needed -->
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="FindRelocation_location" class="form-label">Location</label>
+                        <div class="input-group">
+                            <select class="form-select w-auto" name="location_op">
+                                <option value="equals">Equals</option>
+                                <option value="contains">Contains</option>
+                                <option value="notEqual">Not Equal</option>
+                            </select>
+                            <input type="text" class="form-control" name="location" placeholder="Enter Location">
+                            <div class="form-check ms-2">
+                                <input class="form-check-input" type="checkbox" name="location_ic" value="Y" checked>
+                                <label class="form-check-label">Ignore Case</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Find</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        <div id="search-results" class="card">
+            <div class="card-header">
+                <h3 class="card-title">Search Results</h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Employee Position ID</th>
+                            <th>Reporting Position ID</th>
+                            <th>Internal Organisation</th>
+                            <th>Reporting Date</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be dynamically generated based on results -->
+                        <tr>
+                            <td>John Doe</td>
+                            <td>EMP123</td>
+                            <td>EMP456</td>
+                            <td>MARKETING</td>
+                            <td>2024-10-23</td>
+                            <td>New York</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

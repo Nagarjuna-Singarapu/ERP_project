@@ -1,0 +1,115 @@
+
+/* Global Styles */
+body {
+  background-color: #f4f7fa; /* Light background color */
+  font-family: 'Arial', sans-serif; /* Font style */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+}
+
+/* Container for the main content */
+.container {
+  max-width: 1200px; /* Max width for larger screens */
+  margin: 0 auto; /* Center the container */
+  padding: 20px; /* Padding around the container */
+}
+
+/* Form Section */
+.content-section {
+  background-color: #ffffff; /* White background for form */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  padding: 20px; /* Padding inside the form */
+}
+
+/* Headings */
+h1, h3 {
+  color: #343a40; /* Dark text color */
+  margin-bottom: 15px; /* Space below heading */
+}
+
+/* Form Labels */
+.form-label {
+  font-weight: bold; /* Bold labels */
+  color: #495057; /* Darker color for labels */
+}
+
+/* Input Fields */
+.form-control, .form-select {
+  border-radius: 5px; /* Rounded corners for input fields */
+  border: 1px solid #ced4da; /* Light border */
+  transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #80bdff; /* Change border color on focus */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Add shadow on focus */
+}
+
+/* Button Styles */
+.btn {
+  border-radius: 5px; /* Rounded corners for buttons */
+  padding: 10px 15px; /* Padding for buttons */
+  font-weight: bold; /* Bold text for buttons */
+}
+
+/* Table Styles */
+.table {
+  width: 100%; /* Full width for table */
+  margin-top: 20px; /* Space above table */
+}
+
+.table th {
+  background-color: #2b88fa; /* Primary color for table header */
+  color: white; /* White text color */
+}
+
+.table td {
+  vertical-align: middle; /* Center content in table cells */
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 8px; /* Rounded corners for modals */
+}
+
+.modal-header {
+  background-color: #007bff; /* Primary color for modal header */
+  color: white; /* White text color for modal header */
+}
+
+/* No Data Message */
+#noDataMessage {
+  text-align: center; /* Center text */
+  font-weight: bold; /* Bold message */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .container {
+      padding: 10px; /* Reduce padding on smaller screens */
+  }
+
+  .content-section {
+      padding: 15px; /* Reduce padding inside the form */
+  }
+
+  .form-control, .form-select {
+      font-size: 14px; /* Smaller font size for inputs */
+  }
+
+  .btn {
+      width: 100%; /* Full width for buttons */
+      margin-top: 10px; /* Space above buttons */
+  }
+
+  .table th, .table td {
+      font-size: 14px; /* Smaller font size for table */
+  }
+}
+
+@media (max-width: 576px) {
+  h1, h3 {
+      font-size: 18px; /* Smaller heading size */
+  }
+}

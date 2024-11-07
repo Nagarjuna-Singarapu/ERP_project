@@ -1,0 +1,273 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Performance Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS for Styling and Animation -->
+    <style>
+        body {
+            background-color: #f2f3f4;
+           
+        }
+        
+        .content-container {
+            margin-top: 30px;
+            animation: fadeIn 1s ease-in;
+          
+        }
+
+        #img{
+            position: fixed;
+            z-index: -1;
+            height: 1000px;
+            width: 100%;
+            top: 0;
+            filter: blur(5px);
+          -webkit-filter: blur(10px);
+            
+          }
+
+
+        h2 {
+            color: rgb(112, 14, 216);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .employee-table {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            animation: slideIn 1s ease-in-out;
+            
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: black;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .chart-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            animation: fadeInUp 1.5s ease;
+            
+        }
+        .chart-box {
+            width: 30%;
+        }
+        .no-result {
+            color: #dc3545;
+            font-weight: bold;
+            text-align: center;
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        #doughnutChart {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container content-container">
+    <h2 class="text-center">Employee Performance Dashboard</h2>
+
+    <!-- Search Bar -->
+    <div class="input-group mb-4">
+        <span class="input-group-text"><i class="material-icons">search</i></span>
+        <input type="text" id="searchInput" class="form-control" placeholder="Search employee by name or department..." onkeyup="filterEmployee()">
+    </div>
+
+    <!-- Employee Data Table -->
+    <div id="employeeDataTable" class="employee-table" style="display: none;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th>Performance (%)</th>
+                </tr>
+            </thead>
+            <tbody id="employeeTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- No Results Found -->
+    <p id="noResult" class="no-result" style="display: none;">No employee found. Please try again.</p>
+
+    <!-- Chart Container -->
+    <div class="chart-container" id="chartSection" style="display: none;">
+        <div class="chart-box"><canvas id="lineChart"></canvas></div>
+        <div class="chart-box"><canvas id="barChart"></canvas></div>
+        <div class="chart-box"><canvas id="doughnutChart"></canvas></div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript for Search, Table, and Chart Generation -->
+<script>
+    // Employee data
+    const employeeData = {
+        'Anuj': { department: 'Finance', position: 'Accountant', performance: 85 },
+        'gannu': { department: 'HR', position: 'HR Manager', performance: 90 },
+        'sunny': { department: 'IT', position: 'Software Engineer', performance: 78 },
+        'Nagarjuna': { department: 'Marketing', position: 'Marketing Specialist', performance: 88 }
+    };
+
+    // Chart instances
+    let lineChart, barChart, doughnutChart;
+
+    // Create charts function
+    function createCharts(employee) {
+        const performanceScore = employee.performance;
+
+        // Line Chart
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        if (lineChart) lineChart.destroy();
+        lineChart = new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: ['Performance'],
+                datasets: [{
+                    label: `${employee.department} - ${employee.position}`,
+                    data: [performanceScore],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    fill: false,
+                    tension: 0.1
+                }]
+            }
+        });
+
+        // Bar Chart
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        if (barChart) barChart.destroy();
+        barChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Performance'],
+                datasets: [{
+                    label: `${employee.department} - ${employee.position}`,
+                    data: [performanceScore],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 5
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Doughnut Chart
+        const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+        if (doughnutChart) doughnutChart.destroy();
+        doughnutChart = new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Performance', 'Remaining'],
+                datasets: [{
+                    label: `${employee.department} - ${employee.position}`,
+                    data: [performanceScore, 100 - performanceScore],
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(153, 102, 255, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(153, 102, 255, 1)'],
+                    borderWidth: 1
+                }]
+            }
+        });
+    }
+
+    // Filter employee function based on search input
+    function filterEmployee() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const employeeTableBody = document.getElementById('employeeTableBody');
+        const employeeDataTable = document.getElementById('employeeDataTable');
+        const chartSection = document.getElementById('chartSection');
+        const noResult = document.getElementById('noResult');
+
+        // Clear previous table rows
+        employeeTableBody.innerHTML = '';
+
+        // Find matching employees
+        const matchedEmployees = Object.keys(employeeData).filter(name => 
+            name.toLowerCase().includes(input) || 
+            employeeData[name].department.toLowerCase().includes(input)
+        );
+
+        if (matchedEmployees.length > 0) {
+            matchedEmployees.forEach(matchedEmployee => {
+                const employee = employeeData[matchedEmployee];
+                const row = `
+                    <tr>
+                        <td>${matchedEmployee}</td>
+                        <td>${employee.department}</td>
+                        <td>${employee.position}</td>
+                        <td>${employee.performance}%</td>
+                    </tr>
+                `;
+                employeeTableBody.innerHTML += row;
+            });
+
+            // Show employee table and charts for the first matched employee
+            employeeDataTable.style.display = 'block';
+            chartSection.style.display = 'flex';
+            noResult.style.display = 'none';
+
+            // Create charts for the first matched employee
+            createCharts(employeeData[matchedEmployees[0]]);
+        } else {
+            employeeDataTable.style.display = 'none';
+            chartSection.style.display = 'none';
+            noResult.style.display = 'block';
+        }
+    }
+</script>
+
+</body>
+</html>

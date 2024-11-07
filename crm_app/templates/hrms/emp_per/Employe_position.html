@@ -1,0 +1,347 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Employee Positions</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/Employe_position.css' %}">
+    {% endblock %}
+    <style>
+        .icons {
+            position: absolute;
+            right: 10px;
+            top: 30%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Black with opacity */
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin-left: 30%;
+            margin-top: 6%;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 40%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container my-5">
+
+        <h2 class="text-center mb-6">Search Employee Positions</h2>
+        <a href="{% url 'New_positions' %}" class=" btn btn-primary mb-3 ms-2">
+            <i class="fas fa-plus"></i> New Employment Positions
+        </a>
+        <div class="card p-4 mb-4 shadow-lg">
+
+            <h5 class="card-title">Search Options</h5>
+            <form id="searchForm">
+                <!-- Row 1 -->
+                <div class="row mb-3">
+
+                    <div class="form-group col-md-4">
+                        <label for="employee_id">Employee Party ID</label>
+                        <div class="input-wrapper" style="position: relative;">
+                            <input type="text" id="employee_id" name="employee_id" class="form-control"
+                                style="padding-right: 30px;" />
+                            <div class="icons" id="show-modal-btn3">
+                                📄
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    
+                    <div class="col-md-4">
+                        <label for="statusID">Status ID</label>
+                        <input type="text" class="form-control" id="statusID">
+                    </div>
+
+                </div>
+
+
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="budgetID">Budget ID</label>
+                        <input type="text" class="form-control" id="budgetID">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="budgetItemSequenceID">Budget Item Sequence ID</label>
+                        <input type="text" class="form-control" id="budgetItemSequenceID">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="employeePositionID">Employee Position Type ID</label>
+                        <input type="text" class="form-control" id="employeePositionID">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="salaryFlag">Salary Flag</label>
+                        <input type="text" class="form-control" id="salaryFlag">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="taxExemptFlag">Tax Exempt Flag</label>
+                        <input type="text" class="form-control" id="taxExemptFlag">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="fullTimeFlag">Full-time Flag</label>
+                        <input type="text" class="form-control" id="fullTimeFlag">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="temporaryFlag">Temporary Flag</label>
+                        <input type="text" class="form-control" id="temporaryFlag">
+                    </div>
+                </div>
+
+                <!-- Row 5 -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="actualStartDate">Actual Start Date</label>
+                        <input type="date" class="form-control" id="actualStartDate">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="actualFinishDate">Actual Finish Date</label>
+                        <input type="date" class="form-control" id="actualFinishDate">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100" onclick="searchEmployees()">Search</button>
+            </form>
+            <!-- Search Results Table -->
+
+            <h5 class="card-title">Search Results</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="results-table">
+                    <thead>
+                        <tr>
+                            <th>Employee Position ID</th>
+                            <th>Status ID</th>
+                            <th>Budget ID</th>
+                            <th>Budget Item Sequence ID</th>
+                            <th>Employee Position Type ID</th>
+                            <th>Planned Start Date</th>
+                            <th>Planned End Date</th>
+                            <th>Salary Flag</th>
+                            <th>Tax Exempt Flag</th>
+                            <th>Full-time Flag</th>
+                            <th>Temporary Flag</th>
+                            <th>Actual Start Date</th>
+                            <th>Actual Finish Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTable">
+                        <!-- Dynamic rows go here -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+        <!-- Modal -->
+
+        <div id="myModal3" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" id="close-modal-btn3" style="cursor: pointer;">&times;</span>
+                <iframe src="{% url 'lookup' %}" style="width: 100%; height: 600px; align-items: center;" frameborder="0"></iframe>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS and custom JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+
+        function selectEmployeeId(employeeId) {
+            console.log('Selected Employee ID:', employeeId);
+            document.getElementById("employee_id").value = employeeId; // Set the value in the input field
+            document.getElementById("myModal3").style.display = "none"; // Optionally close the modal
+        }
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+function populateResultsTable(data) {
+    const tbody = document.querySelector('#results-table tbody');
+    tbody.innerHTML = '';  // Clear existing results
+
+    if (data.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = '<td colspan="13">No results found.</td>'; // Updated colspan to match the number of columns
+        tbody.appendChild(emptyRow);
+    } else {
+        data.forEach(employee => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${employee.employee || 'N/A'}</td>
+                <td>${employee.status_id || 'N/A'}</td>
+                <td>${employee.budget_id || 'N/A'}</td>
+                <td>${employee.budget_item_sequence_id || 'N/A'}</td>
+                <td>${employee.employee_position_type_id || 'N/A'}</td>
+                <td>${employee.planned_start_date || 'N/A'}</td>
+                <td>${employee.planned_end_date || 'N/A'}</td>
+                <td>${employee.salary_flag !== undefined ? employee.salary_flag : 'N/A'}</td>
+                <td>${employee.tax_exempt_flag !== undefined ? employee.tax_exempt_flag : 'N/A'}</td>
+                <td>${employee.full_time_flag !== undefined ? employee.full_time_flag : 'N/A'}</td>
+                <td>${employee.temporary_flag !== undefined ? employee.temporary_flag : 'N/A'}</td>
+                <td>${employee.actual_start_date || 'N/A'}</td>
+                <td>${employee.actual_finish_date || 'N/A'}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+}
+
+
+// Function to handle form submission and get data
+document.getElementById('searchForm').addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent default form submission
+
+        // Collect form data
+        const employeeId = document.getElementById('employee_id').value;
+        const employeePositionID = document.getElementById('employeePositionID').value;
+        const statusID = document.getElementById('statusID').value;
+        const budgetID = document.getElementById('budgetID').value;
+        const budgetItemSequenceID = document.getElementById('budgetItemSequenceID').value;
+        const salaryFlag = document.getElementById('salaryFlag').value;
+        const taxExemptFlag = document.getElementById('taxExemptFlag').value;
+        const fullTimeFlag = document.getElementById('fullTimeFlag').value;
+        const temporaryFlag = document.getElementById('temporaryFlag').value;
+        const actualStartDate = document.getElementById('actualStartDate').value;
+        const actualFinishDate = document.getElementById('actualFinishDate').value;
+
+        // Create a payload to send to the server
+        const payload = {
+            employee_id: employeeId,
+            employee_position_type: employeePositionID,
+            status: statusID,
+            budget_id: budgetID,
+            budget_item_sequence_id: budgetItemSequenceID,
+            salary_flag: salaryFlag,
+            tax_exempt_flag: taxExemptFlag,
+            full_time_flag: fullTimeFlag,
+            temporary_flag: temporaryFlag,
+            actual_start_date: actualStartDate,
+            actual_finish_date: actualFinishDate,
+        };
+
+        // Make the AJAX request
+        fetch('/hrms/employment-position-search/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token if needed
+            },
+            body: JSON.stringify(payload),
+        })
+        .then(response => response.json())
+        .then(data => populateResultsTable(data))
+        .catch(error => console.error('Error fetching employee data:', error));
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Check if this cookie string begins with the name we want
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+
+        const modal = document.getElementById('myModal3');
+        const showModalBtn = document.getElementById('show-modal-btn3');
+        const closeModalBtn = document.getElementById('close-modal-btn3');
+
+        // Show the modal when clicking the icon
+        showModalBtn.onclick = function () {
+            modal.style.display = 'block';
+        }
+
+        // Close the modal when clicking the close button
+        closeModalBtn.onclick = function () {
+            modal.style.display = 'none';
+        }
+
+        // Close the modal if clicking outside the modal content
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+
+
+        // Function to fetch employment position data
+function loadEmploymentPositionData() {
+    fetch('/hrms/api/employment-position-data/')  // Call the API endpoint
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();  // Parse JSON from the response
+        })
+        .then(data => {
+            populateResultsTable(data);  // Call the function to populate the table
+        })
+        .catch(error => {
+            console.error('Error fetching employment position data:', error);
+        });
+}
+window.onload = function() {  
+    loadEmploymentPositionData();  // Load employment position data
+};
+    </script>
+</body>
+
+</html>

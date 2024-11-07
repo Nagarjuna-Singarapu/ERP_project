@@ -1,0 +1,284 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Search</title>
+    
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_per/Employement.css' %}">
+    {% endblock %}
+
+   
+</head>
+<body>
+    <div class="container">
+        <h2>Find Employment</h2>
+        <!-- <button class="new-btn">New Employment</button> -->
+        <a href="{% url 'NewEmployement' %}" class="new-btn">
+            <i class="fas fa-plus"></i> New Employment Application
+        </a>
+       
+
+        <div class="search-section">
+            <form id="search-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="emp-id">Employee Party ID</label>
+                    <input type="text" id="emp-id">
+                    <span class="hover-text">
+                    <div class="icons" id="show-modal-btn">📄</div>
+                    <span class="hidden-text">Search</span>
+                </span>
+                </div>
+
+                <div id="myModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" id="close-modal-btn">&times;</span>
+                        <iframe src="{% url 'lookup' %} " style="width:100%; height: 610px;" frameborder="0"></iframe>
+                    </div>
+                </div>
+
+               
+
+                <div class="form-group">
+                    <label for="first-name">First Name</label>
+                    <select id="first-name-criteria">
+                        <option value="contains">Contains</option>
+                        <option value="equals">Equals</option>
+                    </select>
+                    <input type="text" id="first-name">
+                    <input type="checkbox" id="first-name-ignore"> Ignore Case
+                </div>
+
+                <div class="form-group">
+                    <label for="last-name">Last Name</label>
+                    <select id="last-name-criteria">
+                        <option value="contains">Contains</option>
+                        <option value="equals">Equals</option>
+                    </select>
+                    <input type="text" id="last-name">
+                    <input type="checkbox" id="last-name-ignore"> Ignore Case
+                </div>
+
+                <div class="form-group">
+                    <label for="from-date">From Date</label>
+                    <input type="date" id="from-date">
+                    <select id="from-date-criteria">
+                        <option value="equals">Equals</option>
+                        <option value="less-than">Less Than</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="through-date">Through Date</label>
+                    <input type="date" id="through-date">
+                    <select id="through-date-criteria">
+                        <option value="equals">Equals</option>
+                        <option value="less-than">Less Than</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="termination-reason">Termination Reason ID</label>
+                    <input type="text" id="termination-reason">
+                </div>
+
+                <div class="form-group">
+                    <label for="termination-type">Termination Type ID</label>
+                    <input type="text" id="termination-type">
+                </div>
+
+                <button type="submit" id="find-btn" onclick="searchEmployee()">Find</button>
+            </form>
+        </div>
+
+        <div class="table-section">
+            <h3>Search Results</h3>
+            <table id="results-table">
+                <thead>
+                    <tr>
+                        <th>Internal Organization</th>
+                        <th>Employee Party ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>From Date</th>
+                        <th>Through Date</th>
+                        <th>Termination Reason ID</th>
+                        <th>Termination Type ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Search results will be dynamically injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+
+        function selectEmployeeId(employeeId) {
+            console.log('Selected Employee ID:', employeeId);
+            document.getElementById("emp-id").value = employeeId; // Set the value in the input field
+            document.getElementById("myModal").style.display = "none"; // Optionally close the modal
+        }
+
+        var modal = document.getElementById("myModal");
+
+        // Get the icon that opens the modal
+        var icon = document.getElementById("show-modal-btn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementById("close-modal-btn");
+
+        // When the user clicks the icon, open the modal
+        icon.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+    </script>
+
+    <!-- Include your JavaScript -->
+<script>
+    function populateResultsTable(data) {
+        const tbody = document.querySelector('#results-table tbody');
+        tbody.innerHTML = '';  // Clear existing results
+
+        if (data.length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.innerHTML = '<td colspan="8">No results found.</td>';
+            tbody.appendChild(emptyRow);
+        } else {
+            data.forEach(employee => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${employee.internal_organization}</td>
+                    <td>${employee.employment_id.employee_id}</td>
+                    <td>${employee.employment_id.first_name}</td>
+                    <td>${employee.employment_id.last_name}</td>
+                    <td>${employee.employment_id.from_date || 'N/A'}</td>
+                    <td>${employee.through_date}</td>
+                    <td>${employee.termination_reason}</td>
+                    <td>${employee.termination_type}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    }
+
+    // Function to handle form submission and get data
+    document.getElementById('search-form').addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent default form submission
+
+        // Collect form data
+        const employeeId = document.getElementById('emp-id').value;
+        const firstName = document.getElementById('first-name').value;
+        const lastName = document.getElementById('last-name').value;
+        const fromDate = document.getElementById('from-date').value;
+        const throughDate = document.getElementById('through-date').value;
+        const terminationReason = document.getElementById('termination-reason').value;
+        const terminationType = document.getElementById('termination-type').value;
+
+        // Create a payload to send to the server
+        const payload = {
+            employee_id: employeeId,
+            first_name: firstName,
+            last_name: lastName,
+            from_date: fromDate,
+            through_date: throughDate,
+            termination_reason: terminationReason,
+            termination_type: terminationType,
+        };
+
+        // Make the AJAX request
+        fetch('/hrms/employment-search/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token if needed
+            },
+            body: JSON.stringify(payload),
+        })
+        .then(response => response.json())
+        .then(data => populateResultsTable(data))
+        .catch(error => console.error('Error fetching employee data:', error));
+    });
+
+    // Utility function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Check if this cookie string begins with the name we want
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+<script>
+    // Function to fetch employment data
+    function loadEmploymentData() {
+        fetch('/hrms/api/employment-data/')  // Call the API endpoint
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();  // Parse JSON from the response
+            })
+            .then(data => {
+                const tableBody = document.querySelector('#results-table tbody');
+                tableBody.innerHTML = '';  // Clear existing data
+
+                // Populate the table with data
+                data.forEach(employment => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${employment.internal_organization}</td>
+                        <td>${employment.employment_id.employee_id}</td>
+                        <td>${employment.employment_id.first_name}</td>
+                        <td>${employment.employment_id.last_name}</td>
+                        <td>${employment.from_date}</td>
+                        <td>${employment.through_date}</td>
+                        <td>${employment.termination_reason}</td>
+                        <td>${employment.termination_type}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Handle case where no data is found
+                if (data.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="8">No employment records found.</td>';
+                    tableBody.appendChild(row);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching employment data:', error);
+            });
+    }
+
+    // Load data when the page is loaded
+    window.onload = loadEmploymentData;
+</script>
+
+</body>
+</html>

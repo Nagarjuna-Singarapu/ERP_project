@@ -1,0 +1,291 @@
+<!-- In templates/edit_profile.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .edit-profile-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .profile-picture {
+            margin-bottom: 15px;
+        }
+
+        .profile-picture img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .profile-picture .default-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #ccc;
+            display: inline-block;
+            cursor: pointer;
+            background-image: url("{% static 'img/default_profile.jpg' %}");
+            background-size: cover;
+        }
+
+        .cancel-link {
+            margin-top: 20px;
+            display: block;
+        }
+
+        .back-dashboard {
+            margin-top: 20px;
+        }
+
+        .edit-profile-container {
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
+            width: 350px; /* Fixed width */
+            height: 500px; /* Fixed height */
+            overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
+            text-align: center;
+        }
+        
+        .edit-profile-container h1 {
+            color: #227c70;
+            margin-bottom: 1rem;
+            font-size: 1.5rem; /* Smaller font size */
+        }
+        
+        /* Profile Picture Display */
+        .profile-picture {
+            width: 120px; /* Smaller profile picture */
+            height: 120px; /* Smaller profile picture */
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .default-icon {
+            width: 100%;
+            height: 100%;
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            font-size: 2rem; /* Smaller font size */
+            color: #fff;
+            background-color: #227c70;
+        }
+        
+        /* Form Styling */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        label {
+            text-align: left;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            padding: 0.4rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem; /* Smaller font size */
+        }
+        
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus {
+            border-color: #227c70;
+            outline: none;
+        }
+        
+        /* Submit Button */
+        button {
+            padding: 0.5rem 0.8rem;
+            background-color: #227c70;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 0.9rem; /* Smaller font size */
+        }
+        
+        button:hover {
+            background-color: #1a665b;
+        }
+        
+        /* Cancel Link */
+        .cancel-link {
+            margin-top: 1rem;
+        }
+        
+        .cancel-link a {
+            color: #227c70;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .cancel-link a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Back to Dashboard */
+        .back-dashboard {
+            margin-top: 1.5rem;
+            font-size: 0.8rem; /* Smaller font size */
+        }
+        
+        .back-dashboard a {
+            color: #227c70;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-dashboard a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-profile-container">
+        <h1>Edit Your Profile</h1>
+
+        <!-- Profile Picture Display -->
+        <div class="profile-picture">
+            {% if profile.profile_picture %}
+                <label for="profile_picture">
+                    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" />
+                </label>
+            {% else %}
+                <label for="profile_picture">
+                    <div class="default-icon"></div>
+                </label>
+            {% endif %}
+        </div>
+
+        <!-- Form for Editing Profile -->
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- First Name -->
+            <label for="first_name">First Name:</label>
+            <input type="text" name="first_name" value="{{ profile.first_name }}">
+
+            <!-- Last Name -->
+            <label for="last_name">Last Name:</label>
+            <input type="text" name="last_name" value="{{ profile.last_name }}">
+
+            <!-- Phone Number -->
+            <label for="phone_number">Phone Number:</label>
+            <input type="text" name="phone_number" value="{{ profile.phone_number }}">
+
+            <!-- Date of Birth -->
+            <label for="date_of_birth">Date of Birth:</label>
+            <input type="date" name="date_of_birth" value="{{ profile.date_of_birth|date:'Y-m-d' }}">
+
+            <!-- Short Bio -->
+            <label for="bio">Short Bio:</label>
+            <textarea name="bio">{{ profile.bio }}</textarea>
+
+            <!-- Hidden Profile Picture Upload -->
+            <input type="file" name="profile_picture" id="profile_picture" style="display: none;">
+
+            <!-- Submit Button -->
+            <button type="submit">Save Changes</button>
+        </form>
+
+        <!-- Cancel Link -->
+        <div class="cancel-link">
+            <a href="{% url 'profile' %}">Cancel</a>
+        </div>
+
+        <!-- Back to dashboard Page -->
+        <div class="back-dashboard">
+            <p>Back to <a href="{% url 'dashboard' %}">dashboard Page</a></p>
+        </div>
+    </div>
+</body>
+</html>

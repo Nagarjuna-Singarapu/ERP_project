@@ -1,0 +1,364 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Performance Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS for Styling and Animation -->
+    <style>
+
+        body {
+            background-color: #f2f3f4;
+            font-family: 'Arial', sans-serif; /* Use a clean, modern font */
+        }
+        #img{
+            position: fixed;
+            z-index: -1;
+            height: 1000px;
+            width: 100%;
+            top: 0;
+            filter: blur(5px);
+          -webkit-filter: blur(10px);
+            
+          }
+        
+        h2 {
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center; /* Center the heading */
+            font-size: 2.5rem; /* Increase font size for better visibility */
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .company-table {
+            background-color: rgb(225, 137, 137);
+            padding: 20px; /* Increase padding for better spacing */
+            border-radius: 8px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1); /* Slightly heavier shadow for depth */
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 15px; /* Increase padding for better readability */
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #007bff; /* Primary color for header */
+            color: rgb(153, 202, 215); /* White text for contrast */
+        }
+        
+        tr:hover {
+            background-color: #e9ecef; /* Light gray background on hover */
+        }
+        
+        .chart-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around; /* Space out charts evenly */
+            animation: fadeInUp 1.5s ease;
+            color: white;
+           
+        }
+        
+        .chart-box {
+            width: 30%; /* Keep chart box width consistent */
+            padding: 10px; /* Add padding around charts */
+            background-color: rgb(207, 192, 220); /* White background for charts */
+         
+            border-radius: 8px; /* Rounded corners for charts */
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+        }
+        
+        .no-result {
+            color: #dc3545;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2rem; /* Increase font size for visibility */
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .chart-container {
+                flex-direction: column; /* Stack charts on smaller screens */
+                align-items: center; /* Center align charts */
+            }
+        
+            .chart-box {
+                width: 80%; /* Make charts wider on small screens */
+                margin-bottom: 20px; /* Add margin between stacked charts */
+            }
+        }
+       
+        .content-container {
+            margin-top: 30px;
+            animation: fadeIn 1s ease-in;
+        }
+        h2 {
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .company-table {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            animation: slideIn 1s ease-in-out;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: black;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .chart-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            animation: fadeInUp 1.5s ease;
+        }
+        .chart-box {
+            width: 30%;
+        }
+        .no-result {
+            color: #dc3545;
+            font-weight: bold;
+            text-align: center;
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        #doughnutChart {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <img id="img" src="/static/images/image-ERP.jpg">
+<div class="container content-container">
+    <h2 class="text-center">Company Performance Dashboard</h2>
+
+    <!-- Search Bar -->
+    <div class="input-group mb-4">
+        <span class="input-group-text"><i class="material-icons">search</i></span>
+        <input type="text" id="searchInput" class="form-control" placeholder="Search company by name..." onkeyup="filterCompany()">
+    </div>
+
+    <!-- Company Data Table -->
+    <div id="companyDataTable" class="company-table" style="display: none;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Industry</th>
+                    <th>Location</th>
+                    <th>Performance (%)</th>
+                </tr>
+            </thead>
+            <tbody id="companyTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- No Results Found -->
+    <p id="noResult" class="no-result" style="display: none;">No company found. Please try again.</p>
+
+    <!-- Chart Container -->
+    <div class="chart-container" id="chartSection" style="display: none;">
+        <div class="chart-box"><canvas id="lineChart"></canvas></div>
+        <div class="chart-box"><canvas id="barChart"></canvas></div>
+        <div class="chart-box"><canvas id="doughnutChart"></canvas></div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https    .cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript for Search, Table, and Chart Generation -->
+<script>
+    // Company data
+    const companyData = {
+        'Tech Innovations': { industry: 'Technology', location: 'San Francisco', performance: 92 },
+        'Health Solutions Inc.': { industry: 'Healthcare', location: 'New York', performance: 85 },
+        'Green Energy Co.': { industry: 'Energy', location: 'Austin', performance: 78 },
+        'Finance Group': { industry: 'Finance', location: 'Chicago', performance: 88 }
+    };
+
+    // Chart instances
+    let lineChart, barChart, doughnutChart;
+
+    // Create charts function
+    function createCharts(company) {
+        const performanceScore = company.performance;
+
+        // Line Chart
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        if (lineChart) lineChart.destroy();
+        lineChart = new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: ['Performance'],
+                datasets: [{
+                    label: `${company.industry} - ${company.location}`,
+                    data: [performanceScore],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    fill: false,
+                    tension: 0.1
+                }]
+            }
+        });
+
+        // Bar Chart
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        if (barChart) barChart.destroy();
+        barChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Performance'],
+                datasets: [{
+                    label: `${company.industry} - ${company.location}`,
+                    data: [performanceScore],
+                    backgroundColor: '#f1f1f1',
+                    borderColor: 'r#f1f1f1',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Doughnut Chart
+        const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+        if (doughnutChart) doughnutChart.destroy();
+        doughnutChart = new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Performance', 'Remaining'],
+                datasets: [{
+                    label: `${company.industry} - ${company.location}`,
+                    data: [performanceScore, 100 - performanceScore],
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(153, 102, 255, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(153, 102, 255, 1)'],
+                    borderWidth: 1
+                }]
+            }
+        });
+    }
+
+    // Filter company function based on search input
+    function filterCompany() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const companyTableBody = document.getElementById('companyTableBody');
+        const companyDataTable = document.getElementById('companyDataTable');
+        const chartSection = document.getElementById('chartSection');
+        const noResult = document.getElementById('noResult');
+
+        // Clear previous table rows
+        companyTableBody.innerHTML = '';
+
+        // Find matching companies
+        const matchedCompanies = Object.keys(companyData).filter(name => 
+            name.toLowerCase().includes(input)
+        );
+
+        if (matchedCompanies.length > 0) {
+            matchedCompanies.forEach(matchedCompany => {
+                const company = companyData[matchedCompany];
+                const row = `
+                    <tr>
+                        <td>${matchedCompany}</td>
+                        <td>${company.industry}</td>
+                        <td>${company.location}</td>
+                        <td>${company.performance}%</td>
+                    </tr>
+                `;
+                companyTableBody.innerHTML += row;
+            });
+
+            // Show company table and charts for the first matched company
+            companyDataTable.style.display = 'block';
+            chartSection.style.display = 'flex';
+            noResult.style.display = 'none';
+
+            // Create charts for the first matched company
+            createCharts(companyData[matchedCompanies[0]]);
+        } else {
+            companyDataTable.style.display = 'none';
+            chartSection.style.display = 'none';
+            noResult.style.display = 'block';
+        }
+        
+    }
+    
+</script>
+
+</body>
+</html>

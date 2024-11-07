@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lookup EmplPosition by Name</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_res_lea/lookup_emp_posi.css' %}">
+    {% endblock %}
+
+    
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="card position-relative shadow-sm">
+
+        <div class="card-header">
+            <h5 class="card-title">Lookup EmplPosition by Name</h5>
+        </div>
+
+        <div class="card-body">
+            <!-- Form Section -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="employeePositionId" class="form-label">Employee Position ID</label>
+                    <div class="input-group">
+                        <select id="conditionSelect" class="form-select">
+                            <option value="contains">Contains</option>
+                            <option value="equals">Equals</option>
+                            <option value="beginswith">Begins With</option>
+                            <option value="notequal">Not Equal</option>
+                            <option value="isempty">Is Empty</option>
+                        </select>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Enter Employee Position ID">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="statusId" class="form-label">Status ID</label>
+                    <select id="statusSelect" class="form-select">
+                        <option value="active">EMPL_POS_ACTIVE</option>
+                        <option value="inactive">EMPL_POS_INACTIVE</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="partyId" class="form-label">Party ID</label>
+                    <input type="text" id="partyId" class="form-control" placeholder="Enter Party ID">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="budgetId" class="form-label">Budget ID</label>
+                    <input type="text" id="budgetId" class="form-control" placeholder="Enter Budget ID">
+                </div>
+                <div class="col-md-4">
+                    <label for="budgetSeqId" class="form-label">Budget Item Seq ID</label>
+                    <input type="text" id="budgetSeqId" class="form-control" placeholder="Enter Budget Item Seq ID">
+                </div>
+                <div class="col-md-4">
+                    <label for="emplPositionTypeId" class="form-label">Empl Position Type ID</label>
+                    <select id="emplPositionTypeId" class="form-select">
+                        <option value="programmer">PROGRAMMER</option>
+                        <option value="manager">MANAGER</option>
+                        <option value="analyst">ANALYST</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Ignore Case and Find Button -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="ignoreCase" checked>
+                        <label class="form-check-label" for="ignoreCase">
+                            Ignore Case
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4 d-grid">
+                    <button type="button" class="btn btn-primary" onclick="findEmployee()">Find</button>
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Empl Position ID</th>
+                            <th>Status ID</th>
+                            <th>Party ID</th>
+                            <th>Budget ID</th>
+                            <th>Budget Item Seq ID</th>
+                            <th>Empl Position Type ID</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <!-- Search results will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Sample Data
+    const employees = [
+        { id: 'DEMO100', status: 'EMPL_POS_ACTIVE', partyId: 'Company', budgetId: 'Budget', budgetSeqId: '001', emplPositionType: 'PROGRAMMER' },
+        { id: 'DEMO101', status: 'EMPL_POS_INACTIVE', partyId: 'Dept', budgetId: 'Budget', budgetSeqId: '002', emplPositionType: 'MANAGER' },
+    ];
+
+    // Function to find employee
+    function findEmployee() {
+        const condition = document.getElementById('conditionSelect').value;
+        const searchValue = document.getElementById('searchInput').value;
+        const ignoreCase = document.getElementById('ignoreCase').checked;
+
+        const tableBody = document.getElementById('resultsTableBody');
+        tableBody.innerHTML = ''; // Clear previous results
+
+        const filteredEmployees = employees.filter(emp => {
+            let empId = emp.id;
+            let searchTerm = searchValue;
+            
+            if (ignoreCase) {
+                empId = empId.toLowerCase();
+                searchTerm = searchTerm.toLowerCase();
+            }
+
+            if (condition === 'contains') {
+                return empId.includes(searchTerm);
+            } else if (condition === 'equals') {
+                return empId === searchTerm;
+            } else if (condition === 'startsWith') {
+                return empId.startsWith(searchTerm);
+            }
+        });
+
+        if (filteredEmployees.length > 0) {
+            filteredEmployees.forEach(emp => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${emp.id}</td><td>${emp.status}</td><td>${emp.partyId}</td><td>${emp.budgetId}</td><td>${emp.budgetSeqId}</td><td>${emp.emplPositionType}</td>`;
+                tableBody.appendChild(row);
+            });
+        } else {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="6">No results found</td>`;
+            tableBody.appendChild(row);
+        }
+    }
+
+</script>
+
+</body>
+</html>

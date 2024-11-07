@@ -1,0 +1,123 @@
+{% load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lookup EmploymentApp</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'hrms_css/emp_res_lea/lookup_party_resume.css' %}">
+    {% endblock %}
+    
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="card position-relative">
+
+        <div class="card-header">
+            <h5 class="card-title">Lookup Party Resume</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 align-items-center mb-3">
+                <div class="col-auto">
+                    <label for="lookupApplicationId" class="col-form-label">Lookup ApplicationId</label>
+                </div>
+                <div class="col-auto">
+                    <select id="conditionSelect" class="form-select">
+                        <option value="contains">Contains</option>
+                        <option value="equals">Equals</option>
+                        <option value="beginswith">Begins With</option>
+                        <option value="notequal">Not Equal</option>
+                        <option value="isempty">Is Empty</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Enter Application ID">
+                </div>
+                <div class="col-auto">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="ignoreCase" checked>
+                        <label class="form-check-label" for="ignoreCase">
+                            Ignore Case
+                        </label>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-primary" onclick="findApplication()">Find</button>
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Resume ID</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                    <!-- Search results will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const applications = [
+        { id: '1001', description: 'First application' },
+        { id: '1002', description: 'Second application' },
+        { id: '1003', description: 'Third application' }
+    ];
+
+    function findApplication() {
+        const condition = document.getElementById('conditionSelect').value;
+        const searchValue = document.getElementById('searchInput').value;
+        const ignoreCase = document.getElementById('ignoreCase').checked;
+
+        const tableBody = document.getElementById('resultsTableBody');
+        tableBody.innerHTML = ''; // Clear previous results
+
+        const filteredApplications = applications.filter(app => {
+            let appId = app.id;
+            let searchTerm = searchValue;
+            
+            if (ignoreCase) {
+                appId = appId.toLowerCase();
+                searchTerm = searchTerm.toLowerCase();
+            }
+
+            if (condition === 'contains') {
+                return appId.includes(searchTerm);
+            } else if (condition === 'equals') {
+                return appId === searchTerm;
+            } else if (condition === 'startsWith') {
+                return appId.startsWith(searchTerm);
+            }
+        });
+
+        if (filteredApplications.length > 0) {
+            filteredApplications.forEach(app => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${app.id}</td><td>${app.description}</td>`;
+                tableBody.appendChild(row);
+            });
+        } else {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="2">No results found</td>`;
+            tableBody.appendChild(row);
+        }
+    }
+
+</script>
+
+</body>
+</html>

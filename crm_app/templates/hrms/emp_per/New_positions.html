@@ -1,0 +1,437 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Employee Position</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Custom Styles */
+        body {
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .form-control, .form-select {
+            border-radius: 0.25rem;
+        }
+       
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+
+        /* Apply to all form controls that should have uniform size */
+.uniform-size {
+    height: 45px; /* Consistent height for all form elements */
+    font-size: 16px; /* Consistent font size */
+    padding: 8px 12px; /* Padding for better spacing */
+    box-sizing: border-box; /* Ensure padding doesn't affect total size */
+    width: 100%; /* Ensure it takes the full width of the container */
+    margin-bottom: 15px; /* Consistent spacing between form elements */
+}
+
+/* Optional: Add consistent border and styling */
+.uniform-size {
+    border-radius: 4px; /* Rounded corners */
+    border: 1px solid #ccc; /* Light border */
+}
+
+form .form-group label {
+    font-weight: bold; /* Make labels bold */
+    margin-bottom: 5px; /* Add some space between the label and the input */
+    
+}
+
+button {
+    width: 100%; /* Make the submit button take the full width */
+    font-weight: bold;
+    padding: 10px 0;
+}
+
+.icons {
+    font-size: 25px; /* Size of the icon */
+  
+    cursor: pointer; /* Cursor changes to pointer on hover */
+    color: #007bff; /* Icon color */
+   
+}
+.hover-text {
+    position: relative;
+    display: inline-block;
+}
+
+.hover-text .hidden-text {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #f0f0f0;
+   
+   
+}
+
+.hover-text:hover .hidden-text {
+    display: block;
+}
+
+/* Modal styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #d7e2d71f;
+    margin-left: 19%; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 63%; /* Could be more or less, depending on screen size */
+}
+
+.close {
+    color: #000000;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.input-container {
+    position: relative; /* Position relative to contain the absolute child */
+}
+
+.hover-text {
+    position: absolute; /* Position absolutely within the input container */
+    right: 10px; /* Adjust this value to position it closer or further from the right edge */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Adjust vertical alignment */
+    cursor: pointer; /* Change cursor to pointer to indicate it's clickable */
+}
+
+.hidden-text {
+    display: none; /* Initially hide the text */
+}
+
+.hover-text:hover .hidden-text {
+    display: inline; /* Show hidden text on hover */
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mb-4">Edit Employee Position</h2>
+        <div class="card p-4">
+            <form action="{% url 'create_employee_position' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="employee_id">Employee Position ID</label>
+                    <div class="input-container">
+                        <input type="text" id="employee_id" class="form-control uniform-size" placeholder="Enter Employee Position ID" name="employee_id"  value="{{ employee_id|default:'' }}">
+                        <span class="hover-text">
+                            <div class="icons" id="show-modal-btn">📄</div>
+                            <span class="hidden-text">Search</span>
+                        </span>
+                    </div>
+                    <button type="button" onclick="fetchEmployeePositionData()">Fetch</button>
+                </div>
+                
+                <div id="myModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" id="close-modal-btn">&times;</span>
+                        <iframe src="{% url 'lookup' %}" style="width:100%; height: 610px;" frameborder="0"></iframe>
+                    </div>
+                </div>
+
+    
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" class="form-control uniform-size" name="status">
+                        <option>Active/Open</option>
+                        <option>Closed</option>
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label for="internal_organization">Internal Organization</label>
+                    <select id="internal_organization" name="internal_organization" class="form-control">
+                        <option value="">Select an Organization</option>
+                    </select>
+                    <small class="form-text text-muted">The internal organization in which the employee works</small>
+                </div>
+    
+                <div class="form-group">
+                    <label for="budgetID">Budget ID</label>
+                    <input type="text" class="form-control uniform-size" id="budgetID" placeholder="Enter Budget ID" name="budgetID">
+                </div>
+    
+                <div class="form-group">
+                    <label for="budgetItemSequenceID">Budget Item Sequence ID</label>
+                    <input type="text" class="form-control uniform-size" id="budgetItemSequenceID" placeholder="Enter Budget Item Sequence ID" name="budgetItemSequenceID">
+                </div>
+    
+                <div class="form-group">
+                    <label for="employeePositionTypeID">Employee Position Type ID</label>
+                    <select id="employeePositionTypeID" class="form-control uniform-size" name="employeePositionTypeID">
+                        <option value="">Select the Position Type</option>
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label for="plannedStartDate">Planned Start Date</label>
+                    <input type="date" class="form-control uniform-size" id="plannedStartDate" name="plannedStartDate" value="{{ planned_start_date|default:'' }}">
+                </div>
+    
+                <div class="form-group">
+                    <label for="plannedEndDate">Planned End Date</label>
+                    <input type="date" class="form-control uniform-size" id="plannedEndDate" name="plannedEndDate" value="{{ planned_end_date|default:'' }}">
+                </div>
+    
+                <div class="form-group">
+                    <label for="salaryFlag">Salary Flag</label>
+                    <select id="salaryFlag" class="form-control uniform-size" name="salaryFlag">
+                        <option>Select</option>
+                        <option>YES</option>
+                        <option>NO</option>
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label for="taxExemptFlag">Tax Exempt Flag</label>
+                    <select id="taxExemptFlag" class="form-control uniform-size" name="taxExemptFlag">
+                        <option>Select</option>
+                        <option>YES</option>
+                        <option>NO</option>
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label for="fullTimeFlag">Full-time Flag</label>
+                    <select id="fullTimeFlag" class="form-control uniform-size" name="fullTimeFlag">
+                        <option>Select</option>
+                        <option>YES</option>
+                        <option>NO</option>
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label for="temporaryFlag">Temporary Flag</label>
+                    <select id="temporaryFlag" class="form-control uniform-size" name="temporaryFlag">
+                        <option>select</option>
+                        <option>YES</option>
+                        <option>NO</option>
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label for="actualStartDate">Actual Start Date</label>
+                    <input type="date" class="form-control uniform-size" id="actualStartDate" name="actualStartDate" value="{{ actual_start_date|default:'' }}">
+                </div>
+    
+                <div class="form-group">
+                    <label for="actualFinishDate">Actual Finish Date</label>
+                    <input type="date" class="form-control uniform-size" id="actualFinishDate" name="actualFinishDate" value="{{ actual_finish_date|default:'' }}">
+                </div>
+    
+                <button type="submit" class="btn btn-primary btn-lg mt-3">Create</button>
+            </form>
+        </div>
+    </div>
+    
+<!-- ############################ Displaying form validation error messages in an alert box using JavaScript ##############################################-->
+
+    {% if errors %}
+    <script>
+        let errorMessage = "";
+
+        `{% for field, message in errors.items %}`
+            errorMessage += `{{ message|escapejs }}\n`;
+        `{% endfor %}`
+
+        if (errorMessage) {
+            alert(errorMessage);
+        }
+    </script>
+    {% endif %}
+
+    
+    {% if success %}
+    <script>
+        alert("Employee Position has been successfully created/Updated...!");
+    </script>
+    {% endif %}
+
+            
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script>
+        
+        // Loading Departments
+
+        async function loadDepartments() {
+            const response = await fetch('/hrms/api/department/');
+            const departments = await response.json();
+            const departmentSelect = document.getElementById('internal_organization');
+
+            departments.forEach(department => {
+                const option = document.createElement('option');
+                option.value = department.id;  // Store department ID as the value
+                option.textContent = `${department.name} (Company: ${department.company_name})`;
+                departmentSelect.appendChild(option);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDepartments);
+
+        async function loadDropdowns() {
+
+            // Load pay grades
+            const positionTypeResponse = await fetch('/hrms/api/positiontypes/');
+            const positionTypes = await positionTypeResponse.json();
+            const positionTypeSelect = document.getElementById('employeePositionTypeID');
+
+            positionTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.id;  
+                option.textContent = type.name;  
+                positionTypeSelect.appendChild(option);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', loadDropdowns);
+
+////////////////////// Fetching the Employment Position details //////////////////////
+
+async function fetchEmployeePositionData() {
+    const employeeId = document.getElementById('employee_id').value;
+
+    if (!employeeId) {
+        alert('Please enter an Employee ID.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/hrms/api/get-employee-position-data/?employee_id=${employeeId}`);
+        if (!response.ok) throw new Error('Employee position data not found.');
+
+        const data = await response.json();
+
+        console.log('Employee Position Data:', data);
+
+        // Set values if the element exists and data is not null
+        if (document.getElementById('status')) {
+            document.getElementById('status').value = data.status || '';
+        }
+        if (document.getElementById('internal_organization')) {
+            document.getElementById('internal_organization').value = data.internal_organization || '';
+        }
+        if (document.getElementById('budgetID')) {
+            document.getElementById('budgetID').value = data.budget_id || '';
+        }
+        if (document.getElementById('budgetItemSequenceID')) {
+            document.getElementById('budgetItemSequenceID').value = data.budget_item_sequence_id || '';
+        }
+        if (document.getElementById('employeePositionTypeID')) {
+            document.getElementById('employeePositionTypeID').value = data.employee_position_type || '';
+        }
+
+        if (document.getElementById('plannedStartDate')) {
+            document.getElementById('plannedStartDate').value = data.planned_start_date || '';
+        }
+        if (document.getElementById('plannedEndDate')) {
+            document.getElementById('plannedEndDate').value = data.planned_end_date || '';
+        }
+
+        // Checkboxes
+        if (document.getElementById('salaryFlag')) {
+            document.getElementById('salaryFlag').value = data.salary_flag ? 'YES' : 'NO';
+        }
+        if (document.getElementById('taxExemptFlag')) {
+            document.getElementById('taxExemptFlag').value = data.tax_exempt_flag ? 'YES' : 'NO';
+        }
+        if (document.getElementById('fullTimeFlag')) {
+            document.getElementById('fullTimeFlag').value = data.full_time_flag ? 'YES' : 'NO';
+        }
+        if (document.getElementById('temporaryFlag')) {
+            document.getElementById('temporaryFlag').value = data.temporary_flag ? 'YES' : 'NO';
+        }
+
+        if (document.getElementById('actualStartDate')) {
+            document.getElementById('actualStartDate').value = data.actual_start_date || '';
+        }
+        if (document.getElementById('actualFinishDate')) {
+            document.getElementById('actualFinishDate').value = data.actual_finish_date || '';
+        }
+
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+
+///////////////////// Model Lookup /////////////////////////////////////
+
+function selectEmployeeId(employeeId) {
+            console.log('Selected Employee ID:', employeeId);
+            document.getElementById("employee_id").value = employeeId; // Set the value in the input field
+            document.getElementById("myModal").style.display = "none"; // Optionally close the modal
+        }
+
+var modal = document.getElementById("myModal");
+
+// Get the icon that opens the modal
+var icon = document.getElementById("show-modal-btn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementById("close-modal-btn");
+
+// When the user clicks the icon, open the modal
+icon.onclick = function() {
+    modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+  </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

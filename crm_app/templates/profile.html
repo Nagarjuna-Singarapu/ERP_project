@@ -1,0 +1,250 @@
+ {%load static%}
+ <!-- In templates/profile.html -->
+{% load static %}
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+     {% block css %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    {% endblock %}
+</head>
+<body>
+    
+    <script>
+
+        // Function to show edit form and hide profile details
+function editProfile() {
+    document.getElementById('editProfileForm').style.display = 'block';
+    document.querySelector('.profile-details').style.display = 'none';
+}
+
+// Function to save the profile details
+function saveProfile() {
+    var name = document.getElementById('nameInput').value;
+    var email = document.getElementById('emailInput').value;
+    var phone = document.getElementById('phoneInput').value;
+    var about = document.getElementById('aboutInput').value;
+
+    // Display updated values
+    document.getElementById('nameDisplay').textContent = name;
+    document.getElementById('emailDisplay').textContent = email;
+    document.getElementById('phoneDisplay').textContent = phone;
+    document.getElementById('aboutDisplay').textContent = about;
+
+    // Hide the edit form and show the profile details
+    document.getElementById('editProfileForm').style.display = 'none';
+    document.querySelector('.profile-details').style.display = 'block';
+}
+
+// Function to cancel editing and hide the form
+function cancelEdit() {
+    document.getElementById('editProfileForm').style.display = 'none';
+    document.querySelector('.profile-details').style.display = 'block';
+}
+
+    </script>
+     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color:   #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .profile-container {
+            background-color: #84d5f0;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .profile-picture {
+            height: 100px;
+            width: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+        }
+
+        .profile-info p {
+            font-size: 16px;
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .profile-info p strong {
+            color: #000;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .back-dashboard {
+            margin-top: 20px;
+        }
+
+        .profile-container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .profile-container h1 {
+            color: #227c70;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        /* Profile Picture */
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #227c70;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Profile Information */
+        .profile-info p {
+            text-align: left;
+            margin: 0.8rem 0;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .profile-info p strong {
+            color: #555;
+        }
+        
+        /* Edit Profile Link */
+        .profile-container a {
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #227c70;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .profile-container a:hover {
+            background-color: #1a665b;
+        }
+        
+        /* Back to Dashboard */
+        .back-dashboard {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+        
+        .back-dashboard a {
+            color: #eef4f3;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-dashboard a:hover {
+            text-decoration: underline;
+        }
+
+
+        
+        
+    </style>
+
+    <div class="profile-container">
+        <h1>Welcome, {{ profile.user.username }}!</h1>
+        
+        <!-- Profile Picture -->
+        {% if profile.profile_picture %}
+            <img class="profile-picture" src="{{ profile.profile_picture.url }}" alt="Profile Picture" />
+        {% else %}
+            <img class="profile-picture" src="{% static 'img/default_profile.jpg' %}" alt="Default Profile Picture" />
+        {% endif %}
+
+        <!-- Profile Information -->
+        <div class="profile-info">
+            <div class="profile-info">
+                <!-- First Name -->
+                <p><strong>First Name:</strong> 
+                    {% if profile.first_name %}
+                        {{ profile.first_name }}
+                    {% else %}
+                        Not provided
+                    {% endif %}
+                </p>
+            
+                <!-- Last Name -->
+                <p><strong>Last Name:</strong> 
+                    {% if profile.last_name %}
+                        {{ profile.last_name }}
+                    {% else %}
+                        Not provided
+                    {% endif %}
+                </p>
+            
+                <!-- Email -->
+                <p><strong>Email:</strong> 
+                    {% if profile.user.email %}
+                        {{ profile.user.email }}
+                    {% else %}
+                        Not provided
+                    {% endif %}
+                </p>
+            
+                <!-- Phone Number -->
+                <p><strong>Phone Number:</strong> 
+                    {% if profile.phone_number %}
+                        {{ profile.phone_number }}
+                    {% else %}
+                        Not provided
+                    {% endif %}
+                </p>
+            
+                <!-- Bio -->
+                <p><strong>Bio:</strong> 
+                    {% if profile.bio %}
+                        {{ profile.bio }}
+                    {% else %}
+                        No bio available
+                    {% endif %}
+                </p>
+            </div>            
+        <div>
+            <a href="{% url 'edit_profile' %}">Edit Profile</a>
+        </div>
+        <!-- Link to go back to dashboard -->
+        <div class="back-dashboard">
+            <p>Back to <a href="{% url 'dashboard' %}">dashboard Page</a></p>
+        </div>
+    </div>
+
+</body>
+</html>

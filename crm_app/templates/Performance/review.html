@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Performance Feedback</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Custom CSS for Styling -->
+    <style>
+        body {
+            background-color: #f2f3f4;
+            font-family: Arial, sans-serif;
+        }
+        .navbar {
+            background-color: #2b5797;
+            padding: 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            
+          }
+          
+          .navbar ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+            margin-left: 30%;
+          }
+          
+          .navbar li {
+            margin: 0 25px;
+          }
+          
+          .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            transition: color 0.3s ease;
+          }
+          
+          .navbar a:hover {
+            color: #ffa500;
+          }
+
+        .content-container {
+            margin-top: 80px;
+            height: 550px;
+            width: 550px;
+            padding: 10px;
+            background-color: rgb(58, 42, 89);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in;
+        }
+        h2 {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .feedback-textarea {
+            resize: none;
+        }
+        .submit-btn {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar animate__animated animate__fadeInDown">
+        <ul>
+          
+    
+          <li><a href="{% url 'PerDeshbord' %}">Dashboard</a></li>
+          <li><a href="{% url 'improvement' %}">Performance improvement</a></li> 
+          <li><a href="{% url 'viewreport' %}">Viewreport</a></li>
+          <li><a href="{% url 'review' %}">Feedback</a></li>
+          
+        </ul>
+      </nav>
+
+<div class="container content-container">
+    <h2>Employee Performance Feedback</h2>
+    <form id="feedbackForm">
+        <div class="form-group">
+            <label for="employeeName">Employee Name</label>
+            <input type="text" id="employeeName" class="form-control" placeholder="Enter employee name" required>
+        </div>
+        <div class="form-group">
+            <label for="department">Department</label>
+            <input type="text" id="department" class="form-control" placeholder="Enter department" required>
+        </div>
+        <div class="form-group">
+            <label for="performanceRating">Performance Rating (1-10)</label>
+            <input type="number" id="performanceRating" class="form-control" min="1" max="10" required>
+        </div>
+        <div class="form-group">
+            <label for="feedback" class="form-label">Feedback</label>
+            <textarea id="feedback" class="form-control feedback-textarea" rows="4" placeholder="Provide your feedback here..." required></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Submit Feedback</button>
+    </form>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript for Form Submission -->
+<script>
+    document.getElementById('feedbackForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Retrieve form values
+        const employeeName = document.getElementById('employeeName').value;
+        const department = document.getElementById('department').value;
+        const performanceRating = document.getElementById('performanceRating').value;
+        const feedback = document.getElementById('feedback').value;
+
+        // Here you can handle the feedback submission, e.g., send it to a server
+        console.log({
+            employeeName,
+            department,
+            performanceRating,
+            feedback
+        });
+
+        // Reset the form
+        this.reset();
+        alert('Feedback submitted successfully!');
+    });
+</script>
+
+</body>
+</html>

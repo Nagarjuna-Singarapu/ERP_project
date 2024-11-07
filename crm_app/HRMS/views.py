@@ -802,6 +802,9 @@ def add_employee_leave(request):
             leave_reason = LeaveReason.objects.get(id=leave_reason_id)
         except LeaveReason.DoesNotExist:
             errors['leaveReasonType'] = 'Invalid Leave Reason Type.'
+        
+        if not re.match("^[a-zA-Z0-9\s]*$", description):
+            errors['description'] = 'Description must contain only alphanumeric characters and spaces.'
 
         # If errors exist after validation, return them to the template
         if errors:

@@ -127,7 +127,7 @@ class PartySkill(models.Model):
     hr_employee = models.ForeignKey(HR_Employee, on_delete=models.CASCADE, related_name='party_skills')
     skill_type = models.CharField(max_length=255, choices=SKILL_TYPE_CHOICES, blank=False)
     years_of_experience = models.FloatField()
-    rating = models.IntegerField(default=0)  # Store as integer for 1-5
+    rating = models.FloatField(default=0)  # Store as integer for 1-5
     skill_level = models.CharField(max_length=50)  # Example: Beginner, Intermediate, Advanced
     description = models.TextField(blank=True, null=True)  # Optional field for additional info
 

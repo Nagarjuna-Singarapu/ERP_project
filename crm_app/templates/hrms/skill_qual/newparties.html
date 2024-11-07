@@ -142,7 +142,7 @@
                     <div class="col-sm-9">
                         <input type="number" class="form-control" id="yearsExperience" name="yearsExperience" min="0" step="any" required>
                         <div class="invalid-feedback">
-                            Please enter the years of experience.
+                            Please enter a valid year/years of experience.
                         </div>
                     </div>
                 </div>
@@ -193,11 +193,12 @@
 
 <script>
 
+    // Function to populate the Party ID field from the modal selection
     function selectEmployeeId(employeeId) {
-            // Fill the partyId input with the selected employeeId
-            const partyIdField = document.getElementById('partyId');
-            partyIdField.value = employeeId;  // Set the Party ID field value
-            modal.style.display = "none"; // Optionally close the modal after selecting
+        const partyIdField = document.getElementById('partyId');
+        partyIdField.value = employeeId;
+        modal.style.display = "none";
+        toggleSubmitButton();  // Recheck the button state when Party ID is filled
     }
 
     // Get the modal
@@ -224,14 +225,6 @@
         if (event.target == modal) {
             modal.style.display = "none";
         }
-    }
-
-    // Function to populate the Party ID field from the modal selection
-    function selectEmployeeId(employeeId) {
-        const partyIdField = document.getElementById('partyId');
-        partyIdField.value = employeeId;
-        modal.style.display = "none";
-        toggleSubmitButton();  // Recheck the button state when Party ID is filled
     }
 
      // Function to enable/disable the submit button based on form validity
@@ -283,6 +276,50 @@
                 }, false);
             })
     })();
+
+    // AJAX Form Submission
+    document.getElementById("AddPartySkills").addEventListener("submit", function(event) {
+        event.preventDefault();  // Prevent default form submission
+
+        // Create FormData object to send form data
+        const formData = new FormData(this);
+
+        fetch("{% url 'create_party_skill' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                alert(data.message); // Show success message
+
+                // Optionally, add the new/updated skill to the table (if you have one)
+                if (data.message.includes("created")) {
+                    const newRow = `
+                        <tr>
+                            <td>${formData.get('skillTypeId')}</td>
+                            <td>${formData.get('yearsExperience')}</td>
+                            <td>${formData.get('rating')}</td>
+                            <td>${formData.get('skillLevel')}</td>
+                            <td>
+                                <button class="btn btn-danger delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                    document.getElementById("skillTableBody").insertAdjacentHTML('beforeend', newRow);
+                }
+                
+                // Optionally close the modal
+                $('#newSkillModal').modal('hide');
+            } else {
+                alert(data.message); // Show error message
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
     
 </script> 
 

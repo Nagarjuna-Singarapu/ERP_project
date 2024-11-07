@@ -114,4 +114,5 @@ urlpatterns = [
     path('search-party-skills/', views.search_party_skills, name='search_party_skills'),
 
     path('delete-skill/<int:skill_id>/', views.delete_skill, name='delete_skill'),
+
 ]

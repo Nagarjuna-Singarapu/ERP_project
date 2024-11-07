@@ -607,28 +607,31 @@ class PerformanceReviewViewSet(viewsets.ModelViewSet):
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
+# View to create or update PartySkill record
 def create_party_skill(request):
     if request.method == 'POST':
-        # Extracting data from the POST request
+        # Get the form data
         party_id = request.POST.get('partyId')
-        skill_type = request.POST.get('skillTypeId')  # This should be a skill type string, not an ID
-        years_experience = float(request.POST.get('yearsExperience', 0))  # Convert to integer
-        rating = int(request.POST.get('rating', 0))  # Convert to integer
-        skill_level = request.POST.get('skillLevel', '')
-        description = request.POST.get('description', '')  # Use .get() to handle missing field
+        skill_type_id = request.POST.get('skillTypeId')
+        years_experience = request.POST.get('yearsExperience')
+        rating = request.POST.get('rating')
+        skill_level = request.POST.get('skillLevel')
+        description = request.POST.get('description')
 
-        # Fetch the related HR_Employee instance
-        employee = get_object_or_404(HR_Employee, employee_id=party_id)  # Assuming partyId corresponds to employee_id
-
-        # Ensure that skill type is valid
-        valid_skill_types = [choice[0] for choice in PartySkill.SKILL_TYPE_CHOICES]
-        if skill_type not in valid_skill_types:
-            return JsonResponse({'error': f'Invalid skill type: {skill_type}. Valid options are: {valid_skill_types}'}, status=400)
+        # Validate Party ID (HR_Employee) existence
+        try:
+            employee = HR_Employee.objects.get(employee_id=party_id)
+        except HR_Employee.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Employee not found."}, status=400)
+        
+        # Validate Skill Type
+        if skill_type_id not in dict(PartySkill.SKILL_TYPE_CHOICES).keys():
+            return JsonResponse({"status": "error", "message": "Invalid skill type."}, status=400)
 
         # Create or update PartySkill record
         party_skill, created = PartySkill.objects.update_or_create(
             hr_employee=employee,
-            skill_type=skill_type,
+            skill_type=skill_type_id,
             defaults={
                 'years_of_experience': years_experience,
                 'rating': rating,
@@ -637,13 +640,20 @@ def create_party_skill(request):
             }
         )
 
-        return redirect('newparties')  # Redirect to a page showing the list of party skills or a relevant view
+        if created:
+            return JsonResponse({"status": "success", "message": "Skill created successfully!"})
+        else:
+            return JsonResponse({"status": "success", "message": "Skill updated successfully!"})
 
-    return render(request, 'hrms/skill_qual/newparties.html')  # Render the form again if not POST
+    return JsonResponse({"status": "error", "message": "Invalid request method."}, status=400)
+
+from django.shortcuts import render
+from .models import PartySkill
 
 def search_party_skills(request):
     skills = PartySkill.objects.all()
-    # Your filtering logic here, based on the query parameters.
+
+    # Retrieve the filtering parameters from the GET request
     party_id = request.GET.get('partyId', '')
     skill_type = request.GET.get('skillTypeId', '')
     years_experience = request.GET.get('yearsExperience', '')
@@ -653,15 +663,35 @@ def search_party_skills(request):
     # Build the query dynamically based on available parameters
     if party_id:
         skills = skills.filter(hr_employee__employee_id=party_id)
+    
     if skill_type:
         skills = skills.filter(skill_type=skill_type)
+    
+    # Handle years of experience - perform an exact match
+    if years_experience:
+        try:
+            years_experience = float(years_experience)  # Convert to float
+            skills = skills.filter(years_of_experience=years_experience)  # Exact match
+        except ValueError:
+            pass  # If conversion fails, ignore the filter
+
+    # Handle rating - perform an exact match, allow float values
+    if rating:
+        try:
+            rating = float(rating)  # Convert to float
+            skills = skills.filter(rating=rating)  # Exact match
+        except ValueError:
+            pass  # If conversion fails, ignore the filter
+
+    # Handle skill level - case-insensitive match
+    if skill_level:
+        skills = skills.filter(skill_level__icontains=skill_level)
 
     print(f"Skills queryset: {skills}")
     
+    # Pass filtered skills to the template
+    return render(request, 'hrms/skill_qual/Skills.html', {'skills': skills})
 
-    # Pass skills to the template
-    return render(request, 'hrms/skill_qual/Skills.html', {'skills': skills}
-)
 
 
 def delete_skill(request, skill_id):

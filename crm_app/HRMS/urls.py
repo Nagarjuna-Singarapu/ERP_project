@@ -83,6 +83,11 @@ urlpatterns = [
     path('termination_reason/', views.termination_reason, name='termination_reason'),
 
     path('termination_types/', views.termination_types, name='termination_types'),
+
+    path('termination_type/', views.list_termination_types, name='termination_type_list'),
+    path('termination_type/create/', views.create_termination_type, name='termination_type_create'),
+    path('termination_type/delete/', views.delete_termination_type, name='termination_type_delete'),
+
     path('position_types/', views.position_types, name='position_types'),
     path('emp_leave_types/', views.emp_leave_types, name='emp_leave_types'),
     path('pay_grades/', views.pay_grades, name='pay_grades'),

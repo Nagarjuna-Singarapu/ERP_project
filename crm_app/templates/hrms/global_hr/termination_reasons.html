@@ -118,7 +118,8 @@
       <div class="card mb-4">
         <div class="card-header">Add Termination Reason</div>
         <div class="card-body">
-          <form id="terminationTypeForm">
+          <form id="terminationTypeForm" method="POST">
+            {% csrf_token %}
             <div class="mb-3">
               <label for="termination_reason" class="form-label"
                 >Termination Reason ID</label
@@ -214,9 +215,9 @@
       }
   
       // Create Termination Reason
-      function createTerminationReason() {
-    const termination_reason = $('#termination_reason').val();
-    const description = $('#description').val();
+  function createTerminationReason() {
+    const termination_reason = $('#termination_reason').val().trim();
+    const description = $('#description').val().trim();
 
     // Validate the form fields
     if (!validateForm(termination_reason, description)) {
@@ -253,9 +254,15 @@
                 alert(response.message); // Show backend error for duplicate ID
             }
         },
-        error: function (error) {
-            console.error("Error adding termination reason:", error);
+        error: function (xhr) {
+          if(xhr.status === 400){
+            // Show the specific duplicate ID error as an alert
+                const response = JSON.parse(xhr.responseText);
+                alert(response.message); // Display the error message in an alert
+          }else{
+            console.error("Error adding termination reason:", xhr);
             alert("Failed to add termination reason. Please try again.");
+          }
         }
     });
 }

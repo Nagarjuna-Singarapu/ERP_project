@@ -36,7 +36,8 @@ class SalaryStepGrade(models.Model):
 
     def __str__(self):
         return self.step_name
-    
+
+ #Termination Type Model...   
 class TerminationType(models.Model):
     termination_type = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)

@@ -23,7 +23,7 @@ import json, logging
 from django.db import IntegrityError
 from django.http import HttpResponse
 from rest_framework import status
-from .models import SkillType, PayGrade, SalaryStepGrade ,Responsibility_Type,TerminationReason
+from .models import SkillType, PayGrade, SalaryStepGrade ,Responsibility_Type,TerminationReason, TerminationType
 from .serializers import SkillTypeSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
 
 logger=logging.getLogger(__name__)
@@ -214,6 +214,45 @@ def termination_reason(request):
             return JsonResponse({'status': 'error', 'message': 'Failed to delete termination reason'}, status=500)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+
+# view for the Termination_Types
+@csrf_exempt
+def create_termination_type(request):
+    if request.method == "POST":
+        termination_type = request.POST.get("termination_type", "").strip()
+        description = request.POST.get("description", "").strip()
+
+        # Validate description to contain only letters, numbers, and spaces
+        if not description.replace(" ", "").isalnum():
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for duplicate termination_type ID
+        if TerminationType.objects.filter(termination_type=termination_type).exists():
+            return JsonResponse({"success": False, "message": "This Termination Type ID already exists. Please enter a unique ID."})
+
+        try:
+            # Create new TerminationType entry
+            TerminationType.objects.create(termination_type=termination_type, description=description)
+            return JsonResponse({"success": True})
+        except Exception as e:
+            # Handle any other unexpected error
+            return JsonResponse({"success": False, "message": str(e)})
+
+
+@csrf_exempt
+def delete_termination_type(request):
+    if request.method == "POST" and request.headers.get("X-HTTP-Method-Override") == "DELETE":
+        termination_type_id = request.POST.get("termination_type", "").strip()
+        try:
+            TerminationType.objects.get(termination_type=termination_type_id).delete()
+            return JsonResponse({"success": True})
+        except TerminationType.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Termination Type not found."})
+
+def list_termination_types(request):
+    termination_types = list(TerminationType.objects.values("termination_type", "description"))
+    return JsonResponse({"termination_types": termination_types})
 
 
 

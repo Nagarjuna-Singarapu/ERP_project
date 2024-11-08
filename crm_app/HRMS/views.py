@@ -1213,7 +1213,7 @@ def employee_resume_search(request):
         filters = {}
 
         if employee_id:
-            filters['employee__employee_id'] = employee_id
+            filters['employee_id__employee_id'] = employee_id
         if resume_id:
             filters['resume_id__icontains'] = resume_id
         if from_date:

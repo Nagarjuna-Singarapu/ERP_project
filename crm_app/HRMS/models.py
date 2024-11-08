@@ -259,3 +259,19 @@ class EmployeeLeave(models.Model):
     def __str__(self):
         return f"Leave for {self.employee.employee_id} from {self.from_date} to {self.through_date}, Status: {self.status}"
 
+####################### Resume Section #######################################
+    
+class EmployeeResume(models.Model):
+    resume_id = models.CharField(max_length=255)
+    employee_id = models.ForeignKey(
+        HR_Employee, 
+        on_delete=models.CASCADE, 
+        to_field='employee_id',  # Specify that the foreign key relates to the 'employee_id' field of HR_Employee
+        related_name='party_resumes'
+    )
+    content_id = models.CharField(max_length=255)
+    resume_date = models.DateField()
+
+    def __str__(self):
+        return self.resume_id
+

@@ -274,4 +274,69 @@ class EmployeeResume(models.Model):
 
     def __str__(self):
         return self.resume_id
+    
+
+################################### Job Requisition Section ##############################
+
+class JobRequisition(models.Model):
+    # Auto-incrementing Job Requisition ID (starting from 1)
+    job_requisition_id = models.AutoField(primary_key=True)
+
+    job_location = models.CharField(max_length=255)
+    job_posting_type = models.CharField(
+        max_length=50,
+        choices=[
+            ('JOB_POSTING_EXTR', 'External Job Posting'),
+            ('JOB_POSTING_INTR', 'Internal Job Posting')
+        ]
+    )
+    age = models.PositiveIntegerField(null=True, blank=True)
+    no_of_resources = models.PositiveIntegerField()
+    gender = models.CharField(
+        max_length=1,
+        choices=[
+            ('M', 'Male'),
+            ('F', 'Female'),
+            ('', 'Not Specified')
+        ],
+        default=''
+    )
+    duration_months = models.PositiveIntegerField(null=True, blank=True)
+
+    qualification = models.CharField(
+        max_length=50,
+        choices=[
+            ('BSC', 'Bachelor of Science'),
+            ('B.Tech', 'Bachelor of Technology'),
+            ('CERTIFICATION', 'Certification'),
+            ('DEGREE', 'Degree'),
+            ('MSC', 'Masters of Science'),
+            ('MBA', 'Masters of Business Administration'),
+            ('EXPERIENCE', 'Work Experience')
+        ]
+    )
+    
+    exam_type_enum_id = models.CharField(
+        max_length=50,
+        choices=[
+            ('EXAM_GROUP_DISCN', 'Group Discussion'),
+            ('EXAM_TECHNICAL', 'Technical Exam'),
+            ('EXAM_WRITTEN_APT', 'Written Aptitude Exam')
+        ],
+        null=True,
+        blank=True
+    )
+    
+    # ForeignKey to SkillType model
+    skill_type = models.ForeignKey(SkillType, on_delete=models.SET_NULL, null=True)
+
+    experience_years = models.PositiveIntegerField()
+    experience_months = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"Job Requisition [{self.job_requisition_id}] - {self.job_location}"
+    
+    class Meta:
+        ordering = ['-job_requisition_id']
+
 

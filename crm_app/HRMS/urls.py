@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/positiontypes/', views.PositionTypeList.as_view(), name='positiontype-list'),
     path('api/leavetypes/', views.LeaveTypeList.as_view(), name='leaveType-list'),
     path('api/leavereasons/', views.LeaveReasonList.as_view(), name='leaveReason-list'),
+    path('api/skilltypes/', views.SkillTypeList.as_view(), name='skillType-list'),
 
     path('employment-search/', views.employment_search, name='employment_search'),
     path('api/employment-data/', views.employment_data, name='employment_data'),
@@ -52,6 +53,10 @@ urlpatterns = [
     path('create-employee-resume/', views.create_employee_resume, name='create_employee_resume'),
     path('employee-resume-search/', views.employee_resume_search, name='employee_resume_search'),
     path('api/delete-resume/', views.delete_resume, name='delete_resume'),
+
+    path('new-job-requisition/', views.create_job_requisition, name='new_job_requisition'),
+    path('job-requisition-search/', views.job_requisition_search, name='job_requisition_search'),
+    path('api/delete-job-requisition/', views.delete_job_requisition, name='delete_job_requisition'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),

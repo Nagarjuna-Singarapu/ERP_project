@@ -1,37 +1,52 @@
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+#ERP_project/crm_app/HRMS/views.py
 
+from rest_framework import viewsets, status
+from django.http import JsonResponse
+# Standard Library Imports
 import json
 import logging
 import re
+
+# Django Imports
+from django.core.exceptions import ValidationError
+from django.contrib import messages
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.clickjacking import xframe_options_exempt
+
+# Django REST Framework Imports
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from django.core.exceptions import ValidationError
-from django.contrib import messages
-from django.urls import reverse
-from .utils import load_country_data
-from django.shortcuts import get_object_or_404, redirect, render
-from .models import EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume, HR_Employee, LeaveReason, LeaveType, PayGrade, PositionType,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
-from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-import json, logging
+# Project Specific Imports - Models
+from .models import (
+    EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume,
+    HR_Employee, LeaveReason, LeaveType, PayGrade, PositionType, Responsibility_Type, SalaryStepGrade,
+    Employment, HR_Company, HR_Department, SkillType, TerminationReason, TerminationType,
+    PerformanceReview, PartySkill
+)
+
+# Project Specific Imports - Serializers
+from .serializers import (
+    PerformanceReviewSerializer, PayGradeSerializer, SalaryStepGradeSerializer,
+    LeaveReasonSerializer, LeaveTypeSerializer, PositionTypeSerializer,
+    TerminationReasonSerializer, TerminationTypeSerializer
+)
+
+# Project Specific Utilities
+from .utils import load_country_data
+
+# Django Database Exceptions
 from django.db import IntegrityError
-from django.http import HttpResponse
-from rest_framework import status
-from .models import SkillType, PayGrade, SalaryStepGrade ,Responsibility_Type,TerminationReason
-from .serializers import SkillTypeSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
 
-logger=logging.getLogger(__name__)
-
-from .models import PayGrade, SalaryStepGrade
-from .serializers import LeaveReasonSerializer, LeaveTypeSerializer, PayGradeSerializer, PositionTypeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
-
-
+# Logger
+logger = logging.getLogger(__name__)
 def NewEmploye(request):
     return render(request, 'hrms/emp_per/NewEmploye.html')
 
@@ -1481,6 +1496,135 @@ class TerminationReasonList(APIView):
         serializer = TerminationReasonSerializer(salary_steps, many=True)
         return Response(serializer.data)
     
+
+###########################################################################################################################################
+
+class PerformanceReviewViewSet(viewsets.ModelViewSet):
+    queryset = PerformanceReview.objects.all()
+    serializer_class = PerformanceReviewSerializer
+
+    def list(self, request, *args, **kwargs):
+        employee_id = request.query_params.get('employee_id', None)
+        email = request.query_params.get('email', None)
+        performance_review_id = request.query_params.get('performance_review_id', None)
+
+        # Apply filters based on query parameters
+        if performance_review_id:
+            performance_reviews = self.queryset.filter(perf_review_id=performance_review_id)
+        elif employee_id:
+            performance_reviews = self.queryset.filter(hr_employee__employee_id=employee_id)
+        elif email:
+            performance_reviews = self.queryset.filter(hr_employee__email=email)
+        else:
+            performance_reviews = self.queryset
+
+        if not performance_reviews.exists():
+            return Response({"detail": "No performance review found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(performance_reviews, many=True)
+        return Response(serializer.data)
+    
+from django.shortcuts import render, redirect, get_object_or_404
+
+# View to create or update PartySkill record
+def create_party_skill(request):
+    if request.method == 'POST':
+        # Get the form data
+        party_id = request.POST.get('partyId')
+        skill_type_id = request.POST.get('skillTypeId')
+        years_experience = request.POST.get('yearsExperience')
+        rating = request.POST.get('rating')
+        skill_level = request.POST.get('skillLevel')
+        description = request.POST.get('description')
+
+        # Validate Party ID (HR_Employee) existence
+        try:
+            employee = HR_Employee.objects.get(employee_id=party_id)
+        except HR_Employee.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Employee not found."}, status=400)
+        
+        # Validate Skill Type
+        if skill_type_id not in dict(PartySkill.SKILL_TYPE_CHOICES).keys():
+            return JsonResponse({"status": "error", "message": "Invalid skill type."}, status=400)
+
+        # Create or update PartySkill record
+        party_skill, created = PartySkill.objects.update_or_create(
+            hr_employee=employee,
+            skill_type=skill_type_id,
+            defaults={
+                'years_of_experience': years_experience,
+                'rating': rating,
+                'skill_level': skill_level,
+                'description': description,
+            }
+        )
+
+        if created:
+            return JsonResponse({"status": "success", "message": "Skill created successfully!"})
+        else:
+            return JsonResponse({"status": "success", "message": "Skill updated successfully!"})
+
+    return JsonResponse({"status": "error", "message": "Invalid request method."}, status=400)
+
+from django.shortcuts import render
+from .models import PartySkill
+
+def search_party_skills(request):
+    skills = PartySkill.objects.all()
+
+    # Retrieve the filtering parameters from the GET request
+    party_id = request.GET.get('partyId', '')
+    skill_type = request.GET.get('skillTypeId', '')
+    years_experience = request.GET.get('yearsExperience', '')
+    rating = request.GET.get('rating', '')
+    skill_level = request.GET.get('skillLevel', '')
+
+    # Build the query dynamically based on available parameters
+    if party_id:
+        skills = skills.filter(hr_employee__employee_id=party_id)
+    
+    if skill_type:
+        skills = skills.filter(skill_type=skill_type)
+    
+    # Handle years of experience - perform an exact match
+    if years_experience:
+        try:
+            years_experience = float(years_experience)  # Convert to float
+            skills = skills.filter(years_of_experience=years_experience)  # Exact match
+        except ValueError:
+            pass  # If conversion fails, ignore the filter
+
+    # Handle rating - perform an exact match, allow float values
+    if rating:
+        try:
+            rating = float(rating)  # Convert to float
+            skills = skills.filter(rating=rating)  # Exact match
+        except ValueError:
+            pass  # If conversion fails, ignore the filter
+
+    # Handle skill level - case-insensitive match
+    if skill_level:
+        skills = skills.filter(skill_level__icontains=skill_level)
+
+    print(f"Skills queryset: {skills}")
+    
+    # Pass filtered skills to the template
+    return render(request, 'hrms/skill_qual/Skills.html', {'skills': skills})
+
+
+
+def delete_skill(request, skill_id):
+    skill = get_object_or_404(PartySkill, id=skill_id)
+
+    if request.method == 'POST':
+        skill.delete()
+        return JsonResponse({'status': 'success', 'message': 'Skill deleted successfully.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request.'}
+)
+
+#######################################################################################################################################################
+
 class PositionTypeList(APIView):
     def get(self, request):
         position_types = PositionType.objects.all()
@@ -1499,4 +1643,3 @@ class LeaveReasonList(APIView):
         serializer = LeaveReasonSerializer(leave_reasons, many=True)
         return Response(serializer.data)
     
-

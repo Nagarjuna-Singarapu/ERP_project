@@ -1,6 +1,13 @@
-from django.urls import path
-from .views import get_countries, get_states
+#ERP_project/crm_app/HRMS/urls.py
+
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import get_countries, get_states, PerformanceReviewViewSet
 from . import views
+
+router = DefaultRouter()
+# router.register(r'hr-employees', HREmployeeViewSet, basename='hr_employee')
+router.register(r'performance-reviews', PerformanceReviewViewSet, basename='performance_review')
 
 urlpatterns = [
     path('api/countries/', get_countries, name='get_countries'),
@@ -112,6 +119,10 @@ urlpatterns = [
     path('newparties/', views.newparties, name='newparties'),
     path('skill_lookupparty/', views.skill_lookupparty, name='skill_lookupparty'),
     path('newpartiesQualifivation/', views.newpartiesQualifivation, name='newpartiesQualifivation'),
+
+    # path('', include(router.urls)),
+
+    path('create-party-skill/', views.create_party_skill, name='create_party_skill'),
     path('Recruitment/', views.Recruitment, name='Recruitment'),
     path('JobRequision/', views.JobRequision, name='JobRequision'),
     path('NewJobRequision/', views.NewJobRequision, name='NewJobRequision'),
@@ -133,4 +144,8 @@ urlpatterns = [
     path('addnewEvent/', views.addnewEvent, name='addnewEvent'),
     path('nagaslookup/', views.nagaslookup, name='nagaslookup'),
     
+    path('search-party-skills/', views.search_party_skills, name='search_party_skills'),
+
+    path('delete-skill/<int:skill_id>/', views.delete_skill, name='delete_skill'),
+
 ]

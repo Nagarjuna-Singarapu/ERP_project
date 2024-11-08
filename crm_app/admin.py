@@ -96,7 +96,7 @@ admin.site.register(BudgetRequest, BudgetRequestAdmin)
 
 
 
-from crm_app.HRMS.models import HR_Employee, Employment, PayGrade, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave
+from crm_app.HRMS.models import HR_Employee, Employment, EmployeeResume, PayGrade, SkillType, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave
 
 admin.site.register(HR_Employee)
 admin.site.register(Employment)
@@ -112,3 +112,5 @@ admin.site.register(EmployeeQualification)
 admin.site.register(LeaveType)
 admin.site.register(LeaveReason)
 admin.site.register(EmployeeLeave)
+admin.site.register(SkillType)
+admin.site.register(EmployeeResume)

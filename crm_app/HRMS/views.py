@@ -9,12 +9,12 @@ from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-
+from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.urls import reverse
 from .utils import load_country_data
 from django.shortcuts import get_object_or_404, redirect, render
-from .models import EmployeeLeave, EmployeePosition, EmployeeQualification, HR_Employee, LeaveReason, LeaveType, PayGrade, PositionType,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
+from .models import EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume, HR_Employee, LeaveReason, LeaveType, PayGrade, PositionType,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -1009,7 +1009,7 @@ def add_employee_leave(request):
         except LeaveReason.DoesNotExist:
             errors['leaveReasonType'] = 'Invalid Leave Reason Type.'
         
-        if not re.match("^[a-zA-Z0-9\s]*$", description):
+        if not re.match(r"^[a-zA-Z0-9\s]*$", description):
             errors['description'] = 'Description must contain only alphanumeric characters and spaces.'
 
         # If errors exist after validation, return them to the template
@@ -1118,6 +1118,130 @@ def delete_leave(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 ##############################################################################################################################################
+
+def create_employee_resume(request):
+    errors = {}  # Dictionary to store validation errors
+
+    if request.method == 'POST':
+        # Extract data from the form
+        resume_id = request.POST.get('resumeID')
+        employee_id = request.POST.get('employee_id')
+        content_id = request.POST.get('contentID')
+        resume_date = request.POST.get('resumeDate')
+
+        # Regex pattern for allowed characters (alphanumeric and underscores only)
+        allowed_pattern = r'^[\w_]+$'
+
+        # Validate employee_id exists in HR_Employee model
+        try:
+            employee = HR_Employee.objects.get(employee_id=employee_id)
+        except HR_Employee.DoesNotExist:
+            errors['employee_id'] = 'Employee ID does not exist in HR_Employee records.'
+
+        # Validate resume_id is unique and follows the pattern
+        if not resume_id:
+            errors['resume_id'] = 'Resume ID is required.'
+        elif not re.match(allowed_pattern, resume_id):
+            errors['resume_id'] = 'Resume ID can only contain alphanumeric characters and underscores.'
+        elif EmployeeResume.objects.filter(resume_id=resume_id).exists():
+            errors['resume_id'] = 'Resume ID must be unique.'
+
+        # Validate content_id is unique and follows the pattern
+        if not content_id:
+            errors['content_id'] = 'Content ID is required.'
+        elif not re.match(allowed_pattern, content_id):
+            errors['content_id'] = 'Content ID can only contain alphanumeric characters and underscores.'
+        elif EmployeeResume.objects.filter(content_id=content_id).exists():
+            errors['content_id'] = 'Content ID must be unique.'
+
+        # Check if resume_date is provided
+        if not resume_date:
+            errors['resume_date'] = 'Resume date is required.'
+
+        # If there are errors, return them to the template
+        if errors:
+            return render(request, 'hrms/emp_res_lea/New_resume.html', {'errors': errors})
+
+        # If no errors, save the data to EmployeeResume model
+        party_resume = EmployeeResume(
+            resume_id=resume_id,
+            employee_id=employee,
+            content_id=content_id,
+            resume_date=resume_date
+        )
+        try:
+            party_resume.save()
+        except ValidationError as e:
+            # Handle any model-level validation errors
+            errors['model_error'] = str(e)
+            return render(request, 'hrms/emp_res_lea/New_resume.html', {'errors': errors})
+
+        # Return a success message if saved successfully
+        return render(request, 'hrms/emp_res_lea/New_resume.html', {'success': True})
+
+    # Display form without errors if method is not POST
+    return render(request, 'hrms/emp_res_lea/New_resume.html')
+
+def employee_resume_search(request):
+    if request.method == 'POST':
+        # Decode and parse JSON data from the request
+        data = request.body.decode('utf-8')
+        json_data = json.loads(data)
+
+        # Extract search parameters from the JSON data
+        employee_id = json_data.get('employee_id')
+        resume_id = json_data.get('resume_id')
+        from_date = json_data.get('from_date')
+        through_date = json_data.get('through_date')
+
+        # Build the filter dictionary
+        filters = {}
+
+        if employee_id:
+            filters['employee__employee_id'] = employee_id
+        if resume_id:
+            filters['resume_id__icontains'] = resume_id
+        if from_date:
+            filters['resume_date__gte'] = from_date
+        if through_date:
+            filters['resume_date__lte'] = through_date
+
+        # Query the EmployeeResume model based on the filters
+        resumes = EmployeeResume.objects.filter(**filters)
+
+        # Prepare response data
+        response_data = []
+        for resume in resumes:
+            response_data.append({
+                'employee_id': resume.employee_id.employee_id,
+                'resume_id': resume.resume_id,
+                'content_id': resume.content_id,
+                'resume_date': resume.resume_date.strftime('%Y-%m-%d') if resume.resume_date else 'N/A',
+            })
+
+        return JsonResponse(response_data, safe=False)
+
+    # Return error response if the request method is not POST
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def delete_resume(request):
+    if request.method == 'DELETE':
+        employee_id = request.GET.get('employee_id')
+        resume_id = request.GET.get('resume_id')
+
+        try:
+            # Find and delete the specific record
+            resume_record = EmployeeResume.objects.get(
+                employee_id=employee_id, 
+                resume_id=resume_id, 
+            )
+            resume_record.delete()
+            return JsonResponse({'message': 'Leave record deleted successfully'}, status=200)
+        except EmployeeLeave.DoesNotExist:
+            return JsonResponse({'error': 'Leave record not found'}, status=404)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+###################################################################################################################
 
 
 # anuj

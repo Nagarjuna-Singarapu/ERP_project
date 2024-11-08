@@ -2,12 +2,12 @@
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import get_countries, get_states, PerformanceReviewViewSet
+from .views import get_countries, get_states
 from . import views
 
 router = DefaultRouter()
 # router.register(r'hr-employees', HREmployeeViewSet, basename='hr_employee')
-router.register(r'performance-reviews', PerformanceReviewViewSet, basename='performance_review')
+# router.register(r'performance-reviews', PerformanceReviewViewSet, basename='performance_review')
 
 urlpatterns = [
     path('api/countries/', get_countries, name='get_countries'),
@@ -143,5 +143,8 @@ urlpatterns = [
     path('search-party-skills/', views.search_party_skills, name='search_party_skills'),
 
     path('delete-skill/<int:skill_id>/', views.delete_skill, name='delete_skill'),
+
+    path('create-performance-review/', views.create_performance_review, name='create_performance_review'),
+    path('find-performance-review/', views.find_performance_review, name='find_performance_review'),
 
 ]

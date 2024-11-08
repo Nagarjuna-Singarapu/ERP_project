@@ -1,6 +1,8 @@
 
 #ERP_project/crm_app/HRMS/views.py
 
+from datetime import datetime
+
 from rest_framework import viewsets, status
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -1359,32 +1361,179 @@ class TerminationReasonList(APIView):
 
 ###########################################################################################################################################
 
-class PerformanceReviewViewSet(viewsets.ModelViewSet):
-    queryset = PerformanceReview.objects.all()
-    serializer_class = PerformanceReviewSerializer
+# class PerformanceReviewViewSet(viewsets.ModelViewSet):
+#     queryset = PerformanceReview.objects.all()
+#     serializer_class = PerformanceReviewSerializer
 
-    def list(self, request, *args, **kwargs):
-        employee_id = request.query_params.get('employee_id', None)
-        email = request.query_params.get('email', None)
-        performance_review_id = request.query_params.get('performance_review_id', None)
+#     def list(self, request, *args, **kwargs):
+#         employee_id = request.query_params.get('employee_id', None)
+#         email = request.query_params.get('email', None)
+#         performance_review_id = request.query_params.get('performance_review_id', None)
 
-        # Apply filters based on query parameters
-        if performance_review_id:
-            performance_reviews = self.queryset.filter(perf_review_id=performance_review_id)
-        elif employee_id:
-            performance_reviews = self.queryset.filter(hr_employee__employee_id=employee_id)
-        elif email:
-            performance_reviews = self.queryset.filter(hr_employee__email=email)
-        else:
-            performance_reviews = self.queryset
+#         # Apply filters based on query parameters
+#         if performance_review_id:
+#             performance_reviews = self.queryset.filter(perf_review_id=performance_review_id)
+#         elif employee_id:
+#             performance_reviews = self.queryset.filter(hr_employee__employee_id=employee_id)
+#         elif email:
+#             performance_reviews = self.queryset.filter(hr_employee__email=email)
+#         else:
+#             performance_reviews = self.queryset
 
-        if not performance_reviews.exists():
-            return Response({"detail": "No performance review found."}, status=status.HTTP_404_NOT_FOUND)
+#         if not performance_reviews.exists():
+#             return Response({"detail": "No performance review found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = self.get_serializer(performance_reviews, many=True)
-        return Response(serializer.data)
+#         serializer = self.get_serializer(performance_reviews, many=True)
+#         return Response(serializer.data)
+
+
+def create_performance_review(request):
+    if request.method == 'POST':
+        try:
+            # Parse incoming data
+            data = request.POST
+            perf_review_id = data.get('perfReviewId', '')
+            employee_party_id = data.get('employeePartyId', '')
+            manager_party_id = data.get('managerPartyId', '')
+            manager_role_type = data.get('managerRoleType', '')
+            payment_id = data.get('paymentId', '')
+            empl_position_id = data.get('emplPositionId', '')  # Position ID might be empty or invalid
+            from_date = data.get('fromDate', '')
+            through_date = data.get('throughDate', '')
+            comments = data.get('comments', '')
+
+            # Check if the employee exists in the HR_Employee model
+            try:
+                employee = HR_Employee.objects.get(employee_id=employee_party_id)
+            except HR_Employee.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Employee not found.'})
+
+            # Handle missing or invalid Position Type
+            position_type = None
+            if empl_position_id:  # Only try to find a PositionType if one is provided
+                try:
+                    position_type = PositionType.objects.get(id=empl_position_id)
+                except PositionType.DoesNotExist:
+                    # If PositionType doesn't exist, we just keep it as None
+                    position_type = None
+                    # Optional: You could return an error here if you want strict validation
+                    # return JsonResponse({'status': 'error', 'message': 'Position Type not found.'})
+
+            # Parse dates
+            from_date_parsed = datetime.strptime(from_date, '%Y-%m-%d').date() if from_date else None
+            through_date_parsed = datetime.strptime(through_date, '%Y-%m-%d').date() if through_date else None
+
+            # Create the Performance Review entry, even with blank/null data
+            review = PerformanceReview.objects.create(
+                perf_review_id=perf_review_id,
+                emp_party_id=employee,
+                manager_party_id=manager_party_id,
+                manager_role_type=manager_role_type,
+                payment_id=payment_id,
+                empl_position_type=position_type,  # Can be None if PositionType is missing
+                from_date=from_date_parsed,
+                through_date=through_date_parsed,
+                comments=comments
+            )
+
+            return JsonResponse({'status': 'success', 'message': 'Performance review created successfully.'})
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': f'Error: {str(e)}'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+
+
+
+def find_performance_review(request):
+    if request.method == 'POST':
+        # Get form data from the POST request
+        perf_review_id = request.POST.get('perfReviewId')
+        employee_party_id = request.POST.get('employeePartyId')
+        manager_party_id = request.POST.get('managerPartyId')
+        manager_role_type_id = request.POST.get('managerRoleTypeId')
+        payment_id = request.POST.get('paymentId')
+        empl_position_type_id = request.POST.get('emplPositionId')
+        from_date = request.POST.get('fromDate')
+        through_date = request.POST.get('throughDate')
+        comments = request.POST.get('comments')
+
+        # Initialize a filters object
+        filters = {}
+
+        # Function to convert 'dd-mm-yyyy' to 'yyyy-mm-dd'
+        def convert_date(date_str):
+            if date_str:
+                try:
+                    return datetime.strptime(date_str, '%d-%m-%Y').date()
+                except ValueError as e:
+                    logger.error(f"Date parsing error: {e} for date string: {date_str}")
+                    return None
+            return None
+        
+        # Convert fromDate and throughDate to 'yyyy-mm-dd' format
+        if from_date:
+            from_date = convert_date(from_date)
+        if through_date:
+            through_date = convert_date(through_date)
+
+        # Filter by Performance Review ID
+        if perf_review_id:
+            filters['perf_review_id__icontains'] = perf_review_id
+
+        # Filter by Employee Party ID
+        if employee_party_id:
+            filters['hr_employee__employee_id__icontains'] = employee_party_id
+
+        # Filter by Manager Party ID
+        if manager_party_id:
+            filters['manager_party_id__icontains'] = manager_party_id
+
+        # Filter by Manager Role Type ID
+        if manager_role_type_id:
+            filters['manager_role_type_id__icontains'] = manager_role_type_id
+
+        # Filter by Payment ID
+        if payment_id:
+            filters['payment_id__icontains'] = payment_id
+
+        # Filter by Employee Position Type ID
+        if empl_position_type_id:
+            filters['hr_employee__empl_position_type_id__icontains'] = empl_position_type_id
+
+        # Filter by Date Range (From Date, Through Date)
+        if from_date:
+            filters['from_date__gte'] = from_date
+        if through_date:
+            filters['through_date__lte'] = through_date
+
+        # Filter by Comments
+        if comments:
+            filters['comments__icontains'] = comments
+
+        # Perform the query with the filters
+        reviews = PerformanceReview.objects.filter(**filters).distinct()
+
+        # Prepare the date for the response
+        review_data = [
+            {
+                'performance_review_id': review.perf_review_id,
+                'employee_party_id': review.emp_party_id.employee_id,
+                'manager_party_id': review.manager_party_id,
+                'manager_role_type_id': review.manager_role_type,
+                'payment_id': review.payment_id,
+                'empl_position_id': review.empl_position_type.id if review.empl_position_type else None,  # Include the Employee Position ID
+                'from_date': review.from_date,
+                'through_date': review.through_date,
+                'comments': review.comments,
+            }
+            for review in reviews
+       ]
+
+        # Return JSON response with results
+        return JsonResponse({'data': review_data})
     
-from django.shortcuts import render, redirect, get_object_or_404
+    return render(request, 'hrms/emp_per/performance.html')
 
 # View to create or update PartySkill record
 def create_party_skill(request):
@@ -1426,8 +1575,7 @@ def create_party_skill(request):
 
     return JsonResponse({"status": "error", "message": "Invalid request method."}, status=400)
 
-from django.shortcuts import render
-from .models import PartySkill
+
 
 def search_party_skills(request):
     skills = PartySkill.objects.all()
@@ -1502,4 +1650,6 @@ class LeaveReasonList(APIView):
         leave_reasons = LeaveReason.objects.all()
         serializer = LeaveReasonSerializer(leave_reasons, many=True)
         return Response(serializer.data)
+    
+
     

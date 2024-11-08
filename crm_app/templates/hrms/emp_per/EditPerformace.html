@@ -1,3 +1,5 @@
+<!-- ERP_project/crm_app/templates/hrms/emp_per/EditPerformace.html -->
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -17,13 +19,14 @@
 <body class="fade-in">
 
 <div class="container mt-4">
-    <h2>Edit Performance Review</h2>
+    <h2>Create Performance Review</h2>
     <button class="btn btn-primary mb-3" onclick="window.location.href=`{% url 'performance' %}`">Find PerfReview</button>
     
     <div class="card mb-4">
         <div class="card-header">Search Options</div>
         <div class="card-body">
             <form class="form-row" id="searchForm" onsubmit="submitForm(event)">
+                {% csrf_token %}
                 <div class="col-md-6 mb-3">
                     <label for="employeePartyIdIcon">Employee Party ID</label>
                     <div class="input-group">
@@ -77,6 +80,15 @@
                     </select>
                 </div>
                 
+                <div class="col-md-6 mb-3">
+                    <label for="paymentId">Payment ID</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="paymentId" placeholder="Enter Payment ID">
+                        <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
+                            <i class="fas fa-user"></i>
+                        </button>
+                    </div>
+                </div>
 
                 <div class="col-md-6 mb-3">
                     <label for="emplPositionId">Empl Position ID</label>
@@ -117,19 +129,46 @@
         const perfReviewId = document.getElementById('perfReviewId').value;
         const employeePartyId = document.getElementById('employeePartyId').value;
         const managerPartyId = document.getElementById('managerPartyId').value;
+        const managerRoleTypeId = document.getElementById('managerRoleTypeId').value;
         const paymentId = document.getElementById('paymentId').value;
         const emplPositionId = document.getElementById('emplPositionId').value;
         const fromDate = document.getElementById('fromDate').value;
         const throughDate = document.getElementById('throughDate').value;
         const comments = document.getElementById('comments').value;
 
-        // Show the results table
-        document.getElementById('resultsTable').style.display = 'block';
+        // Prepare data object to send to backend
+        const formData = new FormData();
+        formData.append('perfReviewId', perfReviewId);
+        formData.append('employeePartyId', employeePartyId);
+        formData.append('managerPartyId', managerPartyId);
+        formData.append('managerRoleType', managerRoleTypeId);
+        formData.append('paymentId', paymentId);
+        formData.append('emplPositionId', emplPositionId);
+        formData.append('fromDate', fromDate);
+        formData.append('throughDate', throughDate);
+        formData.append('comments', comments);
 
-   
-
-        // Add the row to the table body
-        
+        // Send the data via AJAX (POST request) using fetch
+        fetch('{% url "create_performance_review" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // CSRF token header
+            },
+            body: formData
+        })
+        .then(response => response.json())  // Parse the response as JSON
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Performance review created successfully!');
+                // Optionally, redirect or clear the form here
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting the form.');
+        });
     }
 </script>
 

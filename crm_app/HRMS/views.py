@@ -27,7 +27,7 @@ from rest_framework.response import Response
 # Project Specific Imports - Models
 from .models import (
     EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume,
-    HR_Employee, LeaveReason, LeaveType, PayGrade, PositionType, Responsibility_Type, SalaryStepGrade,
+    HR_Employee, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, Responsibility_Type, SalaryStepGrade,
     Employment, HR_Company, HR_Department, SkillType, TerminationReason, TerminationType,
     PerformanceReview, PartySkill
 )
@@ -35,7 +35,7 @@ from .models import (
 # Project Specific Imports - Serializers
 from .serializers import (
     PerformanceReviewSerializer, PayGradeSerializer, SalaryStepGradeSerializer,
-    LeaveReasonSerializer, LeaveTypeSerializer, PositionTypeSerializer,
+    LeaveReasonSerializer, LeaveTypeSerializer, PositionTypeSerializer, SkillTypeSerializer,
     TerminationReasonSerializer, TerminationTypeSerializer
 )
 
@@ -1256,7 +1256,206 @@ def delete_resume(request):
             return JsonResponse({'error': 'Leave record not found'}, status=404)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
-###################################################################################################################
+###################################### Job Requisition #############################################################################
+
+def create_job_requisition(request):
+    if request.method == 'POST':
+        # Get data from the form
+        job_location = request.POST.get('jobLocation')
+        job_posting_type = request.POST.get('jobPostingType')
+        age = request.POST.get('age') or None
+        no_of_resources = request.POST.get('noOfResources')
+        gender = request.POST.get('gender')
+        duration_months = request.POST.get('durationMonths') or None
+        qualification = request.POST.get('qualification')
+        exam_type_enum_id = request.POST.get('examTypeEnumId') or None
+        skill_type_id = request.POST.get('skillTypeId')
+        experience_years = request.POST.get('experienceYears')
+        experience_months = request.POST.get('experienceMonths')
+
+        # Initialize a dictionary to store error messages
+        errors = {}
+
+        # Validation for Job Location (required, no special characters)
+        if not job_location:
+            errors['job_location'] = 'Job Location is required.'
+        elif len(job_location) < 3:
+            errors['job_location'] = 'Job Location must be at least 3 characters long.'
+        elif not re.match(r'^[A-Za-z0-9\s,.-]*$', job_location):  # regex to check for special characters
+            errors['job_location'] = 'Job Location must not contain special characters.'
+
+        # Validation for No of Resources (must be a positive integer)
+        if not no_of_resources or int(no_of_resources) <= 0:
+            errors['no_of_resources'] = 'Number of Resources must be a positive integer.'
+
+        # Validation for Age (must be a positive integer or None)
+        if age and int(age) < 0:
+            errors['age'] = 'Age cannot be negative.'
+
+        # Validation for Duration Months (must be a non-negative integer or None)
+        if duration_months and int(duration_months) < 0:
+            errors['duration_months'] = 'Duration in months cannot be negative.'
+
+        # Validation for Experience Years (must be a non-negative integer)
+        if not experience_years or int(experience_years) < 0:
+            errors['experience_years'] = 'Experience years cannot be negative.'
+
+        # Validation for Experience Months (must be a non-negative integer)
+        if not experience_months or int(experience_months) < 0:
+            errors['experience_months'] = 'Experience months cannot be negative.'
+
+        # Fetch the skill type instance if skill_type_id is provided
+        skill_type = SkillType.objects.get(skillTypeId=skill_type_id) if skill_type_id else None
+
+        # Check if there are any validation errors
+        if errors:
+            return render(request, 'hrms/skill_qual/NewJobRequision.html', {
+                'errors': errors,
+                'job_location': job_location,
+                'job_posting_type': job_posting_type,
+                'age': age,
+                'no_of_resources': no_of_resources,
+                'gender': gender,
+                'duration_months': duration_months,
+                'qualification': qualification,
+                'exam_type_enum_id': exam_type_enum_id,
+                'skill_type_id': skill_type_id,
+                'experience_years': experience_years,
+                'experience_months': experience_months
+            })
+
+        # If no errors, create a new Job Requisition record
+        new_requisition = JobRequisition(
+            job_location=job_location,
+            job_posting_type=job_posting_type,
+            age=int(age) if age else None,
+            no_of_resources=int(no_of_resources),
+            gender=gender,
+            duration_months=int(duration_months) if duration_months else None,
+            qualification=qualification,
+            exam_type_enum_id=exam_type_enum_id,
+            skill_type=skill_type,
+            experience_years=int(experience_years),
+            experience_months=int(experience_months)
+        )
+        new_requisition.save()
+
+        # Redirect to the same page with a success message
+        return render(request, 'hrms/skill_qual/NewJobRequision.html', {'success': True})
+
+    # For GET request, render the form
+    return render(request, 'hrms/skill_qual/NewJobRequision.html')
+
+
+def job_requisition_search(request):
+    if request.method == 'POST':
+        try:
+            # Decode and parse JSON data from the request
+            data = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+
+        # Extract search parameters using the correct keys
+        requisition_id = data.get('job_requisition_id')
+        experience_months = data.get('experience_months')
+        experience_years = data.get('experience_years')
+        job_location = data.get('job_location')
+        skill_type_id = data.get('skill_type')
+        job_posting_type = data.get('job_posting_type')
+        exam_type_enum_id = data.get('exam_type_enum_id')
+
+
+        # Build the filter dictionary based on received parameters
+        filters = {}
+        if requisition_id:
+            try:
+                filters['job_requisition_id'] = int(requisition_id)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid job requisition ID'}, status=400)
+        if experience_months:
+            try:
+                filters['experience_months__gte'] = int(experience_months)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid experience months'}, status=400)
+        if experience_years:
+            try:
+                filters['experience_years__gte'] = int(experience_years)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid experience years'}, status=400)
+        if job_location:
+            filters['job_location__icontains'] = job_location.strip()
+        if skill_type_id:
+            try:
+                filters['skill_type__id'] = int(skill_type_id)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid skill type ID'}, status=400)
+        if job_posting_type:
+            filters['job_posting_type'] = job_posting_type.strip()
+        if exam_type_enum_id:
+            try:
+                filters['exam_type_enum_id'] = int(exam_type_enum_id)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid exam type ID'}, status=400)
+
+        # Debugging output
+        # print("Filters applied:", filters)
+
+        # Query the database with the filters
+        requisitions = JobRequisition.objects.filter(**filters)
+        # print("Requisition count:", requisitions.count())  # Debug output
+
+        if not requisitions.exists():
+            return JsonResponse({'message': 'No job requisitions found'}, status=404)
+
+        # Prepare the response data
+        response_data = [
+            {
+                'job_requisition_id': req.job_requisition_id,
+                'skill_type': req.skill_type.skillTypeId if req.skill_type else 'N/A',
+                'job_posting_type': req.job_posting_type,
+                'exam_type_enum_id': req.exam_type_enum_id if req.exam_type_enum_id else 'N/A',
+                'qualification': req.qualification,
+                'job_location': req.job_location,
+                'experience_years': req.experience_years,
+                'experience_months': req.experience_months,
+            }
+            for req in requisitions
+        ]
+
+        return JsonResponse(response_data, safe=False)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def delete_job_requisition(request):
+    if request.method == 'DELETE':
+        # Extract query parameters from the request
+        job_requisition_id = request.GET.get('job_requisition_id')
+        job_location = request.GET.get('job_location')
+        job_posting_type = request.GET.get('job_posting_type')
+
+        if not job_requisition_id or not job_location or not job_posting_type:
+            return JsonResponse({'error': 'Missing parameters'}, status=400)
+
+        try:
+            # Find and delete the specific job record based on the given parameters
+            resume_record = JobRequisition.objects.get(
+                job_requisition_id=job_requisition_id,
+                job_location=job_location,
+                job_posting_type=job_posting_type
+            )
+            resume_record.delete()
+            
+            # Return success response if deletion is successful
+            return JsonResponse({'message': 'Job requisition deleted successfully'}, status=200)
+        
+        except EmployeeResume.DoesNotExist:
+            return JsonResponse({'error': 'Job requisition not found'}, status=404)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+####################################################################################################################
 
 
 # anuj
@@ -1641,5 +1840,11 @@ class LeaveReasonList(APIView):
     def get(self, request):
         leave_reasons = LeaveReason.objects.all()
         serializer = LeaveReasonSerializer(leave_reasons, many=True)
+        return Response(serializer.data)
+
+class SkillTypeList(APIView):
+    def get(self, request):
+        skillTypeId = SkillType.objects.all()
+        serializer = SkillTypeSerializer(skillTypeId, many=True)
         return Response(serializer.data)
     

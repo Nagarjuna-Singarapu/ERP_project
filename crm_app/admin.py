@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import UserSignup, Profile, RegisterUser, Contacts, Leads, Opportunities, Invoice, Calls, Calendar
+from crm_app.HRMS.models import PerformanceReview, PartySkill, HR_Employee, Employment, PayGrade, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, EmploymentApplication
 
 # Register your models here.
 admin.site.register(UserSignup)
@@ -96,7 +97,7 @@ admin.site.register(BudgetRequest, BudgetRequestAdmin)
 
 
 
-from crm_app.HRMS.models import PerformanceReview, PartySkill, HR_Employee, Employment, PayGrade, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave
+
 
 admin.site.register(HR_Employee)
 admin.site.register(PerformanceReview)
@@ -114,4 +115,5 @@ admin.site.register(EmployeeQualification)
 admin.site.register(LeaveType)
 admin.site.register(LeaveReason)
 admin.site.register(EmployeeLeave)
+admin.site.register(EmploymentApplication)
 

@@ -147,4 +147,5 @@ urlpatterns = [
     path('create-performance-review/', views.create_performance_review, name='create_performance_review'),
     path('find-performance-review/', views.find_performance_review, name='find_performance_review'),
 
+    path('create-employment-application/', views.create_employment_application, name='create_employment_application'),
 ]

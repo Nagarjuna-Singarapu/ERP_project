@@ -2,6 +2,7 @@
 #ERP_project/crm_app/HRMS/views.py
 
 from datetime import datetime
+from django.views.decorators.http import require_POST
 
 from rest_framework import viewsets, status
 from django.http import JsonResponse
@@ -21,11 +22,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import PartySkill
+from .models import PartySkill, EmploymentApplication, PositionType
 from .serializers import PerformanceReviewSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
 from .models import EmployeeLeave, EmployeePosition, EmployeeQualification, PerformanceReview, HR_Employee, LeaveReason, LeaveType, PayGrade, PositionType,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
 from django.db import IntegrityError
 from .serializers import SkillTypeSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
+from django.views.decorators.csrf import csrf_protect
 
 logger=logging.getLogger(__name__)
 
@@ -1655,5 +1657,43 @@ class LeaveReasonList(APIView):
         serializer = LeaveReasonSerializer(leave_reasons, many=True)
         return Response(serializer.data)
     
+
+@csrf_protect
+@require_POST
+def create_employment_application(request):
+    # Parse incoming JSON data
+    try:
+        data = json.loads(request.body)
+
+        # Extract data from request (use None if the field is not provided)
+        application_id = data.get('applicationId', None)
+        position_id = data.get('positionId', None)
+        status = data.get('statusId', None)
+        empapp_source = data.get('empappSourceId', None)
+        party_id = data.get('partyId', None)
+        application_date = data.get('applicationDate', None)
+        print(f"position_id: {position_id}")
+
+        # Lookup the position, party (applying party), etc. by their IDs if provided
+        position = PositionType.objects.get(name=position_id) if position_id else None
+        applying_party = HR_Employee.objects.get(employee_id=party_id) if party_id else None
+
+        # Create and save the EmploymentApplication instance
+        application = EmploymentApplication.objects.create(
+            application_id=application_id,
+            position=position,
+            status=status,
+            source=empapp_source,
+            applying_party=applying_party,
+            application_date=application_date
+        )
+
+        # Return a success response
+        return JsonResponse({'success': True, 'message': 'Application submitted successfully!'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
 
     

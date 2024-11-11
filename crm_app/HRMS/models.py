@@ -152,7 +152,7 @@ class PerformanceReview(models.Model):
     emp_party_id = models.ForeignKey(HR_Employee, on_delete=models.CASCADE, related_name='performance_reviews')
     
     # The unique identifier for the performance review
-    perf_review_id = models.CharField(max_length=25)
+    perf_review_id = models.CharField(max_length=25, primary_key=True)
     
     # The manager's party ID (could be linked to HR_Employee or another related model)
     manager_party_id = models.CharField(max_length=25)
@@ -301,3 +301,28 @@ class EmployeeLeave(models.Model):
     def __str__(self):
         return f"Leave for {self.employee.employee_id} from {self.from_date} to {self.through_date}, Status: {self.status}"
 
+class EmploymentApplication(models.Model):
+    STATUS_CHOICES = [
+        (1, 'Active/Open'),
+        (2, 'Inactive/Closed'),
+        (3, 'Planned For'),
+    ]
+
+    SOURCE_CHOICES = [
+        (1, 'Advertisement'),
+        (2, 'Job Portal'),
+        (3, 'Internet'),
+        (4, 'News Paper'),
+        (5, 'Personal Referral'),
+    ]
+    
+    # Fields as mentioned in the frontend
+    application_id = models.CharField(max_length=50, unique=True, primary_key=True)
+    position = models.ForeignKey(PositionType, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=1)
+    source = models.IntegerField(choices=SOURCE_CHOICES, default=1)
+    applying_party = models.ForeignKey(HR_Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    application_date = models.DateField()
+
+    def __str__(self):
+        return f"Application ID: {self.application_id} - {self.applying_party} - {self.status}"

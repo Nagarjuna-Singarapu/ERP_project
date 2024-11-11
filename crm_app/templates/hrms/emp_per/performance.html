@@ -1,5 +1,4 @@
-<!-- ERP_project/crm_app/templates/hrms/emp_per/performance.html -->
-
+<!-- ERP_project/crm_app/templates/hrms/skill_qual/.html -->
 
 {% load static %}
 <!DOCTYPE html>
@@ -11,7 +10,6 @@
     <title>Find Performance Review</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <style>
         .fade-in {
             animation: fadeIn 1s ease-in-out;
@@ -47,7 +45,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+            background-color: rgba(0, 0, 0, 0.5);
             padding-top: 20px;
         }
 
@@ -90,7 +88,7 @@
                             <input type="text" class="form-control" id="employeePartyId" placeholder="Enter Employee ID">
                             <span class="input-group-append">
                                 <button type="button" class="btn btn-outline-secondary" id="show-modal-btn">
-                                    <i class="fas fa-user"></i> <!-- Keeping the same icon here -->
+                                    <i class="fas fa-user"></i>
                                 </button>
                             </span>
                         </div>
@@ -100,7 +98,7 @@
                     <div id="myModal" class="modal">
                         <div class="modal-content">
                             <span class="close" id="close-modal-btn">&times;</span>
-                            <iframe src="{% url 'lookup' %}"  style="width: 1000px; height: 610px;" frameborder="0"></iframe>
+                            <iframe src="{% url 'lookup' %}" style="width: 1000px; height: 610px;" frameborder="0"></iframe>
                         </div>
                     </div>
 
@@ -211,7 +209,7 @@
                         <th>Comments</th>
                     </tr>
                 </thead>
-                <tbody id="resultsBody">
+                <tbody id="resultsTableBody">
                     <!-- Rows will be added here dynamically -->
                 </tbody>
             </table>
@@ -239,80 +237,84 @@
             }
         });
 
+
+        // Receive employee ID from lookup page and populate the Employee Party ID field
+        function selectEmployeeId(employeeId) {
+                document.getElementById('employeePartyId').value = employeeId;
+                const modal = document.getElementById("myModal");
+                modal.style.display = "none"; // Close modal after selecting employee
+        }
+
         // Form submission handler with fetch
         function submitForm(event) {
-        event.preventDefault();
-        
-        // Collect form values
-        const perfReviewId = document.getElementById('perfReviewId').value;
-        const employeePartyId = document.getElementById('employeePartyId').value;
-        const managerPartyId = document.getElementById('managerPartyId').value;
-        const managerRoleTypeId = document.getElementById('managerRoleTypeId').value;
-        const paymentId = document.getElementById('paymentId').value;
-        const emplPositionId = document.getElementById('emplPositionId').value;
-        const fromDate = document.getElementById('fromDate').value;
-        const throughDate = document.getElementById('throughDate').value;
-        const comments = document.getElementById('comments').value;
+            event.preventDefault();
 
-        // Prepare data object to send to backend
-        const formData = new FormData();
-        formData.append('perfReviewId', perfReviewId);
-        formData.append('employeePartyId', employeePartyId);
-        formData.append('managerPartyId', managerPartyId);
-        formData.append('managerRoleTypeId', managerRoleTypeId);
-        formData.append('paymentId', paymentId);
-        formData.append('emplPositionId', emplPositionId);
-        formData.append('fromDate', fromDate);
-        formData.append('throughDate', throughDate);
-        formData.append('comments', comments);
+            // Collect form values
+            const perfReviewId = document.getElementById('perfReviewId').value;
+            const employeePartyId = document.getElementById('employeePartyId').value;
+            const managerPartyId = document.getElementById('managerPartyId').value;
+            const managerRoleTypeId = document.getElementById('managerRoleTypeId').value;
+            const paymentId = document.getElementById('paymentId').value;
+            const emplPositionId = document.getElementById('emplPositionId').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const throughDate = document.getElementById('throughDate').value;
+            const comments = document.getElementById('comments').value;
 
-        // Send the data via AJAX (POST request) using fetch
-        fetch('{% url "find_performance_review" %}', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // CSRF token header
-            },
-            body: formData
-        })
-        .then(response => response.json())  // Parse the response as JSON
-        .then(data => {
-            // Check if the response is successful
-            if (data && data.data && data.data.length > 0) {
-                // Get the table body element to append the results
+            // Prepare data object to send to backend
+            const formData = new FormData();
+            formData.append('perfReviewId', perfReviewId);
+            formData.append('employeePartyId', employeePartyId);
+            formData.append('managerPartyId', managerPartyId);
+            formData.append('managerRoleTypeId', managerRoleTypeId);
+            formData.append('paymentId', paymentId);
+            formData.append('emplPositionId', emplPositionId);
+            formData.append('fromDate', fromDate);
+            formData.append('throughDate', throughDate);
+            formData.append('comments', comments);
+
+            // Send the data via AJAX (POST request) using fetch
+            fetch('{% url "find_performance_review" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // CSRF token header
+                },
+                body: formData
+            })
+            .then(response => response.json())  // Parse the response as JSON
+            .then(data => {
                 const resultsTable = document.getElementById('resultsTable');
-                const resultsBody = document.getElementById('resultsBody');
-                
-                // Clear any previous results
-                resultsBody.innerHTML = '';
-                
-                // Loop through the data and create table rows
-                data.data.forEach(review => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${review.performance_review_id}</td>
-                        <td>${review.employee_party_id}</td>
-                        <td>${review.manager_party_id}</td>
-                        <td>${review.manager_role_type_id}</td>
-                        <td>${review.payment_id}</td>
-                        <td>${review.empl_position_id}</td>
-                        <td>${review.from_date}</td>
-                        <td>${review.through_date}</td>
-                        <td>${review.comments}</td>
-                    `;
-                    resultsBody.appendChild(row);
-                });
-                
-                // Make the results table visible
-                resultsTable.style.display = 'table';
-            } else {
-                // No data found, show a message
-                alert('No results found for your query.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while fetching the data.');
-        });
+                const resultsTableBody = document.getElementById('resultsTableBody');
+
+                // Clear previous results
+                resultsTableBody.innerHTML = '';
+
+                if (data && data.data && data.data.length > 0) {
+                    data.data.forEach(review => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${review.performance_review_id}</td>
+                            <td>${review.employee_party_id}</td>
+                            <td>${review.manager_party_id}</td>
+                            <td>${review.manager_role_type_id}</td>
+                            <td>${review.payment_id}</td>
+                            <td>${review.empl_position_id}</td>
+                            <td>${review.from_date}</td>
+                            <td>${review.through_date}</td>
+                            <td>${review.comments}</td>
+                        `;
+                        resultsTableBody.appendChild(row);
+                    });
+                    resultsTable.style.display = 'table';
+                } else {
+                    // Show a message in the table if no results found
+                    resultsTableBody.innerHTML = `<tr><td colspan="9" class="text-center">No records found</td></tr>`;
+                    resultsTable.style.display = 'table';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while fetching the data.');
+            });
         }
     </script>
 

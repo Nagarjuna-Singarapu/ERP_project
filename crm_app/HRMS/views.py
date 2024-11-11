@@ -1448,15 +1448,15 @@ def create_performance_review(request):
 def find_performance_review(request):
     if request.method == 'POST':
         # Get form data from the POST request
-        perf_review_id = request.POST.get('perfReviewId')
-        employee_party_id = request.POST.get('employeePartyId')
-        manager_party_id = request.POST.get('managerPartyId')
-        manager_role_type_id = request.POST.get('managerRoleTypeId')
-        payment_id = request.POST.get('paymentId')
-        empl_position_type_id = request.POST.get('emplPositionId')
-        from_date = request.POST.get('fromDate')
-        through_date = request.POST.get('throughDate')
-        comments = request.POST.get('comments')
+        perf_review_id = request.POST.get('perfReviewId', '').strip()
+        employee_party_id = request.POST.get('employeePartyId', '').strip()
+        manager_party_id = request.POST.get('managerPartyId', '').strip()
+        manager_role_type_id = request.POST.get('managerRoleTypeId', '').strip()
+        payment_id = request.POST.get('paymentId', '').strip()
+        empl_position_type_id = request.POST.get('emplPositionId', '').strip()
+        from_date = request.POST.get('fromDate', '').strip()
+        through_date = request.POST.get('throughDate', '').strip()
+        comments = request.POST.get('comments', '').strip()
 
         # Initialize a filters object
         filters = {}
@@ -1483,7 +1483,7 @@ def find_performance_review(request):
 
         # Filter by Employee Party ID
         if employee_party_id:
-            filters['hr_employee__employee_id__icontains'] = employee_party_id
+            filters['emp_party_id__employee_id__icontains'] = employee_party_id
 
         # Filter by Manager Party ID
         if manager_party_id:
@@ -1491,7 +1491,7 @@ def find_performance_review(request):
 
         # Filter by Manager Role Type ID
         if manager_role_type_id:
-            filters['manager_role_type_id__icontains'] = manager_role_type_id
+            filters['manager_role_type__icontains'] = manager_role_type_id
 
         # Filter by Payment ID
         if payment_id:
@@ -1499,7 +1499,7 @@ def find_performance_review(request):
 
         # Filter by Employee Position Type ID
         if empl_position_type_id:
-            filters['hr_employee__empl_position_type_id__icontains'] = empl_position_type_id
+            filters['empl_position_type_id__icontains'] = empl_position_type_id
 
         # Filter by Date Range (From Date, Through Date)
         if from_date:
@@ -1511,8 +1511,12 @@ def find_performance_review(request):
         if comments:
             filters['comments__icontains'] = comments
 
-        # Perform the query with the filters
-        reviews = PerformanceReview.objects.filter(**filters).distinct()
+         # Perform the query with the filters (if any), else fetch all
+        if filters:
+            reviews = PerformanceReview.objects.filter(**filters).distinct()
+        else:
+            reviews = PerformanceReview.objects.all()
+
 
         # Prepare the date for the response
         review_data = [

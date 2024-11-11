@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Performance Review</title>
+    <title>Create Performance Review</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> <!-- Font Awesome -->
     <style>
@@ -14,6 +14,62 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .iframe-container { height: 400px; width: 100%; border: 1px solid #ddd; margin-top: 20px; display: none; }
         .results-table { display: none; } /* Hide table initially */
+
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .iframe-container {
+            height: 400px;
+            width: 100%;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .results-table {
+            display: none;
+        }
+
+        /* Modal container styling */
+        .modal {
+            display: none;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 20px;
+        }
+
+        /* Modal content */
+        .modal-content {
+            margin: auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            max-width: 52%;
+            max-height: 60vh;
+            overflow: hidden;
+        }
+
+        /* Responsive iframe */
+        .modal-content iframe {
+            width: 100%;
+            height: 60vh;
+            border: 0;
+        }
     </style>
 </head>
 <body class="fade-in">
@@ -31,11 +87,13 @@
                     <label for="employeePartyIdIcon">Employee Party ID</label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="employeePartyId" placeholder="Enter Employee ID">
-                        <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
+                        <button type="button" class="btn btn-outline-secondary" id="show-modal-btn">
                             <i class="fas fa-user"></i>
                         </button>
                     </div>
                 </div>
+
+                
 
                 <div class="col-md-6 mb-3">
                     <label for="perfReviewId">Perf Review ID</label>
@@ -118,9 +176,45 @@
             </form>
         </div>
     </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-modal-btn">&times;</span>
+            <iframe src="{% url 'lookup' %}" style="width: 900px; height: 610px;" frameborder="0"></iframe>
+        </div>
+    </div>
 </div>
+<!-- Modal for Employee Search -->
+
 
 <script>
+
+    // Show modal for employee search
+    document.getElementById('show-modal-btn').addEventListener('click', function() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "block";
+        });
+
+        // Close modal
+        document.getElementById('close-modal-btn').addEventListener('click', function() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        });
+
+        // Close modal when clicking outside of modal content
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById("myModal");
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+
+
+        // Receive employee ID from lookup page and populate the Employee Party ID field
+        function selectEmployeeId(employeeId) {
+                document.getElementById('employeePartyId').value = employeeId;
+                const modal = document.getElementById("myModal");
+                modal.style.display = "none"; // Close modal after selecting employee
+        }
   
     function submitForm(event) {
         event.preventDefault();

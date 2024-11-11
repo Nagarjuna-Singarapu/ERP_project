@@ -1,28 +1,26 @@
+/* index.css */
+
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f8f9fa; /* Light gray background */
-    margin: 0;
-    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
 }
 
-/* Container Styling */
 .container {
     background-color: #ffffff; /* White background for form */
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 4px 20px rgba(192, 94, 94, 0.1); /* Light shadow */
     padding: 30px; /* Padding around form content */
     margin-left: 25%; /* Centered with margin */
-    max-width: 900px; /* Maximum width for the form container */
+    max-width: 900px;
 }
 
-/* Form Title */
 h2 {
-    text-align: center;
     font-size: 1.8rem;
-    margin-bottom: 30px;
-    color: #343a40; /* Dark gray for title */
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #343a40; 
 }
-
 /* Input Fields */
 input[type="text"], 
 input[type="email"], 
@@ -30,33 +28,13 @@ input[type="date"],
 select {
     border: 1px solid #ced4da; /* Light gray border */
     border-radius: 5px; /* Rounded corners */
-    padding: 10px; /* Padding inside the input */
+    padding: 5px; /* Padding inside the input */
     font-size: 1rem; /* Font size for text */
     width: 100%; /* Full width for inputs */
     background-color: #f8f9fa; /* Light background inside input */
     transition: all 0.3s ease-in-out;
 }
 
-input:focus, select:focus {
-    border-color: #80bdff; /* Blue border on focus */
-    background-color: #ffffff; /* White background on focus */
-    box-shadow: 0 0 5px rgba(128, 189, 255, 0.5); /* Blue shadow on focus */
-}
-
-/* Labels */
-label {
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: #495057; /* Dark gray label text */
-    display: block;
-}
-
-/* Required Fields */
-label .text-danger {
-    color: #dc3545; /* Red asterisk for required fields */
-}
-
-/* Section Titles */
 h5 {
     color: #007bff; /* Blue color for section titles */
     font-size: 1.25rem;
@@ -66,7 +44,61 @@ h5 {
     padding-bottom: 5px;
 }
 
+.form-label {
+    font-weight: bold;
+    color: #495057;
+}
 
+/* form select, form input {
+    font-size: 1rem;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    width: 100%;
+} */
+input:focus, select:focus {
+    border-color: #80bdff; /* Blue border on focus */
+    background-color: #ffffff; /* White background on focus */
+    box-shadow: 0 0 5px rgba(128, 189, 255, 0.5); /* Blue shadow on focus */
+}
+
+.row {
+    margin-top: 1rem;
+}
+
+.mb-3, .mb-2 {
+    margin-bottom: 1.25rem !important;
+}
+
+label.text-danger {
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.d-grid {
+    margin-top: 2rem;
+}
+
+button[type="submit"] {
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #495057; /* Dark gray label text */
+    display: block;
+}
 
 
 /* Responsiveness: Smaller Devices */

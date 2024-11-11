@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
+#ERP_project/shanaya_crm/settings.py
 
 from pathlib import Path
 import os
@@ -58,7 +59,7 @@ ROOT_URLCONF = 'shanaya_crm.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ BASE_DIR / 'crm_app/templates' ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

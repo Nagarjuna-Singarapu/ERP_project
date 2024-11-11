@@ -1,4 +1,4 @@
-# CRM_APP/hr/models.py
+# ERP_project/crm_app/HRMS/models.py
 from django.db import models
 
 class HR_Company(models.Model):
@@ -8,7 +8,7 @@ class HR_Department(models.Model):
     company = models.ForeignKey(HR_Company, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
-######################By Amit #################################
+###################### Global HR Section #################################
 #Add SkillType Model...
 class SkillType(models.Model):
     skillTypeId = models.CharField(max_length=100,unique=True, blank=True, null=True)  # Assuming you want to store an ID
@@ -183,6 +183,40 @@ class Employment(models.Model):
         return f"Employment of {self.employment_id} in {self.internal_organization} from {self.from_date}"
     
 
+class PerformanceReview(models.Model):
+    hr_employee = models.ForeignKey(HR_Employee, on_delete=models.CASCADE, related_name='performance_reviews')
+    perf_review_id = models.CharField(max_length=25)
+    manager_party_id = models.CharField(max_length=25)
+    manager_role_type_id = models.CharField(max_length=25)
+    from_date = models.DateField(auto_now_add=True)
+    through_date = models.DateTimeField(auto_now=True, blank=True, null=True)
+    comments = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Review for {self.hr_employee} (ID: {self.perf_review_id})"
+
+class PartySkill(models.Model):
+    SKILL_TYPE_CHOICES = [
+        ('HTML/FTL','HTML/FTL'),
+        ('Java/Groovy/BSH', 'Java/Groovy/BSH'),
+        ('JavaScript/Dojo', 'JavaScript/Dojo'),
+        ('Mini Language', 'Mini Language'),
+        ('Not Applicable', 'Not Applicable'),
+        ('OFBiz Installation', 'OFBiz Installation'),
+        ('Screen/Forms', 'Screen/Forms'),
+    ]
+
+
+    hr_employee = models.ForeignKey(HR_Employee, on_delete=models.CASCADE, related_name='party_skills')
+    skill_type = models.CharField(max_length=255, choices=SKILL_TYPE_CHOICES, blank=False)
+    years_of_experience = models.FloatField()
+    rating = models.FloatField(default=0)  # Store as integer for 1-5
+    skill_level = models.CharField(max_length=50)  # Example: Beginner, Intermediate, Advanced
+    description = models.TextField(blank=True, null=True)  # Optional field for additional info
+
+    def __str__(self):
+        return f"{self.hr_employee.first_name} {self.hr_employee.last_name} - {self.skill_type}"
+    
 class EmployeePosition(models.Model):
     employee = models.ForeignKey(HR_Employee, to_field='employee_id', on_delete=models.CASCADE, related_name="positions")
     status = models.CharField(max_length=50, null=True, blank=True)  # Allows null and empty values
@@ -243,6 +277,12 @@ class EmployeeQualification(models.Model):
         return f"{self.title} - {self.qualification_desc}"
     
 class EmployeeLeave(models.Model):
+    STATUS_CHOICES = [
+        ('Created', 'Created'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
     employee = models.ForeignKey(HR_Employee, to_field='employee_id', on_delete=models.CASCADE, related_name="leaves")
     leave_type = models.ForeignKey(LeaveType, on_delete=models.SET_NULL, null=True)
     leave_reason = models.ForeignKey(LeaveReason, on_delete=models.SET_NULL, null=True)
@@ -250,7 +290,89 @@ class EmployeeLeave(models.Model):
     through_date = models.DateField(null=True, blank=True)
     approver = models.ForeignKey(HR_Employee, on_delete=models.SET_NULL, to_field='employee_id', null=True, related_name="approved_leaves")
     description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Created')  # New field with default status "Created"
 
     def __str__(self):
-        return f"Leave for {self.employee.employee_id} from {self.from_date} to {self.through_date}"
+        return f"Leave for {self.employee.employee_id} from {self.from_date} to {self.through_date}, Status: {self.status}"
+
+####################### Resume Section #######################################
+    
+class EmployeeResume(models.Model):
+    resume_id = models.CharField(max_length=255)
+    employee_id = models.ForeignKey(
+        HR_Employee, 
+        on_delete=models.CASCADE, 
+        to_field='employee_id',  # Specify that the foreign key relates to the 'employee_id' field of HR_Employee
+        related_name='party_resumes'
+    )
+    content_id = models.CharField(max_length=255)
+    resume_date = models.DateField()
+
+    def __str__(self):
+        return self.resume_id
+    
+
+################################### Job Requisition Section ##############################
+
+class JobRequisition(models.Model):
+    # Auto-incrementing Job Requisition ID (starting from 1)
+    job_requisition_id = models.AutoField(primary_key=True)
+
+    job_location = models.CharField(max_length=255)
+    job_posting_type = models.CharField(
+        max_length=50,
+        choices=[
+            ('JOB_POSTING_EXTR', 'External Job Posting'),
+            ('JOB_POSTING_INTR', 'Internal Job Posting')
+        ]
+    )
+    age = models.PositiveIntegerField(null=True, blank=True)
+    no_of_resources = models.PositiveIntegerField()
+    gender = models.CharField(
+        max_length=1,
+        choices=[
+            ('M', 'Male'),
+            ('F', 'Female'),
+            ('', 'Not Specified')
+        ],
+        default=''
+    )
+    duration_months = models.PositiveIntegerField(null=True, blank=True)
+
+    qualification = models.CharField(
+        max_length=50,
+        choices=[
+            ('BSC', 'Bachelor of Science'),
+            ('B.Tech', 'Bachelor of Technology'),
+            ('CERTIFICATION', 'Certification'),
+            ('DEGREE', 'Degree'),
+            ('MSC', 'Masters of Science'),
+            ('MBA', 'Masters of Business Administration'),
+            ('EXPERIENCE', 'Work Experience')
+        ]
+    )
+    
+    exam_type_enum_id = models.CharField(
+        max_length=50,
+        choices=[
+            ('EXAM_GROUP_DISCN', 'Group Discussion'),
+            ('EXAM_TECHNICAL', 'Technical Exam'),
+            ('EXAM_WRITTEN_APT', 'Written Aptitude Exam')
+        ],
+        null=True,
+        blank=True
+    )
+    
+    # ForeignKey to SkillType model
+    skill_type = models.ForeignKey(SkillType, on_delete=models.SET_NULL, null=True)
+
+    experience_years = models.PositiveIntegerField()
+    experience_months = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"Job Requisition [{self.job_requisition_id}] - {self.job_location}"
+    
+    class Meta:
+        ordering = ['-job_requisition_id']
+
 

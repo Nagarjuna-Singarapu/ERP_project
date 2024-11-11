@@ -8,6 +8,8 @@
     <title>Find Performance Review</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
     <!-- Font Awesome -->
     <style>
         .fade-in {
@@ -37,36 +39,41 @@
         }
 
         /* Modal container styling */
-.modal {
-    display: none; /* Hidden by default */
-    
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%; 
-    background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
-    padding-top: 20px;
-}
+        .modal {
+            display: none;
+            /* Hidden by default */
 
-/* Modal content */
-.modal-content {
-    margin: auto;
-    padding: 10px;
-    background-color: white;
-    border-radius: 8px;
-    max-width: 52%; /* Adjusts width for smaller screens */
-    max-height: 60vh; /* Prevents overflow */
-    overflow: hidden;
-}
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Black background with opacity */
+            padding-top: 20px;
+        }
 
-/* Responsive iframe */
-.modal-content iframe {
-    width: 100%; /* Ensures iframe fits within modal */
-    height: 60vh; /* Adjust as needed */
-    border: 0;
-}
+        /* Modal content */
+        .modal-content {
+            margin: auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            max-width: 52%;
+            /* Adjusts width for smaller screens */
+            max-height: 60vh;
+            /* Prevents overflow */
+            overflow: hidden;
+        }
 
+        /* Responsive iframe */
+        .modal-content iframe {
+            width: 100%;
+            /* Ensures iframe fits within modal */
+            height: 60vh;
+            /* Adjust as needed */
+            border: 0;
+        }
     </style>
 </head>
 
@@ -74,7 +81,7 @@
 
     <div class="container mt-4">
         <h2>Find Performance Review</h2>
-        <button class="btn btn-primary mb-3" onclick="window.location.href='{% url 'EditPerformace' %}'">New
+        <button class="btn btn-primary mb-3" onclick="window.location.href=`{% url 'EditPerformace' %}`">New
             PerfReview</button>
 
 
@@ -84,29 +91,30 @@
                 <form class="form-row" id="searchForm" onsubmit="submitForm(event)">
 
 
-                    
-                        <div class="col-md-6 mb-3">
-                            <label for="employeePartyIdIcon">Employee Party ID</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="employeePartyId"
-                                    placeholder="Enter Employee ID">
-                                <span class="input-group-append">
-                                    <button type="button" class="btn btn-outline-secondary" id="show-modal-btn">
-                                        <i class="fas fa-user"></i> <!-- Keeping the same icon here -->
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
 
-                        <!-- Modal for Employee Search -->
-                        <div id="myModal" class="modal">
-                            <div class="modal-content">
-                                <span class="close" id="close-modal-btn">&times;</span>
-                                <iframe src="{% url 'LookUpPerformace' %}"  style="width: 1000px; height: 610px;"
-                                    frameborder="0"></iframe>
-                            </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="employeePartyIdIcon">Employee Party ID</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="employeePartyId"
+                                placeholder="Enter Employee ID">
+                            <span class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary" id="show-modal-btn">
+                                    <i class="fas fa-search"></i>
+                                    <!-- Keeping the same icon here -->
+                                </button>
+                            </span>
                         </div>
-               
+                    </div>
+
+                    <!-- Modal for Employee Search -->
+                    <div id="myModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="close-modal-btn">&times;</span>
+                            <iframe src="{% url 'LookUpPerformace' %}" style="width: 1000px; height: 610px;"
+                                frameborder="0"></iframe>
+                        </div>
+                    </div>
+
 
 
                     <div class="col-md-6 mb-3">
@@ -114,7 +122,7 @@
                         <div class="input-group">
                             <input type="text" class="form-control" id="perfReviewId" placeholder="Enter Review ID">
                             <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
-                                <i class="fas fa-user"></i>
+                                <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
@@ -124,7 +132,7 @@
                         <div class="input-group">
                             <input type="text" class="form-control" id="managerPartyId" placeholder="Enter Manager ID">
                             <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
-                                <i class="fas fa-user"></i>
+                                <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
@@ -134,7 +142,7 @@
                         <div class="input-group">
                             <input type="text" class="form-control" id="paymentId" placeholder="Enter Payment ID">
                             <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
-                                <i class="fas fa-user"></i>
+                                <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
@@ -144,7 +152,7 @@
                         <div class="input-group">
                             <input type="text" class="form-control" id="emplPositionId" placeholder="Enter Position ID">
                             <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
-                                <i class="fas fa-user"></i>
+                                <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
@@ -171,12 +179,13 @@
 
 
         <!-- Table for Search Results -->
-        <div class="table-responsive mt-4 results-table" id="resultsTable">
+        <!-- Table for Search Results -->
+        <div class="table-responsive mt-4 results-table" id="resultsTable" style="display: none;">
             <table class="table table-bordered">
                 <thead class="thead-light">
                     <tr>
-                        <th>Perf Review ID</th>
                         <th>Employee Party ID</th>
+                        <th>Perf Review ID</th>
                         <th>Manager Party ID</th>
                         <th>Payment ID</th>
                         <th>Empl Position ID</th>
@@ -190,9 +199,33 @@
                 </tbody>
             </table>
         </div>
+
     </div>
 
     <script>
+
+        // Modal display logic
+        const modal = document.getElementById("myModal");
+        const showModalBtn = document.getElementById("show-modal-btn");
+        const closeModalBtn = document.getElementById("close-modal-btn");
+
+        // Show modal when the Employee Party ID search button is clicked
+        showModalBtn.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // Close modal when the "x" is clicked
+        closeModalBtn.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // Close modal when clicking outside the modal content
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+
         function showIframe() {
             const iframeContainer = document.getElementById('resultsIframeContainer');
             iframeContainer.style.display = 'block';
@@ -218,39 +251,18 @@
             // Create a new row
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
-            <td>${perfReviewId}</td>
-            <td>${employeePartyId}</td>
-            <td>${managerPartyId}</td>
-            <td>${paymentId}</td>
-            <td>${emplPositionId}</td>
-            <td>${fromDate}</td>
-            <td>${throughDate}</td>
-            <td>${comments}</td>
-        `;
+        <td>${perfReviewId}</td>
+        <td>${employeePartyId}</td>
+        <td>${managerPartyId}</td>
+        <td>${paymentId}</td>
+        <td>${emplPositionId}</td>
+        <td>${fromDate}</td>
+        <td>${throughDate}</td>
+        <td>${comments}</td>
+    `;
 
-            // Add the row to the table body
+            // Append the new row to the table body
             document.getElementById('resultsBody').appendChild(newRow);
-
-            const modal = document.getElementById("myModal");
-            const showModalBtn = document.getElementById("show-modal-btn");
-            const closeModalBtn = document.getElementById("close-modal-btn");
-
-            // Show modal when the button is clicked
-            showModalBtn.onclick = function () {
-                modal.style.display = "block";
-            }
-
-            // Close modal when the "x" is clicked
-            closeModalBtn.onclick = function () {
-                modal.style.display = "none";
-            }
-
-            // Close modal when clicking outside the modal content
-            window.onclick = function (event) {
-                if (event.target === modal) {
-                    modal.style.display = "none";
-                }
-            }
         }
     </script>
 

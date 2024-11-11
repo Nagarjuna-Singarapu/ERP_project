@@ -16,91 +16,91 @@
             </div>
             <div class="card-body">
                 <!-- Begin Form Widget - Form Element -->
-                <form method="post" action="/humanres/control/createJobRequisition" id="EditJobRequisition" class="needs-validation" onsubmit="javascript:submitFormDisableSubmits(this)" name="EditJobRequisition" novalidate>
-                    <input type="hidden" name="jobPostingTypeEnumId" value="JOB_POSTING_INTR" id="EditJobRequisition_jobPostingTypeEnumId">
+                <form method="post" action="{% url 'new_job_requisition' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="jobLocation" class="form-label">Job Location</label>
+                        <input type="text" name="jobLocation" value="{{ job_location }}" class="form-control" id="jobLocation" required>
+                    </div>
 
+                    <div class="mb-3">
+                        <label for="jobPostingType" class="form-label">Job Posting Type</label>
+                        <select id="jobPostingType" name="jobPostingType" class="form-select">
+                            <option value="" {% if not job_posting_type %}selected{% endif %}>Select Posting Type</option>
+                            <option value="JOB_POSTING_EXTR" {% if job_posting_type == 'JOB_POSTING_EXTR' %}selected{% endif %}>External Job Posting</option>
+                            <option value="JOB_POSTING_INTR" {% if job_posting_type == 'JOB_POSTING_INTR' %}selected{% endif %}>Internal Job Posting</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age</label>
+                        <input type="number" name="age" class="form-control" id="age" value="{{ age }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="noOfResources" class="form-label">No Of Resources</label>
+                        <input type="number" name="noOfResources" class="form-control" id="noOfResources" value="{{ no_of_resources }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select name="gender" id="gender" class="form-select">
+                            <option value="" {% if not gender %}selected{% endif %}>Select Gender</option>
+                            <option value="M" {% if gender == 'M' %}selected{% endif %}>Male</option>
+                            <option value="F" {% if gender == 'F' %}selected{% endif %}>Female</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="durationMonths" class="form-label">Duration (Months)</label>
+                        <input type="number" name="durationMonths" class="form-control" id="durationMonths" value="{{ duration_months }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="qualification" class="form-label">Qualification</label>
+                        <select name="qualification" id="qualification" class="form-select" required>
+                            <option value="">Select Qualification</option>
+                            <option value="BSC" {% if qualification == 'BSC' %}selected{% endif %}>Bachelor of Science</option>
+                            <option value="B.Tech" {% if qualification == 'B.Tech' %}selected{% endif %}>Bachelor of Technology</option>
+                            <option value="CERTIFICATION" {% if qualification == 'CERTIFICATION' %}selected{% endif %}>Certification</option>
+                            <option value="DEGREE" {% if qualification == 'DEGREE' %}selected{% endif %}>Degree</option>
+                            <option value="MSC" {% if qualification == 'MSC' %}selected{% endif %}>Masters of Science</option>
+                            <option value="MBA" {% if qualification == 'MBA' %}selected{% endif %}>Masters of Business Administration</option>
+                            <option value="EXPERIENCE" {% if qualification == 'EXPERIENCE' %}selected{% endif %}>Work Experience</option>
+                        </select>
+                    </div>
                     
 
                     <div class="mb-3">
-                        <label for="EditJobRequisition_jobLocation" class="form-label">Job Location</label>
-                        <input type="text" name="jobLocation" class="form-control" id="EditJobRequisition_jobLocation" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="EditJobRequisition_age" class="form-label">Age</label>
-                        <input type="number" name="age" class="form-control" id="EditJobRequisition_age">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="EditJobRequisition_noOfResources" class="form-label">No Of Resources</label>
-                        <input type="number" name="noOfResources" class="form-control" id="EditJobRequisition_noOfResources" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="EditJobRequisition_gender" class="form-label">Gender</label>
-                        
-                        <select name="gender" id="EditJobRequisition_gender" class="form-select">
-                            <option value="">Select Gender</option>
-                            <option value="M">Male</option>
-                            <option value="F">Female</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="EditJobRequisition_durationMonths" class="form-label">Duration (Months)</label>
-                        <input type="number" name="durationMonths" class="form-control" id="EditJobRequisition_durationMonths">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="EditJobRequisition_qualification" class="form-label">Qualification</label>
-                        <select name="qualification" id="EditJobRequisition_qualification" class="form-select" required>
-                            <option value="">Select Qualification</option>
-                            <option value="BSC">Bachelor of Science</option>
-                            <option value="B.Tech">Bachelor of Technology</option>
-                            <option value="CERTIFICATION">Certification</option>
-                            <option value="DEGREE">Degree</option>
-                            <option value="MSC">Masters of Science</option>
-                            <option value="MBA">Masters of Business Administration</option>
-                            <option value="EXPERIENCE">Work Experience</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="EditJobRequisition_examTypeEnumId" class="form-label">Exam Type</label>
-                        <select name="examTypeEnumId" id="EditJobRequisition_examTypeEnumId" class="form-select">
+                        <label for="examTypeEnumId" class="form-label">Exam Type</label>
+                        <select name="examTypeEnumId" id="examTypeEnumId" class="form-select">
                             <option value="">Select Exam Type</option>
-                            <option value="EXAM_GROUP_DISCN">Group Discussion</option>
-                            <option value="EXAM_TECHNICAL">Technical Exam</option>
-                            <option value="EXAM_WRITTEN_APT">Written Aptitude Exam</option>
+                            <option value="EXAM_GROUP_DISCN" {% if exam_type_enum_id == 'EXAM_GROUP_DISCN' %}selected{% endif %}>Group Discussion</option>
+                            <option value="EXAM_TECHNICAL" {% if exam_type_enum_id == 'EXAM_TECHNICAL' %}selected{% endif %}>Technical Exam</option>
+                            <option value="EXAM_WRITTEN_APT" {% if exam_type_enum_id == 'EXAM_WRITTEN_APT' %}selected{% endif %}>Written Aptitude Exam</option>
                         </select>
                     </div>
+                    
 
                     <div class="mb-3">
-                        <label for="EditJobRequisition_skillTypeId" class="form-label">Skill Type</label>
-                        <select name="skillTypeId" id="EditJobRequisition_skillTypeId" class="form-select" required>
+                        <label for="skillTypeId" class="form-label">Skill Type</label>
+                        <select name="skillTypeId" id="skillTypeId" class="form-select" required>
                             <option value="">Select Skill Type</option>
-                            <option value="9002">HTML/FTL</option>
-                            <option value="9000">Java/Groovy/BSH</option>
-                            <option value="9003">Javascript/Dojo</option>
-                            <option value="9001">Mini Language</option>
-                            <option value="_NA_">Not Applicable</option>
-                            <option value="9005">OFBiz Installation</option>
-                            <option value="9004">Screens/Forms</option>
                         </select>
                     </div>
 
                     <div class="mb-3">
-                        <label for="EditJobRequisition_experienceMonths" class="form-label">Experience (Months)</label>
-                        <input type="number" name="experienceMonths" class="form-control" id="EditJobRequisition_experienceMonths" required>
+                        <label for="experienceYears" class="form-label">Experience (Years)</label>
+                        <input type="number" name="experienceYears" class="form-control" id="experienceYears" value="{{ experience_years }}" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="EditJobRequisition_experienceYears" class="form-label">Experience (Years)</label>
-                        <input type="number" name="experienceYears" class="form-control" id="EditJobRequisition_experienceYears" required>
+                        <label for="experienceMonths" class="form-label">Experience (Months)</label>
+                        <input type="number" name="experienceMonths" class="form-control" id="experienceMonths" value="{{ experience_months }}" required>
                     </div>
 
                     <div class="d-grid">
-                        <a href="JobRequision.html" class="btn btn-primary">Create</a>
+                        <button type="submit" class="btn btn-primary">Create</button>
                     </div>
                 </form>
                 <!-- End Form Widget - Form Element -->
@@ -108,8 +108,67 @@
         </div>
     </div>
 
+    <!-- ############################ Displaying form validation error messages in an alert box using JavaScript ##############################################-->
+
+  {% if errors %}
+  <script>
+      let errorMessage = "";
+
+      `{% for field, message in errors.items %}`
+          errorMessage += `{{ message|escapejs }}\n`;
+      `{% endfor %}`
+
+      if (errorMessage) {
+          alert(errorMessage);
+      }
+  </script>
+  {% endif %}
+
+  {% if success %}
+    <script>
+        alert("Employee  has been successfully created/Updated...!");
+    </script>
+  {% endif %}
+
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 
+
+    <script>
+        window.onload = async function() {
+            await loadDropdowns();
+        };
+
+        async function loadDropdowns() {
+            try {
+                const skillTypeResponse = await fetch('/hrms/api/skilltypes/');
+                const skillTypes = await skillTypeResponse.json();
+                const skillTypeSelect = document.getElementById('skillTypeId');
+                const selectedSkillType = '{{ skill_type_id }}';
+
+                if (!skillTypeSelect) {
+                    console.error('Dropdown element not found');
+                    return;
+                }
+
+                skillTypeSelect.innerHTML = '<option value="">Select Skill Type</option>';
+
+                skillTypes.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type.skillTypeId;
+                    option.textContent = type.description;
+
+                    // Check if the current skillType matches the selected value
+                    if (type.skillTypeId === selectedSkillType) {
+                        option.selected = true;
+                    }
+
+                    skillTypeSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading dropdown:', error);
+            }
+        }
+    </script>
 </body>
 </html>

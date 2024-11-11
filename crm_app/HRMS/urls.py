@@ -1,6 +1,13 @@
-from django.urls import path
-from .views import get_countries, get_states
+#ERP_project/crm_app/HRMS/urls.py
+
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import get_countries, get_states, PerformanceReviewViewSet
 from . import views
+
+router = DefaultRouter()
+# router.register(r'hr-employees', HREmployeeViewSet, basename='hr_employee')
+router.register(r'performance-reviews', PerformanceReviewViewSet, basename='performance_review')
 
 urlpatterns = [
     path('api/countries/', get_countries, name='get_countries'),
@@ -24,6 +31,7 @@ urlpatterns = [
     path('api/positiontypes/', views.PositionTypeList.as_view(), name='positiontype-list'),
     path('api/leavetypes/', views.LeaveTypeList.as_view(), name='leaveType-list'),
     path('api/leavereasons/', views.LeaveReasonList.as_view(), name='leaveReason-list'),
+    path('api/skilltypes/', views.SkillTypeList.as_view(), name='skillType-list'),
 
     path('employment-search/', views.employment_search, name='employment_search'),
     path('api/employment-data/', views.employment_data, name='employment_data'),
@@ -40,6 +48,16 @@ urlpatterns = [
     path('api/delete-qualification/<str:employee_id>/', views.delete_employee_qualification, name='delete_employee_qualification'),
 
     path('add-employee-leave/', views.add_employee_leave, name='add_employee_leave'),
+    path('employee-leave-search/', views.employee_leave_search, name='employee_leave_search'),
+    path('api/delete-leave/', views.delete_leave, name='delete_leave'),
+
+    path('create-employee-resume/', views.create_employee_resume, name='create_employee_resume'),
+    path('employee-resume-search/', views.employee_resume_search, name='employee_resume_search'),
+    path('api/delete-resume/', views.delete_resume, name='delete_resume'),
+
+    path('new-job-requisition/', views.create_job_requisition, name='new_job_requisition'),
+    path('job-requisition-search/', views.job_requisition_search, name='job_requisition_search'),
+    path('api/delete-job-requisition/', views.delete_job_requisition, name='delete_job_requisition'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
@@ -154,6 +172,10 @@ urlpatterns = [
     path('newparties/', views.newparties, name='newparties'),
     path('skill_lookupparty/', views.skill_lookupparty, name='skill_lookupparty'),
     path('newpartiesQualifivation/', views.newpartiesQualifivation, name='newpartiesQualifivation'),
+
+    # path('', include(router.urls)),
+
+    path('create-party-skill/', views.create_party_skill, name='create_party_skill'),
     path('Recruitment/', views.Recruitment, name='Recruitment'),
     path('JobRequision/', views.JobRequision, name='JobRequision'),
     path('NewJobRequision/', views.NewJobRequision, name='NewJobRequision'),
@@ -175,4 +197,8 @@ urlpatterns = [
     path('addnewEvent/', views.addnewEvent, name='addnewEvent'),
     path('nagaslookup/', views.nagaslookup, name='nagaslookup'),
     
+    path('search-party-skills/', views.search_party_skills, name='search_party_skills'),
+
+    path('delete-skill/<int:skill_id>/', views.delete_skill, name='delete_skill'),
+
 ]

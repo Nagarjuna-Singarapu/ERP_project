@@ -203,6 +203,17 @@
   
       // Validate Form
       function validateForm(termination_reason, description) {
+        const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+
+        if (!termination_reason.match(alphanumericRegex)) {
+               alert("Termionations Reason ID must be alphanumeric (no special characters allowed).");
+               return false;
+           }
+
+        if (!description.match(alphanumericRegex)) {
+              alert("Description must be alphanumeric (no special characters allowed).");
+              return false;
+           }
           if (!termination_reason) {
               alert("Termination Reason is required.");
               return false;

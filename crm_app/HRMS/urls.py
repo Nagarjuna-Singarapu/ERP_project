@@ -58,6 +58,11 @@ urlpatterns = [
     path('job-requisition-search/', views.job_requisition_search, name='job_requisition_search'),
     path('api/delete-job-requisition/', views.delete_job_requisition, name='delete_job_requisition'),
 
+    path('create-internal-job/', views.create_internal_job, name='create_internal_job'),
+    path('job-application-search/', views.job_application_search, name='job_application_search'),
+    path('api/delete-job-application/', views.delete_job_application, name='delete_job_application'),
+    path('update-application-status/<int:application_id>/', views.update_application_status, name='update_application_status'),
+
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
     path('emp_main/', views.emp_main, name='emp_main'),

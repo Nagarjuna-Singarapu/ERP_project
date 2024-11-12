@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.db.models import Q
 
 # Django REST Framework Imports
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -27,7 +28,7 @@ from rest_framework.response import Response
 # Project Specific Imports - Models
 from .models import (
     EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume,
-    HR_Employee, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, Responsibility_Type, SalaryStepGrade,
+    HR_Employee, InternalJobPosting, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, Responsibility_Type, SalaryStepGrade,
     Employment, HR_Company, HR_Department, SkillType, TerminationReason, TerminationType,
     PerformanceReview, PartySkill
 )
@@ -1457,6 +1458,175 @@ def delete_job_requisition(request):
 
 ####################################################################################################################
 
+def create_internal_job(request):
+    errors = {}  # Dictionary to store error messages
+    
+    if request.method == 'POST':
+        # Get form data from the request
+        application_date = request.POST.get('applicationDate')
+        applying_party_id = request.POST.get('applyingPartyId')
+        approver_party_id = request.POST.get('approverPartyId')
+        job_requisition_id = request.POST.get('jobRequisitionId')
+
+        # Step 1: Validate application date
+        if not application_date:
+            errors['applicationDate'] = "Application date is required."
+        else:
+            # Check if the date is valid and timezone aware
+            from django.utils import timezone
+            from datetime import datetime
+            try:
+                # Convert to datetime and make it aware
+                application_date = timezone.make_aware(
+                    datetime.strptime(application_date, "%Y-%m-%d")
+                )
+            except ValueError:
+                errors['applicationDate'] = "Invalid date format. Please use YYYY-MM-DD format."
+
+        # Step 2: Validate applying party ID
+        if not applying_party_id:
+            errors['applyingPartyId'] = "Applying Party ID is required."
+        else:
+            try:
+                applying_party = HR_Employee.objects.get(employee_id=applying_party_id)
+            except HR_Employee.DoesNotExist:
+                errors['applyingPartyId'] = "Applying Party ID does not exist."
+
+        # Step 3: Validate approver party ID
+        if not approver_party_id:
+            errors['approverPartyId'] = "Approver Party ID is required."
+        else:
+            try:
+                approver_party = HR_Employee.objects.get(employee_id=approver_party_id)
+            except HR_Employee.DoesNotExist:
+                errors['approverPartyId'] = "Approver Party ID does not exist."
+
+        # Step 4: Validate job requisition ID
+        if not job_requisition_id:
+            errors['jobRequisitionId'] = "Job Requisition ID is required."
+        else:
+            try:
+                job_requisition = JobRequisition.objects.get(job_requisition_id=job_requisition_id)
+            except JobRequisition.DoesNotExist:
+                errors['jobRequisitionId'] = "Job Requisition ID does not exist."
+
+        # Step 5: If no errors, create a new InternalJobPosting entry
+        if not errors:
+            new_posting = InternalJobPosting.objects.create(
+                applicationDate=application_date,
+                applyingPartyId=applying_party,
+                approverPartyId=approver_party,
+                jobRequisitionId=job_requisition,
+                status='Applied'
+            )
+            return render(request, 'hrms/skill_qual/newInternalJobPosting.html', {'success': True})
+
+    # If there are errors, render the form again with error messages
+    return render(request, 'hrms/skill_qual/newInternalJobPosting.html', {'errors': errors})
+
+
+def job_application_search(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        
+        # Extract parameters from the POST data
+        application_id = data.get('applicationId', None)
+        status = data.get('status', None)
+        application_date = data.get('applicationDate', None)
+        application_date_operator = data.get('applicationDateOperator', 'equals')
+        applying_party_id = data.get('applyingPartyId', None)
+        approver_party_id = data.get('approverPartyId', None)
+        job_requisition_id = data.get('jobRequisitionId', None)
+
+        # Prepare the filter criteria
+        filters = Q()
+        
+        if application_id:
+            filters &= Q(applicationId=application_id)
+        if status:
+            filters &= Q(status=status)
+        if applying_party_id:
+            filters &= Q(applyingPartyId__employee_id=applying_party_id)
+        if approver_party_id:
+            filters &= Q(approverPartyId__employee_id=approver_party_id)
+        if job_requisition_id:
+            filters &= Q(jobRequisitionId__job_requisition_id=job_requisition_id)
+        
+        if application_date:
+            try:
+                date_obj = datetime.strptime(application_date, '%Y-%m-%d').date()
+            except ValueError:
+                date_obj = None
+
+            # Handle the operator logic for date filtering
+            if application_date_operator == 'equals' and date_obj:
+                filters &= Q(applicationDate=date_obj)
+            elif application_date_operator == 'lessThan' and date_obj:
+                filters &= Q(applicationDate__lt=date_obj)
+            elif application_date_operator == 'greaterThan' and date_obj:
+                filters &= Q(applicationDate__gt=date_obj)
+
+        # Query the database based on the filters
+        job_applications = InternalJobPosting.objects.filter(filters)
+
+        # Serialize the data into a response format
+        results = []
+        for application in job_applications:
+            results.append({
+                'applicationId': application.applicationId,
+                'status': application.status,
+                'applyingPartyId': application.applyingPartyId.employee_id,  # Adjusted for employee_id
+                'approverPartyId': application.approverPartyId.employee_id,  # Adjusted for employee_id
+                'jobRequisitionId': application.jobRequisitionId.job_requisition_id,  # Adjusted for job_requisition_id
+                'applicationDate': application.applicationDate,
+            })
+
+        return JsonResponse(results, safe=False)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def delete_job_application(request):
+    if request.method == 'DELETE':
+        # Get query parameters
+        application_id = request.GET.get('applicationId')
+        applying_party_id = request.GET.get('applyingPartyId')
+
+        # Find the job application to delete
+        try:
+            application = InternalJobPosting.objects.get(applicationId=application_id, applyingPartyId__employee_id=applying_party_id)
+            application.delete()
+            return JsonResponse({'message': 'Job application deleted successfully'}, status=200)
+        except InternalJobPosting.DoesNotExist:
+            return JsonResponse({'error': 'Job application not found'}, status=404)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+def update_application_status(request, application_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            status = data.get('status')
+
+            print(f'Status: {status}')
+
+            # Validate the status value against the choices defined in the model
+            if status not in dict(InternalJobPosting.APPLICATION_STATUS_CHOICES):
+                return JsonResponse({'error': 'Invalid status'}, status=400)
+
+            # Fetch the application record
+            application = InternalJobPosting.objects.get(applicationId=application_id)
+
+            # Update the status
+            application.status = status
+            application.save()
+
+            return JsonResponse({'message': f'Application {application_id} status updated to {status}.'})
+
+        except InternalJobPosting.DoesNotExist:
+            return JsonResponse({'error': 'Application not found.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+###########################################################################################################################
 
 # anuj
 def emp_main(request):

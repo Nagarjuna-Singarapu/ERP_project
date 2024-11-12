@@ -119,7 +119,6 @@ admin.site.register(EmployeeLeave)
 admin.site.register(JobInterviewType)
 admin.site.register(TrainingClassType)
 admin.site.register(PublicHoliday)
-admin.site.register(SkillType)
 admin.site.register(EmployeeResume)
 admin.site.register(JobRequisition)
 

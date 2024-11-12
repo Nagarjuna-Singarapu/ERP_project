@@ -49,12 +49,6 @@ from .serializers import (
 # Project Specific Utilities
 from .utils import load_country_data
 
-# Django Database Exceptions
-from django.db import IntegrityError
-from .serializers import SkillTypeSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
-
-logger=logging.getLogger(__name__)
-from .serializers import LeaveReasonSerializer, LeaveTypeSerializer, PayGradeSerializer, PositionTypeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
 # Logger
 logger = logging.getLogger(__name__)
 def NewEmploye(request):
@@ -354,35 +348,39 @@ def create_paygrade(request):
 
         # Backend validation
         errors = {}
+        
+        # Validate Pay Grade ID
         if not payGradeId:
             errors['payGradeId'] = 'Pay Grade ID is required.'
         elif not payGradeId.isalnum():
             errors['payGradeId'] = 'Pay Grade ID must be alphanumeric.'
-        
+        elif not re.match(r'^[a-zA-Z0-9]+$', payGradeId):
+            errors['payGradeId'] = 'Pay Grade ID must be alphanumeric.'
+        elif PayGrade.objects.filter(payGradeId=payGradeId).exists():
+            errors['payGradeId'] = 'Pay Grade ID already exists.'
+
+        # Validate Pay Grade Name
         if not grade_name:
             errors['grade_name'] = 'Pay Grade Name is required.'
 
-         # Backend validation for alphanumeric (A-Z, a-z, 0-9)
-        if not re.match(r'^[a-zA-Z0-9]+$', pay_grade):
-            return JsonResponse({'success': False, 'message': 'Pay Grade ID must be alphanumeric'}, status=400)
-
-        # Check if payGradeId is unique
-        if PayGrade.objects.filter(payGradeId=payGradeId).exists():
-            errors['payGradeId'] = 'Pay Grade ID already exists.'
-
+        # Return errors if any
         if errors:
-            return JsonResponse({'status': 'error', 'errors': errors})
+            return JsonResponse({'success': False, 'errors': errors}, status=400)
 
         # Save to database
-        pay_grade = PayGrade(
-            payGradeId=payGradeId,
-            grade_name=grade_name,
-            comments=comments
-        )
-        pay_grade.save()
-        return JsonResponse({'status': 'success', 'message': 'Pay Grade created successfully!'})
+        try:
+            pay_grade = PayGrade(
+                payGradeId=payGradeId,
+                grade_name=grade_name,
+                comments=comments
+            )
+            pay_grade.save()
+            return JsonResponse({'success': True, 'message': 'Pay Grade created successfully!'})
+        except Exception as e:
+            print(f"Error saving PayGrade: {str(e)}")
+            return JsonResponse({'success': False, 'message': 'Failed to save Pay Grade.'}, status=500)
 
-    return render(request, 'EditPayGrade.html')
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
 
 
 # View to delete a pay grade by ID

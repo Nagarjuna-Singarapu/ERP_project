@@ -82,52 +82,49 @@
         <!-- Page Title and New Position Type Button -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3>Find Position Types</h3>
-            <button class="btn btn-outline-primary" onclick="window.location.href=`{% url 'Edit_PositionTypes' %}`" >New Position Type</button>
+            <button class="btn btn-outline-primary" onclick="window.location.href='{% url 'Edit_PositionTypes' %}'" >New Position Type</button>
         </div>
 
         <!-- Search Options Section -->
         <div class="card mb-4">
             <div class="section-header">Search Options</div>
             <div class="card-body">
-                <form id="searchForm">
-                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-
+                <form>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label for="positionTypeId" class="form-label" >Empl Position Type ID</label>
                             <select class="form-select" id="positionTypeId">
-                                <option value="" selected>Select ID</option>
+                                <option selected>Select ID</option>
                                 <!-- Options can be added here -->
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label for="parentType" class="form-label">Parent Type ID</label>
                             <div class="input-group">
-                                <select class="form-select" name="parentType" id="parentType">
-                                    <option value="Select Parent Type" selected >Select Parent Type</option>
+                                <select class="form-select">
+                                    <option selected>Contains</option>
                                     <!-- Options can be added here -->
                                 </select>
+                                <input type="text" class="form-control" placeholder="Enter value">
+                            </div>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="ignoreCase">
+                                <label class="form-check-label" for="ignoreCase">Ignore Case</label>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label for="hasTable" class="form-label">Has Table</label>
                             <select class="form-select" id="hasTable">
-                                <option selected>Select Hash Table</option>
-                                <option value="">Yes</option>
-                                <option value="">No</option>
+                                <option selected>Yes</option>
+                                <option>No</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label for="description" class="form-label">Description</label>
-                            <div class="input-group">
-                                <select class="form-select" name="description" id="description">
-                                    <option value="Select Description" selected >Select Description </option>
-                                    <!-- Options can be added here -->
-                                </select>
-                            </div>
+                            <input type="text" class="form-control" id="description" placeholder="Enter description">
                         </div>
                         <div class="col-12">
-                            <button type="button" class="btn btn-primary mt-3" onclick="searchPositions()">Find</button>
+                            <button type="button" class="btn btn-primary mt-3">Find</button>
                         </div>
                     </div>
                 </form>
@@ -146,8 +143,18 @@
                             <th>Delete</th>
                         </tr>
                     </thead>
-                    <tbody id="resultsTable">
-                        <tr><td colspan="3">No records found</td></tr>
+                    <tbody>
+                        <tr>
+                            <td>Example Type 1</td>
+                            <td>Example Description 1</td>
+                            <td><button class="btn btn-danger btn-sm">Delete</button></td>
+                        </tr>
+                        <tr>
+                            <td>Example Type 2</td>
+                            <td>Example Description 2</td>
+                            <td><button class="btn btn-danger btn-sm">Delete</button></td>
+                        </tr>
+                        <!-- Additional rows as needed -->
                     </tbody>
                 </table>
             </div>
@@ -157,129 +164,5 @@
     <!-- Bootstrap JS and Popper -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
- <!-- AJAX Script for Searching -->
- <script>
-    // Function to Fetch Data Based on Selected Position Type
-    async function searchPositions() {
-        const selectedType = document.getElementById('positionTypeId').value;
-        const parentType = document.getElementById('parentType').value;
-        const hasTable = document.getElementById('hasTable').value;
-        const description = document.getElementById('description').value;
-    
-        try {
-            // API call to fetch data based on filters
-            const response = await fetch(`/hrms/api/search_position_type/?positionType=${selectedType}&parentType=${parentType}&hasTable=${hasTable}&description=${description}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    
-            const results = await response.json();
-            const tbody = document.querySelector('#resultsTable');
-    
-            // Clear previous results
-            tbody.innerHTML = '';
-    
-            // Check if results are empty
-            if (results.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3">No records found</td></tr>`;
-            } else {
-                // Inject results into the table
-                results.forEach(result => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${result.name}</td>
-                        <td>${result.description}</td>
-                        <td><button class="btn btn-danger btn-sm" onclick="deletePosition('${result.id}')">Delete</button></td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-        } catch (error) {
-            console.error('Error fetching position data:', error);
-            alert('Failed to load data.');
-        }
-    }
-
-// Function to delete Position Type by ID
-async function deletePosition(id) {
-    if (!id) {
-        alert('Invalid Position ID');
-        return;
-    }
-
-    if (confirm('Are you sure you want to delete this Position Type?')) {
-        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
-        const csrftoken = csrfInput ? csrfInput.value : '{{ csrf_token }}'; // Get CSRF token
-
-        try {
-            const response = await fetch(`/hrms/api/delete-position/${id}/`, {  // Correct URL path
-                method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': csrftoken,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                alert('Position Type deleted successfully');
-                searchPositions(); // Refresh the table after deletion
-            } else {
-                const errorData = await response.json();
-                alert('Failed to delete Position Type: ' + (errorData.message || 'Unknown error'));
-            }
-        } catch (error) {
-            console.error('Error deleting position:', error);
-            alert('An error occurred while deleting the Position Type.');
-        }
-    }
-}
-  // Function to Load Dropdown Options
-async function loadPositionTypes() {
-    try {
-        const positionTypeResponse = await fetch('/hrms/api/positiontypes/');
-        if (!positionTypeResponse.ok) throw new Error('Failed to fetch position types');
-        
-        const positionTypes = await positionTypeResponse.json();
-        
-        // Populate Parent Type and Position Type Dropdowns
-        const parentTypeSelect = document.getElementById('parentType');
-        const positionTypeIdSelect = document.getElementById('positionTypeId');
-        const descriptionSelect = document.getElementById('description');
-
-        // Clear existing options
-        parentTypeSelect.innerHTML = '<option value="">Select Parent Type</option>';
-        positionTypeIdSelect.innerHTML = '<option value="">Select ID</option>';
-        descriptionSelect.innerHTML = '<option value="">Select Description</option>';
-        
-        // Loop through each position type and populate dropdowns
-        positionTypes.forEach(type => {
-            // Parent Type Dropdown
-            const parentOption = document.createElement('option');
-            parentOption.value = type.name;
-            parentOption.textContent = type.name;
-            parentTypeSelect.appendChild(parentOption);
-            
-            // Position Type ID Dropdown
-            const positionOption = document.createElement('option');
-            positionOption.value = type.name;
-            positionOption.textContent = type.name;
-            positionTypeIdSelect.appendChild(positionOption);
-            
-            // Description Dropdown (unique values only)
-            if (type.description) {
-                const descriptionOption = document.createElement('option');
-                descriptionOption.value = type.description;
-                descriptionOption.textContent = type.description;
-                descriptionSelect.appendChild(descriptionOption);
-            }
-        });
-    } catch (error) {
-        console.error('Error loading position types:', error);
-    }
-}
-
-// Call function to load position types into the dropdowns on page load
-document.addEventListener('DOMContentLoaded', loadPositionTypes);
-    </script>
-    
-
 </body>
 </html>

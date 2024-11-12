@@ -99,16 +99,16 @@
 
         <!-- Button Container -->
         <div class="button-container">
-          <button class="btn btn-custom"  onclick="window.location.href=`{% url 'skill_types' %}`">Add Skill Type</button>
-          <button class="btn btn-custom"  onclick="window.location.href=`{% url 'responsibility_types' %}`">Responsibility Type</button>
-          <button class="btn btn-custom"  onclick="window.location.href=`{% url 'termination_reasons' %}`">Termination Reasons</button>
-          <button class="btn btn-custom"  onclick="window.location.href=`{% url 'termination_types' %}`">Termination Types</button>
-          <button class="btn btn-custom"  onclick="window.location.href=`{% url 'position_types' %}`">Position Types</button>
-          <button class="btn btn-custom"  onclick="window.location.href=`{% url 'pay_grades' %}`">Pay Grades</button>
-          <button class="btn btn-custom"  onclick="window.location.href=`{% url 'emp_leave_types' %}`">Employee Leave Type</button>
-          <button class="btn btn-custom"  onclick="window.location.href=`{% url 'job_interview_types' %}`">Job Interview Type</button>
-          <button class="btn btn-custom"  onclick="window.location.href=`{% url 'public_holiday' %}`">Public Holiday</button>
-          <button class="btn btn-custom"  onclick="window.location.href=`{% url 'tranning_class_types' %}`">Training Class Type</button>
+          <button class="btn btn-custom"  onclick="window.location.href='{% url 'skill_types' %}'">Add Skill Type</button>
+          <button class="btn btn-custom"  onclick="window.location.href='{% url 'responsibility_types' %}'">Responsibility Type</button>
+          <button class="btn btn-custom"  onclick="window.location.href='{% url 'termination_reasons' %}'">Termination Reasons</button>
+          <button class="btn btn-custom"  onclick="window.location.href='{% url 'termination_types' %}'">Termination Types</button>
+          <button class="btn btn-custom"  onclick="window.location.href='{% url 'position_types' %}'">Position Types</button>
+          <button class="btn btn-custom"  onclick="window.location.href='{% url 'pay_grades' %}'">Pay Grades</button>
+          <button class="btn btn-custom"  onclick="window.location.href='{% url 'emp_leave_types' %}'">Employee Leave Type</button>
+          <button class="btn btn-custom"  onclick="window.location.href='{% url 'job_interview_types' %}'">Job Interview Type</button>
+          <button class="btn btn-custom"  onclick="window.location.href='{% url 'public_holiday' %}'">Public Holiday</button>
+          <button class="btn btn-custom"  onclick="window.location.href='{% url 'tranning_class_types' %}'">Training Class Type</button>
       </div>
 
 
@@ -116,16 +116,37 @@
       <div class="card mb-4 container">
         <div class="card-header">Add Job Interview Types</div>
         <div class="card-body">
-          <form id="jobInterviewTypeForm">
+          <form id="jobinterviweTypeForm">
             <div class="mb-3">
-              <label for="jobinterviewTypeId" class="form-label">Job Interview Types ID</label>
-              <input type="text" id="jobinterviewTypeId" class="form-control" placeholder="Enter Job Interview Types ID" />
+              <label for="jobinterviewTypeId" class="form-label"
+                >Job Interview Types ID</label
+              >
+              <input
+                type="text"
+                id="jobinterviewTypeId"
+                class="form-control"
+                placeholder="Enter Job Interview Types ID"
+              />
             </div>
             <div class="mb-3">
-              <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
-              <input type="text" id="description" class="form-control" placeholder="Enter Description" required />
+              <label for="description" class="form-label"
+                >Description <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                id="description"
+                class="form-control"
+                placeholder="Enter Description"
+                required
+              />
             </div>
-            <button type="button" class="btn btn-primary" onclick="addJobInterviewType()">Create</button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="addjobinterviewType()"
+            >
+              Create
+            </button>
           </form>
         </div>
       </div>
@@ -142,95 +163,88 @@
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody id="jobInterviewTypeTable">
+            <tbody id="jobinterviewTypeTable">
               <!-- Sample rows (you can dynamically populate this with backend data) -->
+              <tr>
+                <td>48445</td>
+                <td>Django</td>
+                <td>
+                  <button
+                    class="btn btn-danger btn-sm"
+                    onclick="deletejobinterviewType(this)"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>9000</td>
+                <td>Java/Groovy/BSH</td>
+                <td>
+                  <button
+                    class="btn btn-danger btn-sm"
+                    onclick="deletejobinterviewType(this)"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+              <!-- Additional rows can be populated here -->
             </tbody>
           </table>
+
+          <!-- Submit Button -->
+          <button
+            type="button"
+            class="btn btn-success mt-3"
+            onclick="submitjobinterviewTypes()"
+          >
+            Submit
+          </button>
         </div>
       </div>
     </div>
+
     <!-- Bootstrap and jQuery JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-      // Fetch and Display Job Interview Types
-      function fetchJobInterviewTypes() {
-          $.ajax({
-              url: "{% url 'list_job_interview_types' %}",
-              method: "GET",
-              success: function (response) {
-                  let tableBody = "";
-                  response.job_interviews.forEach(item => {
-                      tableBody += `
-                          <tr>
-                              <td>${item.jobinterviewType}</td>
-                              <td>${item.description}</td>
-                              <td><button class="btn btn-danger btn-sm" onclick="deleteJobInterviewType('${item.jobinterviewType}')">Delete</button></td>
-                          </tr>`;
-                  });
-                  $("#jobInterviewTypeTable").html(tableBody);
-              }
-          });
+
+      // Function to add a new job interview type to the table
+      function addjobinterviewType() {
+        const jobinterviewTypeId =
+          document.getElementById("jobinterviewTypeId").value;
+        const description = document.getElementById("description").value;
+
+        if (description.trim() === "") {
+          alert("Description is required");
+          return;
+        }
+
+        const table = document.getElementById("jobinterviewTypeTable");
+        const row = table.insertRow();
+        row.innerHTML = `
+                <td>${jobinterviewTypeId || "Auto-generated"}</td>
+                <td>${description}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="deletejobinterviewType(this)">Delete</button></td>
+            `;
+
+        // Clear the form inputs
+        document.getElementById("jobinterviewTypeId").value = "";
+        document.getElementById("description").value = "";
       }
 
-      // Add Job Interview Type
-      function addJobInterviewType() {
-          const jobinterviewTypeId = $("#jobinterviewTypeId").val().trim();
-          const description = $("#description").val().trim();
-
-          if (!jobinterviewTypeId || !/^[a-zA-Z0-9]+$/.test(jobinterviewTypeId)) {
-              alert("Job Interview Type ID should contain only alphanumeric characters.");
-              return;
-          }
-          if (description && !/^[a-zA-Z0-9\s]+$/.test(description)) {
-              alert("Description should contain only letters, numbers, and spaces.");
-              return;
-          }
-
-          $.ajax({
-              url: "{% url 'create_job_interview_type' %}",
-              method: "POST",
-              data: {
-                  jobinterviewTypeId,
-                  description,
-                  csrfmiddlewaretoken: '{{ csrf_token }}'
-              },
-              success: function (response) {
-                  if (response.success) {
-                      alert("Job Interview Type added successfully!");
-                      fetchJobInterviewTypes();
-                  } else {
-                      alert(response.message);
-                  }
-              }
-          });
+      // Function to delete a job interview type row
+      function deletejobinterviewType(button) {
+        const row = button.closest("tr");
+        row.remove();
       }
 
-      // Delete Job Interview Type
-      function deleteJobInterviewType(jobinterviewTypeId) {
-          $.ajax({
-              url: "{% url 'delete_job_interview_type' %}",
-              method: "POST",
-              data: {
-                  jobinterviewTypeId,
-                  csrfmiddlewaretoken: '{{ csrf_token }}'
-              },
-              success: function (response) {
-                  if (response.success) {
-                      alert("Job Interview Type deleted successfully!");
-                      fetchJobInterviewTypes();
-                  } else {
-                      alert(response.message);
-                  }
-              }
-          });
+      // Function to submit the job interview types (replace with actual backend submission)
+      function submitjobinterviewTypes() {
+        alert("Job Interview types submitted successfully!");
       }
-
-      // Load Job Interview Types on Page Load
-      $(document).ready(function () {
-          fetchJobInterviewTypes();
-      });
-  </script>
-
-
+    </script>
   </body>
 </html>

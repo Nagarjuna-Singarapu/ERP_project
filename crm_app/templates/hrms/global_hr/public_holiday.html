@@ -110,6 +110,8 @@
         <button class="btn btn-custom"  onclick="window.location.href=`{% url 'public_holiday' %}`">Public Holiday</button>
         <button class="btn btn-custom"  onclick="window.location.href=`{% url 'tranning_class_types' %}`">Training Class Type</button>
     </div>
+
+
         <div class="container my-4">
             <!-- Public Holiday Form -->
             <div class="card mb-4">
@@ -129,10 +131,11 @@
                             <input type="date" id="fromDate" class="form-control" required />
                             <div class="form-text"></div>
                         </div>
-                        <button type="button" class="btn btn-primary" onclick="addPublicHoliday()">Add Holiday</button>
+                        <button type="button" class="btn btn-primary" onclick="addPublicHoliday()">Send</button>
                     </form>
                 </div>
             </div>
+    
             <!-- Public Holiday List Table -->
             <div class="card">
                 <div class="card-header">Public Holiday List</div>
@@ -147,66 +150,68 @@
                             </tr>
                         </thead>
                         <tbody id="publicHolidayTable">
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No records found</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+
+
+
     <!-- Bootstrap and jQuery JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        // Fetch Public Holidays
-        function fetchPublicHolidays() {
-            $.get("{% url 'list_public_holidays' %}", function(response) {
-                let rows = "";
-                if (response.success) {
-                    response.data.forEach(item => {
-                        rows += `<tr>
-                            <td>${item.holiday_name}</td>
-                            <td>${item.description}</td>
-                            <td>${item.from_date}</td>
-                            <td><button class="btn btn-danger btn-sm" onclick="deletePublicHoliday('${item.holiday_name}')">Delete</button></td>
-                        </tr>`;
-                    });
-                }
-                $("#publicHolidayTable").html(rows);
-            });
-        }
-        
-        // Add Public Holiday
+
+
         function addPublicHoliday() {
-            const holidayName = $("#holidayName").val().trim();
-            const description = $("#description").val().trim();
-            const fromDate = $("#fromDate").val();
-        
-            $.post("{% url 'create_public_holiday' %}", {
-                holidayName,
-                description,
-                fromDate,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            }, function(response) {
-                alert(response.message);
-                if (response.success) {
-                    fetchPublicHolidays();
-                    $("#publicHolidayForm")[0].reset();
-                }
-            });
+            const holidayName = document.getElementById('holidayName').value;
+            const description = document.getElementById('description').value;
+            const fromDate = document.getElementById('fromDate').value;
+
+            // Validate form fields
+            if (holidayName.trim() === '' || fromDate === '') {
+                alert('Please fill out all required fields.');
+                return;
+            }
+
+            const table = document.getElementById('publicHolidayTable');
+            
+            // Remove the "No records found" row if present
+            if (table.rows.length === 1 && table.rows[0].cells[0].colSpan === 4) {
+                table.deleteRow(0);
+            }
+
+            // Insert new row
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td>${holidayName}</td>
+                <td>${description}</td>
+                <td>${fromDate}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="deletePublicHoliday(this)">Delete</button></td>
+            `;
+
+            // Clear the form inputs
+            document.getElementById('holidayName').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('fromDate').value = '';
         }
-        
-        // Delete Public Holiday
-        function deletePublicHoliday(holidayName) {
-            if (confirm("Are you sure you want to delete this holiday?")) {
-                $.post("{% url 'delete_public_holiday' %}", {
-                    holidayName,
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-                }, function(response) {
-                    alert(response.message);
-                    fetchPublicHolidays();
-                });
+
+        function deletePublicHoliday(button) {
+            const row = button.closest('tr');
+            row.remove();
+
+            // Check if the table is empty, then show "No records found"
+            const table = document.getElementById('publicHolidayTable');
+            if (table.rows.length === 0) {
+                const noRecordsRow = table.insertRow();
+                noRecordsRow.innerHTML = '<td colspan="4" class="text-center text-muted">No records found</td>';
             }
         }
-        
-        $(document).ready(fetchPublicHolidays);
-        </script>
+    </script>
   </body>
 </html>

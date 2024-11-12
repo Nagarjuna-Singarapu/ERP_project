@@ -71,7 +71,16 @@
 
 
     <div class="container my-4">
-     <!-- Begin Menu Widget -->
+        {% comment %} <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="leave-type-tab" data-bs-toggle="tab" onclick="switchPage('leave')" type="button" role="tab">Leave Type</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="reason-type-tab" data-bs-toggle="tab" onclick="switchPage('reason')" type="button" role="tab">Reason Type</button>
+            </li>
+        </ul> {% endcomment %}
+
+        <!-- Begin Menu Widget -->
         <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'emp_leave_types' %}">Leave Type</a>
@@ -86,16 +95,20 @@
           <div class="card mb-4">
             <div class="section-header">Add EmplLeave Leave Reason</div>
             <div class="card-body">
-                <form id="leaveReasonTypeForm">
-                    <div class="mb-3">
-                        <label for="leave_reason" class="form-label">Leave Reason ID</label>
-                        <input type="text" class="form-control" id="leave_reason" placeholder="Enter Leave Reason ID">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="leaveTypeId" class="form-label">Leave Type ID</label>
+                            <input type="text" class="form-control" id="leaveTypeId" placeholder="Enter Leave Type ID">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="description" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="description" placeholder="Enter Description">
+                        </div>
+                        <div class="col-12 mt-3">
+                            <button type="button" class="btn btn-primary">Create</button>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <input type="text" class="form-control" id="description" placeholder="Enter Description">
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="createLeaveReasonType()">Create</button>
                 </form>
             </div>
         </div>
@@ -107,95 +120,70 @@
                 <table class="table table-bordered mb-0">
                     <thead class="table-header">
                         <tr>
-                            <th>Leave Reason Type ID</th>
+                            <th>Leave Type ID</th>
                             <th>Description</th>
                             <th>Delete</th>
                         </tr>
                     </thead>
-                    <tbody id="leaveReasonTypeTable"></tbody>
+                    <tbody>
+                        <tr>
+                            <td>Casual</td>
+                            <td>Casual</td>
+                            <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
+                        </tr>
+                        <tr>
+                            <td>Medical</td>
+                            <td>Medical</td>
+                            <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
+        </div>
+
+        <!-- Submit Button Below the Table -->
+        <div class="d-flex justify-content-end mt-3">
+            <button type="button" class="btn btn-primary">Submit</button>
         </div>
     </div>
 
     </div>
 
     <!-- Bootstrap JS and Popper -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <script>
-      $(document).ready(function() {
-        loadLeaveReasonTypes();
+        // Redirect to the appropriate page based on the selected tab
+        {% comment %} function switchPage(tab) {
+            if (tab === 'leave') {
+                window.location.href = `'{% url 'emp_leave_types' %}'?active=leave`;
+            }
+        } {% endcomment %}
 
-        function loadLeaveReasonTypes() {
-          $.get("{% url 'leave_reason_type_list' %}", function(response) {
-            const tableBody = $("#leaveReasonTypeTable");
-            tableBody.empty();
-            response.leave_reasons.forEach(reason => {
-              tableBody.append(`
-                <tr>
-                  <td>${reason.leave_reason}</td>
-                  <td>${reason.description}</td>
-                  <td><button class="btn btn-danger" onclick="deleteLeaveReasonType('${reason.leave_reason}')">Delete</button></td>
-                </tr>
-              `);
+        // Check for active parameter in the URL and adjust the active tab
+        {% comment %} window.addEventListener('load', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeTab = urlParams.get('active');
+            if (activeTab === 'leave') {
+                document.getElementById('reason-type-tab').classList.remove('active');
+                document.getElementById('leave-type-tab').classList.add('active');
+            }
+        }); {% endcomment %}
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentPage = window.location.pathname.split("/").pop(); // Get the current page name
+            const navLinks = document.querySelectorAll(".nav-link");
+
+            navLinks.forEach((link) => {
+                const linkHref = link.getAttribute("href").split("/").pop(); // Get the link's page name
+
+                if (linkHref === currentPage) {
+                    link.classList.add("active"); // Add active class to the current page link
+                } else {
+                    link.classList.remove("active"); // Remove active class from other links
+                }
             });
-          });
-        }
-
-        window.createLeaveReasonType = function() {
-          const leave_reason = $('#leave_reason').val().trim();
-          const description = $('#description').val().trim();
-
-          if (!/^[a-zA-Z0-9]+$/.test(leave_reason)) {
-            alert("Leave Reason ID should contain only alphanumeric characters.");
-            return;
-          }
-          if (!/^[a-zA-Z0-9\s]+$/.test(description)) {
-            alert("Description should contain only letters, numbers, and spaces.");
-            return;
-          }
-
-          $.ajax({
-            url: "{% url 'leave_reason_type_create' %}",
-            method: "POST",
-            data: {
-              leave_reason: leave_reason,
-              description: description,
-              csrfmiddlewaretoken: "{{ csrf_token }}",
-            },
-            success: function(response) {
-              if (response.success) {
-                alert("Leave Reason Type added successfully.");
-                loadLeaveReasonTypes();
-                $('#leaveReasonTypeForm')[0].reset();
-              } else {
-                alert(response.message || "Error adding Leave Reason Type.");
-              }
-            }
-          });
-        };
-
-        window.deleteLeaveReasonType = function(leave_reason) {
-          if (!confirm("Are you sure you want to delete this Leave Reason Type?")) return;
-
-          $.ajax({
-            url: "{% url 'leave_reason_type_delete' %}",
-            method: "POST",
-            data: {
-              leave_reason: leave_reason,
-              csrfmiddlewaretoken: "{{ csrf_token }}",
-            },
-            success: function(response) {
-              if (response.success) {
-                alert("Leave Reason Type deleted successfully.");
-                loadLeaveReasonTypes();
-              } else {
-                alert(response.message || "Error deleting Leave Reason Type.");
-              }
-            }
-          });
-        };
-      });
+        });
     </script>
 </body>
 </html>

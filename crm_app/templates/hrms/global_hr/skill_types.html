@@ -178,11 +178,19 @@
         }
 
         function validateForm(skillTypeId, description) {
-            if (!description) {
-                alert("Description is required.");
-                return false;
-            }
-            if (existingSkillTypeIds.includes(skillTypeId)) {
+            const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+
+// Validate responsibilityTypeId (must be alphanumeric)
+         if (!skillTypeId.match(alphanumericRegex)) {
+               alert(" SkillType ID must be alphanumeric (no special characters allowed).");
+               return false;
+           }
+
+        if (!description.match(alphanumericRegex)) {
+              alert("Description must be alphanumeric (no special characters allowed).");
+              return false;
+           }
+        if (existingSkillTypeIds.includes(skillTypeId)) {
                 alert("Skill Type ID must be unique. This ID is already in use.");
                 return false;
             }

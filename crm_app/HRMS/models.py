@@ -27,7 +27,9 @@ class Responsibility_Type(models.Model):
         return self.description
 
 class PayGrade(models.Model):
-    grade_name = models.CharField(max_length=50)
+    payGradeId = models.CharField(max_length=100, unique=True, null=True, blank=True)  # Allow null temporarily
+    grade_name = models.CharField(max_length=50, null=True, blank=True)
+    comments = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.grade_name
@@ -37,7 +39,8 @@ class SalaryStepGrade(models.Model):
 
     def __str__(self):
         return self.step_name
-    
+
+ #Termination Type Model...   
 class TerminationType(models.Model):
     termination_type = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -55,7 +58,6 @@ class TerminationReason(models.Model):
     
 class PositionType(models.Model):
     # Fields for the PositionType model
-
     name = models.CharField(max_length=100, unique=True)
     parent_type = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True, related_name='sub_positions'
@@ -70,19 +72,53 @@ class PositionType(models.Model):
         verbose_name = "Position Type"
         verbose_name_plural = "Position Types"
 
+
+
+#LeaveReasonType Model...
 class LeaveReason(models.Model):
     leave_reason = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.leave_reason
-
+    
+#LeaveType Model...
 class LeaveType(models.Model):
     leave_type = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.leave_type
+    
+#JobInmterviewType Model...
+class JobInterviewType(models.Model):
+    jobinterviewType = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.jobinterviewType
+    
+#Public Holiday Model
+class PublicHoliday(models.Model):
+    holiday_name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+    from_date = models.DateField()
+
+    def __str__(self):
+        return self.holiday_name
+
+ #Training class Type  Model...
+class TrainingClassType(models.Model):
+    tranningTypeId = models.CharField(max_length=100,unique=True) 
+    description = models.TextField(blank=True, null=True)
+
+
+    def __str__(self):
+        return self.tranningTypeId
+ 
+    
+
+
     
 ###################################################################################################################################
 

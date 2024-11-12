@@ -40,6 +40,7 @@ urlpatterns = [
     path('api/get-employee-position-data/', views.get_employee_position, name='get_employee_position'),
     path('employment-position-search/', views.employment_position_search, name='employment_position_search'),
     path('api/employment-position-data/', views.employment_position_data, name='employment_position_data'),
+
     
     path('create-employee-qualification/', views.create_employee_qualification, name='create_employee_qualification'),
     path('employee-qualification-search/', views.employee_qualification_search, name='employee_qualification_search'),
@@ -110,14 +111,61 @@ urlpatterns = [
     path('termination_reason/', views.termination_reason, name='termination_reason'),
 
     path('termination_types/', views.termination_types, name='termination_types'),
+
+    path('termination_type/', views.list_termination_types, name='termination_type_list'),
+    path('termination_type/create/', views.create_termination_type, name='termination_type_create'),
+    path('termination_type/delete/', views.delete_termination_type, name='termination_type_delete'),
+
     path('position_types/', views.position_types, name='position_types'),
+    path('api/positiondata/', views.get_position_data, name='get_position_data'),
+    path('create_position/', views.create_position, name='create_position'),
+    path('api/delete-position/<int:id>/', views.delete_position_type, name='delete_position'),
+    path('api/search_position_type/', views.search_position_type, name='search_position_type'),
+
+
+
+    #EmpLeaveType
     path('emp_leave_types/', views.emp_leave_types, name='emp_leave_types'),
-    path('pay_grades/', views.pay_grades, name='pay_grades'),
+    path('create/', views.create_leave_type, name='leave_type_create'),
+    path('delete/', views.delete_leave_type, name='leave_type_delete'),
+    path('list/', views.list_leave_types, name='leave_type_list'),
+
+    #PaygradesTypes
+    path('pay_grades/', views.pay_grades, name='pay_grades'),  # To display the list and search form
+    path('api/get-paygrade-data/', views.get_paygrade_data, name='get_paygrade_data'),
+    path('api/search-pay-grades/', views.search_pay_grades, name='search_pay_grades'),
+    path('api/create-paygrade/', views.create_paygrade, name='create_paygrade'),
+    path('api/delete-pay-grade/<str:id>/', views.delete_pay_grade, name='delete_pay_grade'),
+
+    #JobInterviewType
     path('job_interview_types/', views.job_interview_types, name='job_interview_types'),
+    path('create_job_interview_type/', views.create_job_interview_type, name='create_job_interview_type'),
+    path('delete_job_interview_type/', views.delete_job_interview_type, name='delete_job_interview_type'),
+    path('list_job_interview_types/', views.list_job_interview_types, name='list_job_interview_types'),
+
+    #TrainingClassType
     path('tranning_class_types/', views.tranning_class_types, name='tranning_class_types'),
+    path('create-training-class-type/', views.create_training_class_type, name='create_training_class_type'),
+    path('list-training-class-types/', views.list_training_class_types, name='list_training_class_types'),
+    path('delete-training-class-type/', views.delete_training_class_type, name='delete_training_class_type'),
+
+
+
+    #Public Holiday Type
     path('public_holiday/', views.public_holiday, name='public_holiday'),
+     path('create-public-holiday/', views.create_public_holiday, name='create_public_holiday'),
+    path('list-public-holidays/', views.list_public_holidays, name='list_public_holidays'),
+    path('delete-public-holiday/', views.delete_public_holiday, name='delete_public_holiday'),
+
     path('EditPayGrade/', views.EditPayGrade, name='EditPayGrade'),
+
+    #EmpLeaveReasonType
     path('EmpLeaveReasonType/', views.EmpLeaveReasonType, name='EmpLeaveReasonType'),
+    path('leave_reason_type_create/', views.create_leave_reason_type, name='leave_reason_type_create'),
+    path('leave_reason_type_delete/', views.delete_leave_reason_type, name='leave_reason_type_delete'),
+    path('leave_reason_type_list/', views.list_leave_reason_types, name='leave_reason_type_list'),
+
+
     path('emp_leave_types/', views.emp_leave_types, name='emp_leave_types'),
     path('Edit_PositionTypes/', views.Edit_PositionTypes, name='Edit_PositionTypes'),
     

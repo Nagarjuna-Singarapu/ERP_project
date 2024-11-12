@@ -3,6 +3,12 @@
 
 from rest_framework import viewsets, status
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt,csrf_protect
+
+import json
+import logging
+import re
+from datetime import datetime
 # Standard Library Imports
 import json
 import logging
@@ -24,13 +30,14 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 
 # Project Specific Imports - Models
 from .models import (
     EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume,
     HR_Employee, InternalJobPosting, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, Responsibility_Type, SalaryStepGrade,
     Employment, HR_Company, HR_Department, SkillType, TerminationReason, TerminationType,
-    PerformanceReview, PartySkill
+    PerformanceReview, PartySkill,LeaveType,LeaveReason,JobInterviewType, PublicHoliday,TrainingClassType
 )
 
 # Project Specific Imports - Serializers
@@ -45,7 +52,10 @@ from .utils import load_country_data
 
 # Django Database Exceptions
 from django.db import IntegrityError
+from .serializers import SkillTypeSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
 
+logger=logging.getLogger(__name__)
+from .serializers import LeaveReasonSerializer, LeaveTypeSerializer, PayGradeSerializer, PositionTypeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
 # Logger
 logger = logging.getLogger(__name__)
 def NewEmploye(request):
@@ -145,7 +155,7 @@ def get_responsibility_type(request):
 
 
 #View for adding Responsibility types
-@csrf_exempt
+@csrf_protect
 def responsibility_type(request):
     if request.method == 'POST':
         try:
@@ -230,6 +240,486 @@ def termination_reason(request):
             return JsonResponse({'status': 'error', 'message': 'Failed to delete termination reason'}, status=500)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+
+# view for the Termination_Types
+@csrf_exempt
+def create_termination_type(request):
+    if request.method == "POST":
+        termination_type = request.POST.get("termination_type", "").strip()
+        description = request.POST.get("description", "").strip()
+
+        # Validate description to contain only letters, numbers, and spaces
+        if not description.replace(" ", "").isalnum():
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for duplicate termination_type ID
+        if TerminationType.objects.filter(termination_type=termination_type).exists():
+            return JsonResponse({"success": False, "message": "This Termination Type ID already exists. Please enter a unique ID."})
+
+        try:
+            # Create new TerminationType entry
+            TerminationType.objects.create(termination_type=termination_type, description=description)
+            return JsonResponse({"success": True})
+        except Exception as e:
+            # Handle any other unexpected error
+            return JsonResponse({"success": False, "message": str(e)})
+
+
+@csrf_exempt
+def delete_termination_type(request):
+    if request.method == "POST" and request.headers.get("X-HTTP-Method-Override") == "DELETE":
+        termination_type_id = request.POST.get("termination_type", "").strip()
+        try:
+            TerminationType.objects.get(termination_type=termination_type_id).delete()
+            return JsonResponse({"success": True})
+        except TerminationType.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Termination Type not found."})
+
+def list_termination_types(request):
+    termination_types = list(TerminationType.objects.values("termination_type", "description"))
+    return JsonResponse({"termination_types": termination_types})
+
+# view for the Create LeaveType
+@csrf_exempt
+def create_leave_type(request):
+    if request.method == "POST":
+        leave_type = request.POST.get("leave_type", "").strip()
+        description = request.POST.get("description", "").strip()
+
+        # Validate description to contain only letters, numbers, and spaces
+        if not description.replace(" ", "").isalnum():
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for duplicate leave_type ID
+        if LeaveType.objects.filter(leave_type=leave_type).exists():
+            return JsonResponse({"success": False, "message": "This Leave Type ID already exists. Please enter a unique ID."})
+
+        try:
+            # Create new LeaveType entry
+            LeaveType.objects.create(leave_type=leave_type, description=description)
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+        
+#view for the delete LeaveType 
+@csrf_exempt
+def delete_leave_type(request):
+    if request.method == "POST" and request.headers.get("X-HTTP-Method-Override") == "DELETE":
+        leave_type = request.POST.get("leave_type", "").strip()
+
+        try:
+            leave_type_instance = LeaveType.objects.get(leave_type=leave_type)
+            leave_type_instance.delete()
+            return JsonResponse({"success": True})
+        except LeaveType.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Leave Type ID not found."})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+        
+#view for the show List LeaveType
+def list_leave_types(request):
+    leave_types = LeaveType.objects.all().values("leave_type", "description")
+    return JsonResponse({"leave_types": list(leave_types)})
+
+
+# View to get PayGrade data
+def get_paygrade_data(request):
+    pay_grades = PayGrade.objects.all().values('payGradeId', 'grade_name', 'comments')
+    return JsonResponse(list(pay_grades), safe=False)
+
+#view to search Grades data
+def search_pay_grades(request):
+    payGradeId = request.GET.get('payGradeId', '')
+    grade_name= request.GET.get('grade_name', '')
+    comments = request.GET.get('comments')
+
+    # Filter based on the selected filters
+    filters = {}
+    if payGradeId:
+        filters['payGradeId__icontains'] = payGradeId
+    if grade_name:
+        filters['grade_name__icontains'] = grade_name
+    if comments:
+        filters['comments__icontains'] = comments
+
+    data = PayGrade.objects.filter(**filters).values('id', 'payGradeId', 'grade_name','comments')
+    return JsonResponse(list(data), safe=False)
+
+#view for create Paygrades 
+def create_paygrade(request):
+    if request.method == 'POST':
+        payGradeId = request.POST.get('payGradeId')
+        grade_name = request.POST.get('grade_name')
+        comments = request.POST.get('comments')
+
+        # Backend validation
+        errors = {}
+        if not payGradeId:
+            errors['payGradeId'] = 'Pay Grade ID is required.'
+        elif not payGradeId.isalnum():
+            errors['payGradeId'] = 'Pay Grade ID must be alphanumeric.'
+        
+        if not grade_name:
+            errors['grade_name'] = 'Pay Grade Name is required.'
+
+         # Backend validation for alphanumeric (A-Z, a-z, 0-9)
+        if not re.match(r'^[a-zA-Z0-9]+$', pay_grade):
+            return JsonResponse({'success': False, 'message': 'Pay Grade ID must be alphanumeric'}, status=400)
+
+        # Check if payGradeId is unique
+        if PayGrade.objects.filter(payGradeId=payGradeId).exists():
+            errors['payGradeId'] = 'Pay Grade ID already exists.'
+
+        if errors:
+            return JsonResponse({'status': 'error', 'errors': errors})
+
+        # Save to database
+        pay_grade = PayGrade(
+            payGradeId=payGradeId,
+            grade_name=grade_name,
+            comments=comments
+        )
+        pay_grade.save()
+        return JsonResponse({'status': 'success', 'message': 'Pay Grade created successfully!'})
+
+    return render(request, 'EditPayGrade.html')
+
+
+# View to delete a pay grade by ID
+@csrf_protect
+def delete_pay_grade(request, id):
+    print("Triggerring")
+    try:
+        # Try to get the PayGrade object by ID
+        pay_grade = PayGrade.objects.get(payGradeId=id)
+        print('pay grade : {pay_grade}')
+        pay_grade.delete()  # Delete the pay grade
+        return JsonResponse({'message': 'Pay Grade deleted successfully'}, status=200)
+    except PayGrade.DoesNotExist:
+        # If the PayGrade with the given ID doesn't exist
+        return JsonResponse({'message': 'Pay Grade not found'}, status=404)
+
+
+
+#view for get list show Position Type 
+def get_position_data(request):
+    position_type = request.GET.get('positionType', '')
+    parent_type = request.GET.get('parentType', '')
+    has_table = request.GET.get('hasTable', '')
+    description = request.GET.get('description', '')
+
+    # Filter based on the selected filters
+    filters = {}
+    if position_type:
+        filters['name__icontains'] = position_type
+    if parent_type:
+        filters['parent_type__name__icontains'] = parent_type
+    if has_table:
+        filters['has_table__icontains'] = has_table
+    if description:
+        filters['description__icontains'] = description
+
+    data = PositionType.objects.filter(**filters).values('id', 'name','parent_type__name', 'description')
+    return JsonResponse(list(data), safe=False)
+
+#view to search Position Type data
+def search_position_type(request):
+    # Extract parameters from the GET request
+    position_type = request.GET.get('positionType', '')
+    parent_type = request.GET.get('parentType', '')
+    has_table = request.GET.get('hasTable', '')
+    description = request.GET.get('description', '')
+
+    # Filter the PositionType based on the query parameters
+    filters = {}
+    if position_type:
+        filters['name__icontains'] = position_type
+    if parent_type:
+        filters['parent_type__name__icontains'] = parent_type
+    if has_table:
+        filters['has_table'] = has_table.lower() == 'true'
+    if description:
+        filters['description__icontains'] = description
+
+    # Fetch the filtered position types
+    position_types = PositionType.objects.filter(**filters).values('id', 'name', 'parent_type__name', 'description')
+
+    return JsonResponse(list(position_types), safe=False)
+
+#create Position Type View 
+def create_position(request):
+    if request.method == 'POST':
+        name = request.POST.get('name').strip()
+        parent_type_id = request.POST.get('parent_type').strip()
+        has_table = request.POST.get('has_table')
+        description = request.POST.get('description').strip()
+
+        # Backend validation for alphanumeric (A-Z, a-z, 0-9)
+        if not re.match(r'^[a-zA-Z0-9]+$', name):
+            return JsonResponse({'success': False, 'message': 'Position Type ID must be alphanumeric'}, status=400)
+        
+        if parent_type_id and not re.match(r'^[a-zA-Z0-9]+$', parent_type_id):
+            return JsonResponse({'success': False, 'message': 'Parent Type ID must be alphanumeric'}, status=400)
+
+        # Validate 'has_table' input
+        if has_table not in ['Yes', 'No']:
+            return JsonResponse({'success': False, 'message': 'Invalid value for Has Table'}, status=400)
+
+        # Convert 'has_table' to Boolean
+        has_table_value = True if has_table == 'Yes' else False
+
+        # Check if parent type exists
+        print(f"Parent Type ID entered: {parent_type_id}")
+        print(f"Available Parent Types: {[p.name for p in PositionType.objects.all()]}")
+        parent_type_obj = None
+        if parent_type_id:
+            try:
+                parent_type_obj = PositionType.objects.get(name__iexact=parent_type_id)
+            except PositionType.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'Parent Type ID does not exist'}, status=404)
+
+        # Create new Position Type
+        try:
+            position_type = PositionType.objects.create(
+                name=name,
+                parent_type=parent_type_obj,
+                has_table=has_table_value,
+                description=description
+            )
+            return JsonResponse({'success': True, 'message': 'Position Type created successfully'})
+        except IntegrityError:
+            return JsonResponse({'success': False, 'message': 'Position Type ID must be unique'}, status=400)
+
+    return render(request, 'Edit_PositionTypes.html')
+
+
+# View for delete to Position type by ID
+@csrf_protect
+def delete_position_type(request, id):
+    print(f"Triggering delete for position type ID: {id}")
+    
+    if request.method == 'DELETE':
+        try:
+            # Make sure you are using the correct field, which should be `id` in this case
+            position_type = PositionType.objects.get(id=id)
+            position_type.delete()
+            return JsonResponse({'message': 'Position type deleted successfully'}, status=200)
+        except PositionType.DoesNotExist:
+            return JsonResponse({'message': 'Position type not found'}, status=404)
+        except Exception as e:
+            print(f"Error deleting position type: {str(e)}")
+            return JsonResponse({'message': f'Error: {str(e)}'}, status=500)
+    return JsonResponse({'message': 'Invalid request'}, status=400)
+
+
+
+
+# create Leave Reason Types
+@csrf_protect
+def create_leave_reason_type(request):
+    if request.method == "POST":
+        leave_reason = request.POST.get("leave_reason", "").strip()
+        description = request.POST.get("description", "").strip()
+
+        # Validate leave_reason to contain only alphanumeric characters
+        if not leave_reason.isalnum():
+            return JsonResponse({"success": False, "message": "Leave Reason ID should contain only alphanumeric characters."})
+
+        # Validate description to contain only letters, numbers, and spaces
+        if not description.replace(" ", "").isalnum():
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for duplicate leave_reason ID
+        if LeaveReason.objects.filter(leave_reason=leave_reason).exists():
+            return JsonResponse({"success": False, "message": "This Leave Reason ID already exists. Please enter a unique ID."})
+
+        try:
+            LeaveReason.objects.create(leave_reason=leave_reason, description=description)
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+
+# Delete Leave Reason Types
+@csrf_protect
+def delete_leave_reason_type(request):
+    if request.method == "POST":
+        leave_reason = request.POST.get("leave_reason", "").strip()
+
+        try:
+            leave_reason_instance = LeaveReason.objects.get(leave_reason=leave_reason)
+            leave_reason_instance.delete()
+            return JsonResponse({"success": True})
+        except LeaveReason.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Leave Reason ID not found."})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+# get List Leave Reason Types
+@csrf_protect
+def list_leave_reason_types(request):
+    leave_reasons = LeaveReason.objects.all().values("leave_reason", "description")
+    return JsonResponse({"leave_reasons": list(leave_reasons)})
+
+
+
+#create JobInterviewType view 
+@csrf_protect
+def create_job_interview_type(request):
+    if request.method == "POST":
+        jobinterview_type = request.POST.get("jobinterviewTypeId", "").strip()
+        description = request.POST.get("description", "").strip()
+
+        # Validate jobinterview_type to contain only alphanumeric characters
+        if not jobinterview_type.isalnum():
+            return JsonResponse({"success": False, "message": "Job Interview Type ID should contain only alphanumeric characters."})
+
+        # Validate description to contain only letters, numbers, and spaces
+        if not description.replace(" ", "").isalnum():
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for duplicate jobinterview_type ID
+        if JobInterviewType.objects.filter(jobinterviewType=jobinterview_type).exists():
+            return JsonResponse({"success": False, "message": "This Job Interview Type ID already exists. Please enter a unique ID."})
+
+        try:
+            JobInterviewType.objects.create(jobinterviewType=jobinterview_type, description=description)
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+
+# Delete JobInterviewType view 
+@csrf_protect
+def delete_job_interview_type(request):
+    if request.method == "POST":
+        jobinterview_type = request.POST.get("jobinterviewTypeId", "").strip()
+
+        try:
+            jobinterview_instance = JobInterviewType.objects.get(jobinterviewType=jobinterview_type)
+            jobinterview_instance.delete()
+            return JsonResponse({"success": True})
+        except JobInterviewType.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Job Interview Type ID not found."})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+        
+# get List Jobinterview Type View 
+@csrf_protect
+def list_job_interview_types(request):
+    job_interviews = JobInterviewType.objects.all().values("jobinterviewType", "description")
+    return JsonResponse({"job_interviews": list(job_interviews)})
+
+
+
+#create Public Holiday View 
+@csrf_protect
+def create_public_holiday(request):
+    if request.method == "POST":
+        holiday_name = request.POST.get('holidayName', '').strip()
+        description = request.POST.get('description', '').strip()
+        from_date = request.POST.get('fromDate', '').strip()
+
+        # Validation for holiday_name (Alphanumeric and spaces)
+        if not re.match(r'^[a-zA-Z0-9\s]+$', holiday_name):
+            return JsonResponse({"success": False, "message": "Holiday Name should be alphanumeric."})
+
+        # Validation for description (Optional but must be alphanumeric and spaces if provided)
+        if description and not re.match(r'^[a-zA-Z0-9\s]*$', description):
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Validation for from_date
+        try:
+            datetime.strptime(from_date, '%Y-%m-%d')
+        except ValueError:
+            return JsonResponse({"success": False, "message": "Invalid date format."})
+
+        # Check for unique holiday_name
+        if PublicHoliday.objects.filter(holiday_name=holiday_name).exists():
+            return JsonResponse({"success": False, "message": "Holiday Name already exists."})
+
+        # Create a new Public Holiday
+        PublicHoliday.objects.create(holiday_name=holiday_name, description=description, from_date=from_date)
+        return JsonResponse({"success": True, "message": "Public Holiday added successfully."})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+#delete Public Holiday View 
+@csrf_protect
+def delete_public_holiday(request):
+    if request.method == "POST":
+        holiday_name = request.POST.get('holidayName', '').strip()
+
+        # Delete the specified Public Holiday
+        try:
+            holiday = PublicHoliday.objects.get(holiday_name=holiday_name)
+            holiday.delete()
+            return JsonResponse({"success": True, "message": "Public Holiday deleted successfully."})
+        except PublicHoliday.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Public Holiday not found."})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+
+#Get List Public Holiday View 
+@csrf_protect
+def list_public_holidays(request):
+    if request.method == "GET":
+        holidays = list(PublicHoliday.objects.values("holiday_name", "description", "from_date"))
+        return JsonResponse({"success": True, "data": holidays})
+    
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+#create TrainingClassType view
+@csrf_protect 
+def create_training_class_type(request):
+    if request.method == "POST":
+        tranning_type_id = request.POST.get('tranningTypeId', '').strip()
+        description = request.POST.get('description', '').strip()
+
+        # Validation for tranningTypeId (Alphanumeric)
+        if not re.match(r'^[a-zA-Z0-9]+$', tranning_type_id):
+            return JsonResponse({"success": False, "message": "Training Class Type ID should be alphanumeric."})
+
+        # Validation for description (Letters, numbers, and spaces only)
+        if description and not re.match(r'^[a-zA-Z0-9\s]*$', description):
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for unique tranningTypeId
+        if TrainingClassType.objects.filter(tranningTypeId=tranning_type_id).exists():
+            return JsonResponse({"success": False, "message": "Training Class Type ID already exists."})
+
+        # Create a new Training Class Type
+        TrainingClassType.objects.create(tranningTypeId=tranning_type_id, description=description)
+        return JsonResponse({"success": True, "message": "Training Class Type added successfully."})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+#delete TrainingClassType view
+@csrf_protect
+def delete_training_class_type(request):
+    if request.method == "POST":
+        tranning_type_id = request.POST.get('tranningTypeId', '').strip()
+
+        # Delete the specified Training Class Type
+        try:
+            training_class = TrainingClassType.objects.get(tranningTypeId=tranning_type_id)
+            training_class.delete()
+            return JsonResponse({"success": True, "message": "Training Class Type deleted successfully."})
+        except TrainingClassType.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Training Class Type not found."})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+
+# Get list of Training class View 
+@csrf_protect
+def list_training_class_types(request):
+    if request.method == "GET":
+        # Fetch all Training Class Types
+        training_classes = list(TrainingClassType.objects.values("tranningTypeId", "description"))
+        return JsonResponse({"success": True, "data": training_classes})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}) 
+        
 
 
 

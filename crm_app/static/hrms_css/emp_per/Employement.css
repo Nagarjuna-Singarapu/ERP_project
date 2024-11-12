@@ -146,15 +146,6 @@ h2 {
     text-decoration: none;
     cursor: pointer;
 }
-.search-icon:hover {
-    background-color: #f0f0f0; /* Change the background color on hover */
-    cursor: pointer; /* Show pointer cursor when hovering */
-  }
-  
-  .search-icon:hover i {
-    color: #007bff; /* Change the color of the icon inside the span */
-  }
-
 
 @media screen and (max-width: 768px) {
     .form-group {
@@ -169,5 +160,4 @@ h2 {
     #results-table th, #results-table td {
         padding: 5px;
     }
-    
 }

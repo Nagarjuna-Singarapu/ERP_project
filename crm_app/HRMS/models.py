@@ -1,5 +1,6 @@
 # ERP_project/crm_app/HRMS/models.py
 from django.db import models
+from django.utils import timezone
 
 class HR_Company(models.Model):
     name = models.CharField(max_length=255)
@@ -26,9 +27,7 @@ class Responsibility_Type(models.Model):
         return self.description
 
 class PayGrade(models.Model):
-    payGradeId = models.CharField(max_length=100, unique=True, null=True, blank=True)  # Allow null temporarily
-    grade_name = models.CharField(max_length=50, null=True, blank=True)
-    comments = models.CharField(max_length=255, null=True, blank=True)
+    grade_name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.grade_name
@@ -38,8 +37,7 @@ class SalaryStepGrade(models.Model):
 
     def __str__(self):
         return self.step_name
-
- #Termination Type Model...   
+    
 class TerminationType(models.Model):
     termination_type = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -57,6 +55,7 @@ class TerminationReason(models.Model):
     
 class PositionType(models.Model):
     # Fields for the PositionType model
+
     name = models.CharField(max_length=100, unique=True)
     parent_type = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True, related_name='sub_positions'
@@ -71,17 +70,13 @@ class PositionType(models.Model):
         verbose_name = "Position Type"
         verbose_name_plural = "Position Types"
 
-
-
-#LeaveReasonType Model...
 class LeaveReason(models.Model):
     leave_reason = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.leave_reason
-    
-#LeaveType Model...
+
 class LeaveType(models.Model):
     leave_type = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -89,14 +84,14 @@ class LeaveType(models.Model):
     def __str__(self):
         return self.leave_type
     
-#JobInmterviewType Model...
+
 class JobInterviewType(models.Model):
     jobinterviewType = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.jobinterviewType
-    
+
 #Public Holiday Model
 class PublicHoliday(models.Model):
     holiday_name = models.CharField(max_length=100, unique=True)
@@ -114,8 +109,6 @@ class TrainingClassType(models.Model):
 
     def __str__(self):
         return self.tranningTypeId
- 
-    
 
 
     
@@ -374,5 +367,41 @@ class JobRequisition(models.Model):
     
     class Meta:
         ordering = ['-job_requisition_id']
+
+
+class InternalJobPosting(models.Model):
+    APPLICATION_STATUS_CHOICES = [
+        ('Applied', 'Applied'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
+    applicationId = models.AutoField(primary_key=True)
+    applicationDate = models.DateField()
+    applyingPartyId = models.ForeignKey(
+        HR_Employee, 
+        on_delete=models.CASCADE, 
+        related_name='applying_party',
+        to_field='employee_id'
+    )
+    approverPartyId = models.ForeignKey(
+        HR_Employee, 
+        on_delete=models.CASCADE, 
+        related_name='approver_party',
+        to_field='employee_id'
+    )
+    jobRequisitionId = models.ForeignKey(
+        JobRequisition, 
+        on_delete=models.CASCADE, 
+        to_field='job_requisition_id'
+    )
+    status = models.CharField(
+        max_length=20, 
+        choices=APPLICATION_STATUS_CHOICES, 
+        default='Applied'
+    )
+
+    def __str__(self):
+        return f"Application {self.applicationId} - {self.status}"
 
 

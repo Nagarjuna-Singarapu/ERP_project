@@ -187,18 +187,10 @@
   
       // Form validation for responsibility type creation
       function validateForm(responsibilityTypeId, description) {
-        const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-
-        // Validate responsibilityTypeId (must be alphanumeric)
-    if (!responsibilityTypeId.match(alphanumericRegex)) {
-        alert("Responsibility Type ID must be alphanumeric (no special characters allowed).");
-        return false;
-    }
-
-    if (!description.match(alphanumericRegex)) {
-        alert("Description must be alphanumeric (no special characters allowed).");
-        return false;
-    }
+          if (!description) {
+              alert("Description is required.");
+              return false;
+          }
           if (existingResponsibilityTypeIds.includes(responsibilityTypeId)) {
               alert("Responsibility Type ID must be unique. This ID is already in use.");
               return false;

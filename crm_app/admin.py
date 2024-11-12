@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import UserSignup, Profile, RegisterUser, Contacts, Leads, Opportunities, Invoice, Calls, Calendar
-from crm_app.HRMS.models import HR_Employee, Employment, EmployeeResume, JobRequisition, PartySkill, PayGrade, PerformanceReview, SkillType, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave
+from crm_app.HRMS.models import HR_Employee, Employment, EmployeeResume, InternalJobPosting, JobInterviewType, JobRequisition, PartySkill, PayGrade, PerformanceReview, PublicHoliday, SkillType, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, TrainingClassType
 
 # Register your models here.
 admin.site.register(UserSignup)
@@ -94,9 +94,6 @@ class BudgetRequestAdmin(admin.ModelAdmin):
     ordering = ('-start_date',)
 
 admin.site.register(BudgetRequest, BudgetRequestAdmin)
-from crm_app.HRMS.models import HR_Employee, Employment, SkillType, Responsibility_Type, PayGrade, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification
-from crm_app.HRMS.models import HR_Employee, Employment, PayGrade, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave
-from crm_app.HRMS.models import JobInterviewType,PublicHoliday, TrainingClassType
 
 admin.site.register(HR_Employee)
 admin.site.register(PerformanceReview)
@@ -111,14 +108,14 @@ admin.site.register(PartySkill)
 admin.site.register(PositionType)
 admin.site.register(EmployeePosition)
 admin.site.register(EmployeeQualification)
-admin.site.register(SkillType)
-admin.site.register(Responsibility_Type)
 admin.site.register(LeaveType)
 admin.site.register(LeaveReason)
 admin.site.register(EmployeeLeave)
 admin.site.register(JobInterviewType)
 admin.site.register(TrainingClassType)
 admin.site.register(PublicHoliday)
+admin.site.register(SkillType)
 admin.site.register(EmployeeResume)
 admin.site.register(JobRequisition)
+admin.site.register(InternalJobPosting)
 

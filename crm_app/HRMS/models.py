@@ -84,6 +84,34 @@ class LeaveType(models.Model):
     def __str__(self):
         return self.leave_type
     
+
+class JobInterviewType(models.Model):
+    jobinterviewType = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.jobinterviewType
+
+#Public Holiday Model
+class PublicHoliday(models.Model):
+    holiday_name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+    from_date = models.DateField()
+
+    def __str__(self):
+        return self.holiday_name
+
+ #Training class Type  Model...
+class TrainingClassType(models.Model):
+    tranningTypeId = models.CharField(max_length=100,unique=True) 
+    description = models.TextField(blank=True, null=True)
+
+
+    def __str__(self):
+        return self.tranningTypeId
+
+
+    
 ###################################################################################################################################
 
 

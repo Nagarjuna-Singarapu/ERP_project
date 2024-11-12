@@ -109,128 +109,145 @@
           <button class="btn btn-custom"  onclick="window.location.href=`{% url 'public_holiday' %}`">Public Holiday</button>
           <button class="btn btn-custom"  onclick="window.location.href=`{% url 'tranning_class_types' %}`">Training Class Type</button>
         </div>
-        <div class="container my-5">
-          <div class="card mb-4">
-              <div class="card-header">Add Termination Type</div>
-              <div class="card-body">
-                  <form id="terminationTypeForm">
-                      <div class="mb-3">
-                          <label for="termination_type" class="form-label">Termination Type ID</label>
-                          <input type="text" id="termination_type" class="form-control" placeholder="Enter Termination Type ID" />
-                      </div>
-                      <div class="mb-3">
-                          <label for="description" class="form-label">Description</label>
-                          <input type="text" id="description" class="form-control" placeholder="Enter Description" />
-                      </div>
-                      <div class="col-12 mt-3">
-                        <button type="button" class="btn btn-primary">Create</button>
-                      </div>
-                  </form>
-              </div>
-          </div>
-          <div class="card">
-              <div class="card-header">Termination Types List</div>
-              <div class="card-body p-0">
-                  <table class="table table-striped mb-0">
-                      <thead>
-                          <tr>
-                              <th>ID</th>
-                              <th>Description</th>
-                              <th>Action</th>
-                          </tr>
-                      </thead>
-                      <tbody id="terminationTypeTable"></tbody>
-                  </table>
-              </div>
-          </div>
+  
+
+
+    <div class="container my-5">
+
+      <!-- Termionation Types Form -->
+      <div class="card mb-4">
+        <div class="card-header">Add Termination Types</div>
+        <div class="card-body">
+          <form id="terminationTypeForm">
+            <div class="mb-3">
+              <label for="terminationTypeId" class="form-label"
+                >Termination Types ID</label
+              >
+              <input
+                type="text"
+                id="terminationTypeId"
+                class="form-control"
+                placeholder="Enter Termination Types ID"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label"
+                >Description <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                id="description"
+                class="form-control"
+                placeholder="Enter Description"
+                required
+              />
+            </div>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="addterminationType()"
+            >
+              Create
+            </button>
+          </form>
+        </div>
       </div>
+
+      <!-- Termination Types List Table -->
+      <div class="card">
+        <div class="card-header">Termination Types List</div>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Termination Types ID</th>
+                <th>Description</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="terminationTypeTable">
+              <!-- Sample rows (you can dynamically populate this with backend data) -->
+              <tr>
+                <td>48445</td>
+                <td>Django</td>
+                <td>
+                  <button
+                    class="btn btn-danger btn-sm"
+                    onclick="deleteterminationType(this)"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>9000</td>
+                <td>Java/Groovy/BSH</td>
+                <td>
+                  <button
+                    class="btn btn-danger btn-sm"
+                    onclick="deleteterminationType(this)"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+              <!-- Additional rows can be populated here -->
+            </tbody>
+          </table>
+
+          <!-- Submit Button -->
+          <button
+            type="button"
+            class="btn btn-success mt-3"
+            onclick="submitterminationTypes()"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Bootstrap and jQuery JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        $(document).ready(function() {
-            loadTerminationTypes();
 
-            $('#terminationTypeForm button').click(function() {
-              let termination_type = $('#termination_type').val().trim();
-              let description = $('#description').val().trim();
-              let valid = true;
 
-              $('#terminationTypeError, #descriptionError').text('');
-              // ID validation: only alphanumeric
-              if (!/^[a-zA-Z0-9]+$/.test(termination_type)) {
-                alert("ID should contain only alphanumeric characters.");
-                valid = false;
-              }
-             
-        // Description validation: only letters, numbers, and spaces
-             if (!/^[a-zA-Z0-9\s]+$/.test(description)) {
-                alert("Description should contain only letters, numbers, and spaces.");
-                 valid = false;
-              }
-                if (!valid) return;  // Stop form submission if validation fails
+      // Function to add a new termination type to the table
+      function addterminationType() {
+        const terminationTypeId =
+          document.getElementById("terminationTypeId").value;
+        const description = document.getElementById("description").value;
 
-                $.ajax({
-                    url: "{% url 'termination_type_create' %}",
-                    method: "POST",
-                    data: {
-                        termination_type: termination_type,
-                        description: description,
-                        csrfmiddlewaretoken: "{{ csrf_token }}",
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert("Termination Type added successfully.");
-                            loadTerminationTypes();
-                            $('#terminationTypeForm')[0].reset();
-                        } else {
-                             // Show error message as a popup
-                            alert(response.message || "Error adding Termination Type.");
-                        }
-                    }
-                });
-            });
+        if (description.trim() === "") {
+          alert("Description is required");
+          return;
+        }
 
-            $(document).on("click", ".delete-btn", function() {
-                const terminationTypeId = $(this).data("id");
-                if (!confirm("Are you sure you want to delete this entry?")) return;
+        const table = document.getElementById("terminationTypeTable");
+        const row = table.insertRow();
+        row.innerHTML = `
+                <td>${terminationTypeId || "Auto-generated"}</td>
+                <td>${description}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="deleteterminationType(this)">Delete</button></td>
+            `;
 
-                $.ajax({
-                    url: "{% url 'termination_type_delete' %}",
-                    method: "POST",
-                    headers: { 'X-HTTP-Method-Override': 'DELETE' },
-                    data: {
-                        termination_type: terminationTypeId,
-                        csrfmiddlewaretoken: "{{ csrf_token }}",
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                          alert("Termination Type deleted successfully.");
-                            loadTerminationTypes();
-                        } else {
-                          alert(response.message || "Error deleting Termination Type.");
-                        }
-                    }
-                });
-            });
+        // Clear the form inputs
+        document.getElementById("terminationTypeId").value = "";
+        document.getElementById("description").value = "";
+      }
 
-            function loadTerminationTypes() {
-                $.get("{% url 'termination_type_list' %}", function(response) {
-                    const tableBody = $("#terminationTypeTable");
-                    tableBody.empty();
-                    response.termination_types.forEach(type => {
-                        tableBody.append(`
-                            <tr>
-                                <td>${type.termination_type}</td>
-                                <td>${type.description}</td>
-                                <td><button class="btn btn-danger delete-btn" data-id="${type.termination_type}">Delete</button></td>
-                            </tr>
-                        `);
-                    });
-                });
-            }
-        });
+      // Function to delete a termination type row
+      function deleteterminationType(button) {
+        const row = button.closest("tr");
+        row.remove();
+      }
+
+      // Function to submit the termination types (replace with actual backend submission)
+      function submitterminationTypes() {
+        alert("Termination types submitted successfully!");
+      }
     </script>
-    
   </body>
 </html>

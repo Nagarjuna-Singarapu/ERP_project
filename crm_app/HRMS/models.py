@@ -1,4 +1,5 @@
 # ERP_project/crm_app/HRMS/models.py
+from datetime import date
 from django.db import models
 from django.utils import timezone
 
@@ -84,6 +85,13 @@ class LeaveType(models.Model):
     def __str__(self):
         return self.leave_type
     
+#JobInmterviewType Model...
+class JobInterviewType(models.Model):
+    jobinterviewType = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.jobinterviewType
 ###################################################################################################################################
 
 
@@ -375,5 +383,59 @@ class InternalJobPosting(models.Model):
 
     def __str__(self):
         return f"Application {self.applicationId} - {self.status}"
+    
+
+class JobInterview(models.Model):
+    # Foreign Keys
+    job_interviewee_party = models.ForeignKey(
+        HR_Employee,
+        on_delete=models.CASCADE,
+        to_field='employee_id',
+        related_name='interviews_as_interviewee'
+    )
+    job_interviewer_party = models.ForeignKey(
+        HR_Employee,
+        on_delete=models.CASCADE,
+        to_field='employee_id',
+        related_name='interviews_as_interviewer'
+    )
+    job_requisition = models.ForeignKey(
+        JobRequisition,
+        on_delete=models.CASCADE,
+        to_field='job_requisition_id'
+    )
+    job_interview_type = models.ForeignKey(
+        JobInterviewType,
+        on_delete=models.CASCADE,
+        to_field='jobinterviewType'
+    )
+
+    # Additional Fields
+    grade_secured_enum_id = models.CharField(
+        max_length=20,
+        choices=[
+            ('INTR_RATNG_A', 'A (above 75%)'),
+            ('INTR_RATNG_B', 'B (60-75%)'),
+            ('INTR_RATNG_C', 'C (45-60%)'),
+            ('INTR_RATNG_D', 'D (below 40%)')
+        ],
+        blank=True
+    )
+    job_interview_result = models.CharField(
+        max_length=10,
+        choices=[
+            ('Pass', 'Pass'),
+            ('Fail', 'Fail')
+        ]
+    )
+    job_interview_date = models.DateField(default=date.today)
+
+    def __str__(self):
+        return f"Interview for {self.job_interviewee_party} - {self.job_requisition}"
+
+    class Meta:
+        db_table = 'job_interview'
+        verbose_name = 'Job Interview'
+        verbose_name_plural = 'Job Interviews'
 
 

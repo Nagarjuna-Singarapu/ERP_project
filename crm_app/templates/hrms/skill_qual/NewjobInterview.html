@@ -19,14 +19,22 @@
                 <h3>Edit Job Interview</h3>
             </div>
             <div class="card-body">
-                <form method="post" action="/humanres/control/createJobInterview" id="EditJobInterview" class="row g-3" onsubmit="javascript:submitFormDisableSubmits(this)" novalidate>
+                <form method="post" action="{% url 'create_job_interview' %}" id="EditJobInterview" class="row g-3">
+                    {% csrf_token %}
 
                     <!-- Job Interviewee Party ID -->
                     <div class="col-md-6">
                         <label for="jobIntervieweePartyId" class="form-label">Job Interviewee Party ID</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" name="jobIntervieweePartyId" id="jobIntervieweePartyId" placeholder="Enter Party ID" required>
-                            <button class="btn btn-outline-secondary" type="button" id="0_lookupId_button">Lookup</button>
+                            <input type="text" class="form-control" name="jobIntervieweePartyId" id="jobIntervieweePartyId" value="{{ job_interviewee_party }}" placeholder="Enter Party ID" required>
+                            <button class="btn btn-outline-secondary" type="submit" id="show-modal-btn3">Lookup</button>
+                        </div>
+                    </div>
+
+                    <div id="myModal3" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="close-modal-btn3">&times;</span>
+                            <iframe src="{% url 'lookup' %}" style="width: 100%; height: 600px" frameborder="0"></iframe>
                         </div>
                     </div>
 
@@ -34,8 +42,8 @@
                     <div class="col-md-6">
                         <label for="jobRequisitionId" class="form-label">Job Requisition ID</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" name="jobRequisitionId" id="jobRequisitionId" placeholder="Enter Requisition ID" required>
-                            <button class="btn btn-outline-secondary" type="button" id="1_lookupId_button">Lookup</button>
+                            <input type="text" class="form-control" value="{{ job_requisition }}" name="jobRequisitionId" id="jobRequisitionId" placeholder="Enter Requisition ID" required>
+                            <button class="btn btn-outline-secondary" type="submit" id="1_lookupId_button">Lookup</button>
                         </div>
                     </div>
 
@@ -43,8 +51,15 @@
                     <div class="col-md-6">
                         <label for="jobInterviewerPartyId" class="form-label">Job Interviewer Party ID</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" name="jobInterviewerPartyId" id="jobInterviewerPartyId" placeholder="Enter Interviewer ID" required>
-                            <button class="btn btn-outline-secondary" type="button" id="2_lookupId_button">Lookup</button>
+                            <input type="text" class="form-control" value="{{ job_interviewer_party }}" name="jobInterviewerPartyId" id="jobInterviewerPartyId" placeholder="Enter Interviewer ID" required>
+                            <button class="btn btn-outline-secondary" type="submit" id="show-modal-btn">Lookup</button>
+                        </div>
+                    </div>
+
+                    <div id="myModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="close-modal-btn3">&times;</span>
+                            <iframe src="{% url 'lookup' %}" style="width: 100%; height: 600px" frameborder="0"></iframe>
                         </div>
                     </div>
 
@@ -52,10 +67,7 @@
                     <div class="col-md-6">
                         <label for="jobInterviewTypeId" class="form-label">Job Interview Type ID</label>
                         <select class="form-select" name="jobInterviewTypeId" id="jobInterviewTypeId" required>
-                            <option value="CASE_INTERVW">Case Interview</option>
-                            <option value="EXIT_INTERVW">Exit Interview</option>
-                            <option value="INFORMAL_INTERVW">Informal Interview</option>
-                            <option value="JOB_INTERVW">Job Interview</option>
+                            <option value="">Select Interview Type</option>
                         </select>
                     </div>
 
@@ -84,21 +96,38 @@
                     <div class="col-md-6">
                         <label for="jobInterviewDate" class="form-label">Job Interview Date</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" name="jobInterviewDate_i18n" id="jobInterviewDate" placeholder="MM/DD/YYYY" required>
-                            <button type="button" class="btn btn-outline-secondary">
-                                <i class="bi bi-calendar"></i>
-                            </button>
+                            <input type="date" class="form-control" value="{{ job_interview_date }}" name="jobInterviewDate" id="jobInterviewDate" placeholder="MM/DD/YYYY" required>
                         </div>
                     </div>
 
                     <!-- Submit Button -->
                     <div class="col-12">
-                        <button type="button" class="btn btn-primary" onclick="location.href='Recruitment.html'">Create</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    {% if errors %}
+        <script>
+            let errorMessage = "";
+
+            `{% for field, message in errors.items %}`
+                errorMessage += `{{ message|escapejs }}\n`;
+            `{% endfor %}`
+
+            if (errorMessage) {
+                alert(errorMessage);
+            }
+        </script>
+    {% endif %}
+
+    {% if success %}
+        <script>
+            alert("Job Interview has been successfully Created...!");
+        </script>
+    {% endif %}
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
@@ -109,14 +138,80 @@
 
     <!-- Initialize Datepicker -->
     <script>
-        $(document).ready(function () {
-            $('#jobInterviewDate').datepicker({
-                format: 'mm/dd/yyyy',
-                todayHighlight: true,
-                autoclose: true
-            });
-        });
-    </script>
-</body>
+        async function loadDropdowns() {
 
+            // Load Leave Types
+            const jobInterviewTypeResponse = await fetch('/hrms/api/jobinterviewtypes/');
+            const jobInterviewTypes = await jobInterviewTypeResponse.json();
+            const jobInterviewTypeSelect = document.getElementById('jobInterviewTypeId');
+
+            jobInterviewTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.jobinterviewType;  
+                option.textContent = type.description;
+                jobInterviewTypeSelect.appendChild(option);
+            });
+            }
+
+            document.addEventListener('DOMContentLoaded', loadDropdowns);
+    </script>
+    <script>
+        ///////////////////////////////////// Lookup Models //////////////////////////////////
+            let targetField = null;
+        
+            function selectEmployeeId(employeeId) {
+                console.log(`Selected Employee ID: ${employeeId} for ${targetField}`);
+                if (targetField) {
+                    document.getElementById(targetField).value = employeeId;
+                }
+                // Close the appropriate modal
+                if (targetField === 'jobIntervieweePartyId') {
+                    document.getElementById("myModal3").style.display = "none";
+                } else if (targetField === 'jobInterviewerPartyId') {
+                    document.getElementById("myModal").style.display = "none";
+                }
+                // Reset targetField
+                targetField = null;
+            }
+        
+                // Show modal for Appplying Party ID
+                document.getElementById("show-modal-btn3").onclick = function () {
+                    targetField = 'jobIntervieweePartyId'; 
+                    document.getElementById("myModal3").style.display = "block";
+                }
+        
+                // Close modal functionality
+                document.getElementById("close-modal-btn3").onclick = function () {
+                    document.getElementById("myModal3").style.display = "none";
+                }
+        
+                // Close modal when clicking outside of it
+                window.onclick = function (event) {
+                    const modal = document.getElementById("myModal3");
+                    if (event.target == modal) {
+                        modal.style.display = "none";
+                    }
+                }
+        
+                // Show modal for Appplying Party ID
+                document.getElementById("show-modal-btn").onclick = function () {
+                    targetField = 'jobInterviewerPartyId';
+                    document.getElementById("myModal").style.display = "block";
+                }
+        
+                // Close modal functionality
+                document.getElementById("close-modal-btn").onclick = function () {
+                    document.getElementById("myModal").style.display = "none";
+                }
+        
+                // Close modal when clicking outside of it
+                window.onclick = function (event) {
+                    const modal = document.getElementById("myModal");
+                    if (event.target == modal) {
+                        modal.style.display = "none";
+                    }
+                }
+        
+        </script>
+</body>
 </html>

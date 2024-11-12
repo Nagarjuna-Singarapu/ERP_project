@@ -28,14 +28,14 @@ from rest_framework.response import Response
 # Project Specific Imports - Models
 from .models import (
     EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume,
-    HR_Employee, InternalJobPosting, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, Responsibility_Type, SalaryStepGrade,
+    HR_Employee, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, Responsibility_Type, SalaryStepGrade,
     Employment, HR_Company, HR_Department, SkillType, TerminationReason, TerminationType,
     PerformanceReview, PartySkill
 )
 
 # Project Specific Imports - Serializers
 from .serializers import (
-    PerformanceReviewSerializer, PayGradeSerializer, SalaryStepGradeSerializer,
+    JobInterviewTypeSerializer, PerformanceReviewSerializer, PayGradeSerializer, SalaryStepGradeSerializer,
     LeaveReasonSerializer, LeaveTypeSerializer, PositionTypeSerializer, SkillTypeSerializer,
     TerminationReasonSerializer, TerminationTypeSerializer
 )
@@ -1628,6 +1628,198 @@ def update_application_status(request, application_id):
             return JsonResponse({'error': str(e)}, status=500)
 ###########################################################################################################################
 
+def create_job_interview(request):
+    errors = {}  # Dictionary to store error messages
+
+    if request.method == 'POST':
+        # Get form data from the request
+        job_interviewee_id = request.POST.get('jobIntervieweePartyId')
+        job_interviewer_id = request.POST.get('jobInterviewerPartyId')
+        job_requisition_id = request.POST.get('jobRequisitionId')
+        job_interview_type_id = request.POST.get('jobInterviewTypeId')
+        grade_secured = request.POST.get('gradeSecuredEnumId')
+        interview_result = request.POST.get('jobInterviewResult')
+        interview_date = request.POST.get('jobInterviewDate')
+
+        # Step 1: Validate interview date
+        if not interview_date:
+            errors['jobInterviewDate'] = "Interview date is required."
+        else:
+            # Validate date format and make it timezone aware
+            from django.utils import timezone
+            from datetime import datetime
+            try:
+                interview_date = timezone.make_aware(
+                    datetime.strptime(interview_date, "%Y-%m-%d")
+                )
+            except ValueError:
+                errors['jobInterviewDate'] = "Invalid date format. Please use YYYY-MM-DD format."
+
+        # Step 2: Validate job interviewee ID
+        if not job_interviewee_id:
+            errors['jobIntervieweePartyId'] = "Interviewee Party ID is required."
+        else:
+            try:
+                job_interviewee = HR_Employee.objects.get(employee_id=job_interviewee_id)
+            except HR_Employee.DoesNotExist:
+                errors['jobIntervieweePartyId'] = "Interviewee Party ID does not exist."
+
+        # Step 3: Validate job interviewer ID
+        if not job_interviewer_id:
+            errors['jobInterviewerPartyId'] = "Interviewer Party ID is required."
+        else:
+            try:
+                job_interviewer = HR_Employee.objects.get(employee_id=job_interviewer_id)
+            except HR_Employee.DoesNotExist:
+                errors['jobInterviewerPartyId'] = "Interviewer Party ID does not exist."
+
+        # Step 4: Validate job requisition ID
+        if not job_requisition_id:
+            errors['jobRequisitionId'] = "Job Requisition ID is required."
+        else:
+            try:
+                job_requisition = JobRequisition.objects.get(job_requisition_id=job_requisition_id)
+            except JobRequisition.DoesNotExist:
+                errors['jobRequisitionId'] = "Job Requisition ID does not exist."
+
+        # Step 5: Validate job interview type ID
+        if not job_interview_type_id:
+            errors['jobInterviewTypeId'] = "Job Interview Type ID is required."
+        else:
+            try:
+                job_interview_type = JobInterviewType.objects.get(jobinterviewType=job_interview_type_id)
+            except JobInterviewType.DoesNotExist:
+                errors['jobInterviewTypeId'] = "Job Interview Type ID does not exist."
+
+        # Step 6: If no errors, create or update the JobInterview entry
+        if not errors:
+            job_interview, created = JobInterview.objects.update_or_create(
+                job_interviewee_party=job_interviewee,
+                job_interviewer_party=job_interviewer,
+                job_requisition=job_requisition,
+                defaults={
+                    'job_interview_type': job_interview_type,
+                    'grade_secured_enum_id': grade_secured,
+                    'job_interview_result': interview_result,
+                    'job_interview_date': interview_date,
+                }
+            )
+            return render(request, 'hrms/skill_qual/NewjobInterview.html', {'success': True})
+
+    # If there are errors, render the form again with error messages
+    return render(request, 'hrms/skill_qual/NewjobInterview.html', 
+                  {
+                      'errors': errors,
+                      'job_interviewee_party': job_interviewee_id,
+                      'job_interviewer_party': job_interviewer_id,
+                      'job_requisition': job_requisition_id,
+                      'job_interview_date': interview_date.strftime('%Y-%m-%d') if interview_date else '',
+                      })
+
+
+def job_interview_search(request):
+    if request.method == 'POST':
+        try:
+            # Parse the incoming JSON payload
+            data = json.loads(request.body)
+
+            # Extract the filters from the payload
+            job_interview_id = data.get('job_interview_id')
+            job_interview_id_op = data.get('job_interview_id_op', 'equals')  # Default to 'equals'
+
+            job_interviewee_party_id = data.get('job_interviewee_party_id')
+            job_requisition_id = data.get('job_requisition_id')
+            job_interviewer_party_id = data.get('job_interviewer_party_id')
+
+            job_interview_type_id = data.get('job_interview_type_id')
+            grade_secured_enum_id = data.get('grade_secured_enum_id')
+            job_interview_result = data.get('job_interview_result')
+
+            job_interview_start_date = data.get('job_interview_start_date')
+            job_interview_start_date_op = data.get('job_interview_start_date_op', 'equals')  # Default to 'equals'
+            job_interview_end_date = data.get('job_interview_end_date')
+            job_interview_end_date_op = data.get('job_interview_end_date_op', 'equals')  # Default to 'equals'
+
+            # Prepare the filter criteria
+            filters = Q()
+
+            # Apply filters for the fields with operators
+            if job_interview_id:
+                if job_interview_id_op == 'equals':
+                    filters &= Q(id=job_interview_id)
+                elif job_interview_id_op == 'lessThan':
+                    filters &= Q(id__lt=job_interview_id)
+                elif job_interview_id_op == 'greaterThan':
+                    filters &= Q(id__gt=job_interview_id)
+
+            if job_interviewee_party_id:
+                filters &= Q(job_interviewee_party__employee_id=job_interviewee_party_id)
+            if job_requisition_id:
+                filters &= Q(job_requisition__job_requisition_id=job_requisition_id)
+            if job_interviewer_party_id:
+                filters &= Q(job_interviewer_party__employee_id=job_interviewer_party_id)
+            if job_interview_type_id:
+                filters &= Q(job_interview_type__jobinterviewType=job_interview_type_id)
+            if grade_secured_enum_id:
+                filters &= Q(grade_secured_enum_id=grade_secured_enum_id)
+            if job_interview_result:
+                filters &= Q(job_interview_result=job_interview_result)
+
+            # Handle start date filtering
+            if job_interview_start_date:
+                try:
+                    start_date_obj = datetime.strptime(job_interview_start_date, '%Y-%m-%d').date()
+                except ValueError:
+                    start_date_obj = None
+
+                if start_date_obj:
+                    if job_interview_start_date_op == 'equals':
+                        filters &= Q(job_interview_date=start_date_obj)  # Use job_interview_date here
+                    elif job_interview_start_date_op == 'lessThan':
+                        filters &= Q(job_interview_date__lt=start_date_obj)  # Use job_interview_date here
+                    elif job_interview_start_date_op == 'greaterThan':
+                        filters &= Q(job_interview_date__gt=start_date_obj)
+
+            # Handle end date filtering
+            if job_interview_end_date:
+                try:
+                    end_date_obj = datetime.strptime(job_interview_end_date, '%Y-%m-%d').date()
+                except ValueError:
+                    end_date_obj = None
+
+                if end_date_obj:
+                    if job_interview_end_date_op == 'equals':
+                        filters &= Q(job_interview_date=end_date_obj)
+                    elif job_interview_end_date_op == 'lessThan':
+                        filters &= Q(job_interview_date__lt=end_date_obj)
+                    elif job_interview_end_date_op == 'greaterThan':
+                        filters &= Q(job_interview_date__gt=end_date_obj)
+
+            # Query the database based on the filters
+            job_interviews = JobInterview.objects.filter(filters)
+
+            # Serialize the data into a response format
+            results = []
+            for interview in job_interviews:
+                results.append({
+                    'jobInterviewId': interview.id,
+                    'jobIntervieweePartyId': interview.job_interviewee_party.employee_id,
+                    'jobRequisitionId': interview.job_requisition.job_requisition_id,
+                    'jobInterviewerPartyId': interview.job_interviewer_party.employee_id,
+                    'jobInterviewTypeId': interview.job_interview_type.jobinterviewType,
+                    'gradeSecuredEnumId': interview.grade_secured_enum_id,
+                    'jobInterviewResult': interview.job_interview_result,
+                    'jobInterviewDate': interview.job_interview_date,
+                })
+
+            return JsonResponse(results, safe=False)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+#########################################################################################################################
+
 # anuj
 def emp_main(request):
     return render(request, 'hrms/emp_per/emp_main.html')
@@ -2016,5 +2208,11 @@ class SkillTypeList(APIView):
     def get(self, request):
         skillTypeId = SkillType.objects.all()
         serializer = SkillTypeSerializer(skillTypeId, many=True)
+        return Response(serializer.data)
+    
+class JobInterviewTypeList(APIView):
+    def get(self, request):
+        jobinterviewType = JobInterviewType.objects.all()
+        serializer = JobInterviewTypeSerializer(jobinterviewType, many=True)
         return Response(serializer.data)
     

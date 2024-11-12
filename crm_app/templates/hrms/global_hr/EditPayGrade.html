@@ -73,7 +73,8 @@
       <div class="card mb-4">
         <div class="section-header">Eidt Pay Grade [] </div>
         <div class="card-body">
-            <form>
+            <form id="payGradeForm" method="POST">
+                {% csrf_token %}
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label for="payGradeId" class="form-label">Pay Grade ID</label>
@@ -101,5 +102,68 @@
 <!-- Bootstrap JS and Popper -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+<!-- AJAX Script -->
+<script>
+   function getCSRFToken() {
+    let cookieValue = null;
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith('csrftoken=')) {
+            cookieValue = cookie.substring('csrftoken='.length);
+            break;
+        }
+    }
+    return cookieValue;
+}
+
+async function submitForm() {
+    const payGradeId = document.getElementById('payGradeId').value;
+    const gradeName = document.getElementById('grade_name').value;
+    const comments = document.getElementById('comments').value;
+    const csrftoken = getCSRFToken(); // Fetch CSRF token
+
+    try {
+        const response = await fetch('/hrms/api/create-paygrade/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken // Pass CSRF token here
+            },
+            body: new URLSearchParams({
+                payGradeId: payGradeId,
+                grade_name: gradeName,
+                comments: comments
+            })
+        });
+
+        // Check if the response is not ok
+        const result = await response.json();
+        
+        if (response.ok) {
+            if (result.success) {
+                alert(result.message);
+                // Optionally clear the form
+                document.getElementById('payGradeForm').reset();
+            } else {
+                alert(result.message || 'Failed to create Pay Grade');
+            }
+        } else if (response.status === 400) {
+            // Handle validation errors (e.g., duplicate ID)
+            if (result.errors && result.errors.payGradeId) {
+                alert(result.errors.payGradeId);
+            } else {
+                alert(result.message || 'Bad Request: Please check your inputs.');
+            }
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the form.');
+    }
+}
+    </script>
+
 </body>
 </html>

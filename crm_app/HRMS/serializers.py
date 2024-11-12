@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import HR_Employee, PerformanceReview, PayGrade, PositionType, SalaryStepGrade, TerminationReason,TerminationType, SkillType, LeaveReason, LeaveType
+from .models import HR_Employee, JobInterviewType, PerformanceReview, PayGrade, PositionType, SalaryStepGrade, TerminationReason,TerminationType, SkillType, LeaveReason, LeaveType
 
 class SkillTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,4 +47,9 @@ class LeaveTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeaveType
         fields = ['id', 'leave_type', 'description']
+
+class JobInterviewTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JobInterviewType
+        fields = ['id', 'jobinterviewType', 'description']
 

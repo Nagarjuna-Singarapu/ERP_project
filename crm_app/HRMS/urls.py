@@ -31,6 +31,8 @@ urlpatterns = [
     path('api/positiontypes/', views.PositionTypeList.as_view(), name='positiontype-list'),
     path('api/leavetypes/', views.LeaveTypeList.as_view(), name='leaveType-list'),
     path('api/leavereasons/', views.LeaveReasonList.as_view(), name='leaveReason-list'),
+    path('api/skilltypes/', views.SkillTypeList.as_view(), name='skillType-list'),
+    path('api/jobinterviewtypes/', views.JobInterviewTypeList.as_view(), name='jobInterviewType-list'),
 
     path('employment-search/', views.employment_search, name='employment_search'),
     path('api/employment-data/', views.employment_data, name='employment_data'),
@@ -48,6 +50,22 @@ urlpatterns = [
     path('add-employee-leave/', views.add_employee_leave, name='add_employee_leave'),
     path('employee-leave-search/', views.employee_leave_search, name='employee_leave_search'),
     path('api/delete-leave/', views.delete_leave, name='delete_leave'),
+
+    path('create-employee-resume/', views.create_employee_resume, name='create_employee_resume'),
+    path('employee-resume-search/', views.employee_resume_search, name='employee_resume_search'),
+    path('api/delete-resume/', views.delete_resume, name='delete_resume'),
+
+    path('new-job-requisition/', views.create_job_requisition, name='new_job_requisition'),
+    path('job-requisition-search/', views.job_requisition_search, name='job_requisition_search'),
+    path('api/delete-job-requisition/', views.delete_job_requisition, name='delete_job_requisition'),
+
+    path('create-internal-job/', views.create_internal_job, name='create_internal_job'),
+    path('job-application-search/', views.job_application_search, name='job_application_search'),
+    path('api/delete-job-application/', views.delete_job_application, name='delete_job_application'),
+    path('update-application-status/<int:application_id>/', views.update_application_status, name='update_application_status'),
+
+    path('create-job-interview/', views.create_job_interview, name='create_job_interview'),
+    path('job-interview-search/', views.job_interview_search, name='job_interview_search'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),

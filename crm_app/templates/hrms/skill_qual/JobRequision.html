@@ -44,7 +44,7 @@
                 <h5 class="card-title mb-0">Search Options</h5>
             </div>
             <div class="card-body">
-                <form method="post" action="#" id="FindJobRequisitions">
+                <form id="FindJobRequisitions">
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <label for="jobRequisitionId" class="form-label">Job Requisition ID</label>
@@ -93,29 +93,23 @@
                             <label for="skillTypeId" class="form-label">Skill Type ID</label>
                             <select id="skillTypeId" name="skillTypeId" class="form-select">
                                 <option>Select Skill Type</option>
-                                <option value="9002">HTML/FTL</option>
-                                <option value="9000">Java/Groovy/BSH</option>
-                                <option value="9003">JavaScript/Dojo</option>
-                                <option value="9001">Mini Language</option>
-                                <option value="_NA_">Not Applicable</option>
-                                <option value="9005">OFBiz Installation</option>
-                                <option value="9004">Screens/Forms</option>
-                                <option value="48445">Django</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label for="jobPostingType" class="form-label">Job Posting Type</label>
                             <select id="jobPostingType" name="jobPostingType" class="form-select">
-                                <option>Select Posting Type</option>
+                                <option value="">Select Posting Type</option>
                                 <option value="JOB_POSTING_EXTR">External Job Posting</option>
                                 <option value="JOB_POSTING_INTR">Internal Job Posting</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label for="examTypeEnumId" class="form-label">Exam Type Enum ID</label>
-                            <select id="examTypeEnumId" name="examTypeEnumId" class="form-select">
-                                <option>Select Exam Type</option>
-                                <!-- Add exam type options here if available -->
+                            <select name="examTypeEnumId" id="examTypeEnumId" class="form-select">
+                                <option value="">Select Exam Type</option>
+                                <option value="EXAM_GROUP_DISCN">Group Discussion</option>
+                                <option value="EXAM_TECHNICAL">Technical Exam</option>
+                                <option value="EXAM_WRITTEN_APT">Written Aptitude Exam</option>
                             </select>
                         </div>
                     </div>
@@ -149,20 +143,8 @@
                                 <th>Delete</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Example row -->
-                            <tr>
-                                <td>12345</td>
-                                <td>HTML/FTL</td>
-                                <td>External</td>
-                                <td>Technical Exam</td>
-                                <td>Bachelor's Degree</td>
-                                <td>New York</td>
-                                <td>3</td>
-                                <td>36</td>
-                                <td><a href="#" class="btn btn-primary btn-sm">Apply</a></td>
-                                <td><button class="btn btn-danger btn-sm">Delete</button></td>
-                            </tr>
+                        <tbody id="resultsBody">
+                            
                         </tbody>
                     </table>
                 </div>
@@ -172,5 +154,197 @@
 
     <!-- Bootstrap 5 JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+
+        // Loading the all the dropdowns from the Database
+
+        window.onload = async function() {
+            await loadDropdowns();
+        };
+
+        async function loadDropdowns() {
+            try {
+                const skillTypeResponse = await fetch('/hrms/api/skilltypes/');
+                const skillTypes = await skillTypeResponse.json();
+                const skillTypeSelect = document.getElementById('skillTypeId');
+                const selectedSkillType = '{{ skill_type_id }}';
+
+                if (!skillTypeSelect) {
+                    console.error('Dropdown element not found');
+                    return;
+                }
+
+                skillTypeSelect.innerHTML = '<option value="">Select Skill Type</option>';
+
+                skillTypes.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type.skillTypeId;
+                    option.textContent = type.description;
+
+                    // Check if the current skillType matches the selected value
+                    if (type.skillTypeId === selectedSkillType) {
+                        option.selected = true;
+                    }
+
+                    skillTypeSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading dropdown:', error);
+            }
+        }
+    </script>
+
+    <script>
+
+        function populateResultsTable(data) {
+            const tbody = document.querySelector('#resultsBody');
+            tbody.innerHTML = '';  // Clear existing results
+
+            if (data.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = '<td colspan="9">No results found.</td>'; // Updated colspan to match the number of columns
+                tbody.appendChild(emptyRow);
+            } else {
+                data.forEach((job, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${job.job_requisition_id || 'N/A'}</td>
+                        <td>${job.skill_type || 'N/A'}</td>
+                        <td>${job.job_posting_type || 'N/A'}</td>
+                        <td>${job.exam_type_enum_id || 'N/A'}</td>
+                        <td>${job.qualification || 'N/A'}</td>
+                        <td>${job.job_location || 'N/A'}</td>
+                        <td>${job.experience_years || 'N/A'}</td>
+                        <td>${job.experience_months || 'N/A'}</td>
+                        <td>
+                            <button 
+                                class="btn btn-info btn-table-action update-btn" 
+                                onclick="applyForJob('${job.job_requisition_id}')">
+                                Apply
+                            </button>
+                        </td>
+                        <td>
+                                <button class="btn btn-sm btn-danger" onclick="deleteRow('${job.job_requisition_id}', '${job.job_location}', '${job.job_posting_type}')">
+                                    Delete
+                                </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        document.getElementById('FindJobRequisitions').addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent default form submission
+
+        // Collect form data
+        const jobRequisitionId = document.getElementById('jobRequisitionId').value.trim();
+        const experienceMonths = document.getElementById('experienceMonths').value.trim();
+        const experienceYears = document.getElementById('experienceYears').value.trim();
+        const jobLocation = document.getElementById('jobLocation').value.trim();
+        const skillTypeId = document.getElementById('skillTypeId').value;
+        const jobPostingType = document.getElementById('jobPostingType').value;
+        const examTypeEnumId = document.getElementById('examTypeEnumId').value;
+
+    // Create a payload object
+    const payload = {
+        job_requisition_id: jobRequisitionId || null,
+        experience_months: experienceMonths || null,
+        experience_years: experienceYears || null,
+        job_location: jobLocation || null,
+        skill_type: skillTypeId || null,
+        job_posting_type: jobPostingType || null,
+        exam_type_enum_id: examTypeEnumId || null,
+    };
+
+        // Make the AJAX request
+        fetch('/hrms/job-requisition-search/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token if needed
+            },
+            body: JSON.stringify(payload),
+        })
+        .then(response => response.json())
+        .then(data => populateResultsTable(data))
+        .catch(error => console.error('Error fetching employee data:', error));
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Check if this cookie string begins with the name we want
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+//////////////////////////////////////////////////// Delete the Row onclicking Delete Button from the table //////////////////////////////////////////////
+
+function deleteRow(job_requisition_id, job_location, job_posting_type) {
+    // Show a confirmation dialog
+    const confirmation = window.confirm("Are you sure you want to delete this job record?");
+    
+    if (confirmation) {
+        // Construct DELETE request URL with query parameters
+        const deleteUrl = `/hrms/api/delete-job-requisition/?job_requisition_id=${job_requisition_id}&job_location=${job_location}&job_posting_type=${job_posting_type}`;
+        
+        fetch(deleteUrl, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken') // CSRF token for security
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // If the delete was successful, find and remove the specific row in the table
+                const rows = document.querySelectorAll('#resultsBody tr');
+                rows.forEach(row => {
+                    // Extract the values from the current row to match with the provided parameters
+                    const rowJobRequisitionId = row.querySelector('td:nth-child(1)').textContent.trim();
+                    const rowJobLocation = row.querySelector('td:nth-child(6)').textContent.trim();
+                    const rowJobPostingType = row.querySelector('td:nth-child(3)').textContent.trim();
+
+                    // Check if the row matches all the given identifiers
+                    if (rowJobRequisitionId === job_requisition_id &&
+                        rowJobLocation === job_location &&
+                        rowJobPostingType === job_posting_type) {
+                        row.remove(); // Remove the matching row from the table
+                        alert('Job record deleted successfully');
+                    }
+                });
+            } else {
+                alert('Failed to delete the job record');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the record');
+        });
+    } else {
+        console.log('Delete action canceled');
+    }
+}
+
+///////////////////////////////////////////////////// Add this JavaScript function to handle the redirection ////////////////////////////////////////////////
+
+    function applyForJob(job_requisition_id) {
+        const url = `/hrms/newInternalJobPosting/?job_requisition_id=${encodeURIComponent(job_requisition_id)}`;
+        window.location.href = url;
+    }
+
+
+    </script>
+
 </body>
 </html>

@@ -20,12 +20,8 @@
             <h5>Search Options</h5>
         </div>
         <div class="card-body">
-            <form method="post" action="/humanres/control/FindApprovals" id="FindApprovals" name="FindApprovals">
-                <input type="hidden" name="emplPositionId" id="FindApprovals_emplPositionId">
-                <input type="hidden" name="employmentAppSourceTypeId" id="FindApprovals_employmentAppSourceTypeId">
-                <input type="hidden" name="referredByPartyId" id="FindApprovals_referredByPartyId">
-                <input type="hidden" name="noConditionFind" value="Y" id="FindApprovals_noConditionFind">
-                
+            <form id="searchForm" method="POST" action="#">
+                {% csrf_token %}
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="applicationId">Application ID</label>
@@ -35,8 +31,8 @@
                         <label for="statusId">Internal Job Posting Status</label>
                         <select class="form-control" id="statusId" name="statusId">
                             <option value="">Select Status</option>
-                            <option value="IJP_APPROVED">Approved</option>
-                            <option value="IJP_REJECTED">Rejected</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
                         </select>
                     </div>
                 </div>
@@ -48,7 +44,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label for="applicationDate">Application Date</label>
-                        <input type="date" class="form-control" id="applicationDate" name="applicationDate_fld0_value">
+                        <input type="date" class="form-control" id="applicationDate" name="applicationDate">
                     </div>
                 </div>
 
@@ -87,56 +83,11 @@
                             <th>Application Date</th>
                             <th>Approver Party</th>
                             <th>Job Requisition ID</th>
-                            <th>Refresh</th>
+                            <th>Update</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="resultsBody">
                         <!-- Demo data for table rows -->
-                        <tr>
-                            <td>12345</td>
-                            <td>Approved</td>
-                            <td>AP56789</td>
-                            <td>2023-10-01</td>
-                            <td>John Doe</td>
-                            <td>JR890</td>
-                            <td><button class="btn btn-sm btn-primary">Refresh</button></td>
-                        </tr>
-                        <tr>
-                            <td>12346</td>
-                            <td>Rejected</td>
-                            <td>AP56790</td>
-                            <td>2023-10-02</td>
-                            <td>Jane Smith</td>
-                            <td>JR891</td>
-                            <td><button class="btn btn-sm btn-primary">Refresh</button></td>
-                        </tr>
-                        <tr>
-                            <td>12347</td>
-                            <td>Approved</td>
-                            <td>AP56791</td>
-                            <td>2023-10-03</td>
-                            <td>Robert Johnson</td>
-                            <td>JR892</td>
-                            <td><button class="btn btn-sm btn-primary">Refresh</button></td>
-                        </tr>
-                        <tr>
-                            <td>12348</td>
-                            <td>Approved</td>
-                            <td>AP56792</td>
-                            <td>2023-10-04</td>
-                            <td>Emily Davis</td>
-                            <td>JR893</td>
-                            <td><button class="btn btn-sm btn-primary">Refresh</button></td>
-                        </tr>
-                        <tr>
-                            <td>12349</td>
-                            <td>Rejected</td>
-                            <td>AP56793</td>
-                            <td>2023-10-05</td>
-                            <td>Michael Brown</td>
-                            <td>JR894</td>
-                            <td><button class="btn btn-sm btn-primary">Refresh</button></td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -144,6 +95,130 @@
     </div>
     
 </div>
+
+<script>
+    function populateResultsTable(data) {
+    const tbody = document.querySelector('#resultsBody');
+    tbody.innerHTML = '';  // Clear existing results
+
+    if (data.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = '<td colspan="9">No results found.</td>'; // Updated colspan to match the number of columns
+        tbody.appendChild(emptyRow);
+    } else {
+        data.forEach((job, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${job.applicationId || 'N/A'}</td>
+                <td id="status-${job.applicationId}">${job.status || 'N/A'}</td>
+                <td>${job.applyingPartyId || 'N/A'}</td>
+                <td>${job.applicationDate || 'N/A'}</td>
+                <td>${job.approverPartyId  || 'N/A'}</td>
+                <td>${job.jobRequisitionId || 'N/A'}</td>
+                <td>
+                        <button class="btn btn-sm btn-success" onclick="approveRow('${job.applicationId}')">Approve</button>
+                        <button class="btn btn-sm btn-warning" onclick="rejectRow('${job.applicationId}')">Reject</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+}
+
+    document.getElementById('searchForm').addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent default form submission
+
+        // Collect form data
+        const applicationId = document.getElementById('applicationId').value;
+        const statusId = document.getElementById('statusId').value;
+        const applicationDate = document.getElementById('applicationDate').value;
+        const applyingPartyId = document.getElementById('applyingPartyId').value;  // Get selected operator
+        const approverPartyId = document.getElementById('approverPartyId').value;
+        const jobRequisitionId = document.getElementById('jobRequisitionId').value;
+        
+        // Create a payload to send to the server
+        const payload = {
+            applicationId: applicationId,
+            status : statusId,
+            applyingPartyId: applyingPartyId,
+            applicationDate: applicationDate,
+            approverPartyId: approverPartyId,
+            jobRequisitionId: jobRequisitionId,
+        };
+
+        // Make the AJAX request
+        fetch('/hrms/job-application-search/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token if needed
+            },
+            body: JSON.stringify(payload),
+        })
+        .then(response => response.json())
+        .then(data => {populateResultsTable(data)
+    })
+        .catch(error => console.error('Error fetching employee data:', error));
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Check if this cookie string begins with the name we want
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+///////////////////////////////////////////////// Function for Updating the status as Approved / Rejected ////////////////////////////////
+
+function approveRow(applicationId) {
+    updateStatus(applicationId, 'Approved');
+}
+
+function rejectRow(applicationId) {
+    updateStatus(applicationId, 'Rejected');
+}
+
+function updateStatus(applicationId, status) {
+    fetch(`/hrms/update-application-status/${applicationId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken':  getCookie('csrftoken')  // Ensure CSRF token is handled
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => {
+        // Log the response status and JSON data for debugging
+        console.log("Response Status:", response.status);
+        return response.json();  // Convert response to JSON
+    })
+    .then(data => {
+        if (data.message) {
+            console.log("Response Data:", data);
+            // Update the status cell in the table
+            const statusCell = document.getElementById(`status-${applicationId}`);
+            statusCell.innerText = status;
+
+            alert(data.message);  // Show the success message
+        } else {
+            alert(data.error);  // Show error message
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the status.');
+    });
+}
+</script>
 
 <!-- Bootstrap JS, Popper.js, and jQuery -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

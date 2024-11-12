@@ -7,35 +7,49 @@ from django.db.models import Q
 from django.utils.dateparse import parse_date
 from rest_framework import viewsets, status
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+# Standard Library Imports
 import json
 import logging
 import re
+
+# Django Imports
+from django.core.exceptions import ValidationError
+from django.contrib import messages
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_protect,csrf_exempt
+from django.views.decorators.clickjacking import xframe_options_exempt
+from django.db.models import Q
+
+# Django REST Framework Imports
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from django.contrib import messages
-from django.urls import reverse
-from .utils import load_country_data
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import PartySkill, EmploymentApplication, PositionType
-from .serializers import PerformanceReviewSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
-from .models import EmployeeLeave, EmployeePosition, EmployeeQualification, PerformanceReview, HR_Employee, LeaveReason, LeaveType, PayGrade, PositionType,SalaryStepGrade, Employment, HR_Company, HR_Department, TerminationReason, TerminationType
+
+# Project Specific Imports - Models
+from .models import (
+    EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume, EmploymentApplication,
+    HR_Employee, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, PublicHoliday, Responsibility_Type, SalaryStepGrade,
+    Employment, HR_Company, HR_Department, SkillType, TerminationReason, TerminationType,
+    PerformanceReview, PartySkill, TrainingClassType
+)
+
+# Project Specific Imports - Serializers
+from .serializers import (
+    JobInterviewTypeSerializer, PerformanceReviewSerializer, PayGradeSerializer, SalaryStepGradeSerializer,
+    LeaveReasonSerializer, LeaveTypeSerializer, PositionTypeSerializer, SkillTypeSerializer,
+    TerminationReasonSerializer, TerminationTypeSerializer
+)
+
+# Project Specific Utilities
+from .utils import load_country_data
+# Django Database Exceptions
 from django.db import IntegrityError
-from .serializers import SkillTypeSerializer, PayGradeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
-from django.views.decorators.csrf import csrf_protect
-
-logger=logging.getLogger(__name__)
-
-from .models import PayGrade, SalaryStepGrade
-from .serializers import LeaveReasonSerializer, LeaveTypeSerializer, PayGradeSerializer, PositionTypeSerializer, SalaryStepGradeSerializer,TerminationReasonSerializer, TerminationTypeSerializer
-
-
+# Logger
+logger = logging.getLogger(__name__)
 def NewEmploye(request):
     return render(request, 'hrms/emp_per/NewEmploye.html')
 
@@ -220,7 +234,487 @@ def termination_reason(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
+# view for the Termination_Types
+def create_termination_type(request):
+    if request.method == "POST":
+        termination_type = request.POST.get("termination_type", "").strip()
+        description = request.POST.get("description", "").strip()
 
+        # Validate description to contain only letters, numbers, and spaces
+        if not description.replace(" ", "").isalnum():
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for duplicate termination_type ID
+        if TerminationType.objects.filter(termination_type=termination_type).exists():
+            return JsonResponse({"success": False, "message": "This Termination Type ID already exists. Please enter a unique ID."})
+
+        try:
+            # Create new TerminationType entry
+            TerminationType.objects.create(termination_type=termination_type, description=description)
+            return JsonResponse({"success": True})
+        except Exception as e:
+            # Handle any other unexpected error
+            return JsonResponse({"success": False, "message": str(e)})
+
+
+
+def delete_termination_type(request):
+    if request.method == "POST" and request.headers.get("X-HTTP-Method-Override") == "DELETE":
+        termination_type_id = request.POST.get("termination_type", "").strip()
+        try:
+            TerminationType.objects.get(termination_type=termination_type_id).delete()
+            return JsonResponse({"success": True})
+        except TerminationType.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Termination Type not found."})
+
+def list_termination_types(request):
+    termination_types = list(TerminationType.objects.values("termination_type", "description"))
+    return JsonResponse({"termination_types": termination_types})
+
+# view for the Create LeaveType
+
+def create_leave_type(request):
+    if request.method == "POST":
+        leave_type = request.POST.get("leave_type", "").strip()
+        description = request.POST.get("description", "").strip()
+
+        # Validate description to contain only letters, numbers, and spaces
+        if not description.replace(" ", "").isalnum():
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for duplicate leave_type ID
+        if LeaveType.objects.filter(leave_type=leave_type).exists():
+            return JsonResponse({"success": False, "message": "This Leave Type ID already exists. Please enter a unique ID."})
+
+        try:
+            # Create new LeaveType entry
+            LeaveType.objects.create(leave_type=leave_type, description=description)
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+        
+#view for the delete LeaveType 
+
+def delete_leave_type(request):
+    if request.method == "POST" and request.headers.get("X-HTTP-Method-Override") == "DELETE":
+        leave_type = request.POST.get("leave_type", "").strip()
+
+        try:
+            leave_type_instance = LeaveType.objects.get(leave_type=leave_type)
+            leave_type_instance.delete()
+            return JsonResponse({"success": True})
+        except LeaveType.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Leave Type ID not found."})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+        
+#view for the show List LeaveType
+def list_leave_types(request):
+    leave_types = LeaveType.objects.all().values("leave_type", "description")
+    return JsonResponse({"leave_types": list(leave_types)})
+
+
+# View to get PayGrade data
+def get_paygrade_data(request):
+    pay_grades = PayGrade.objects.all().values('payGradeId', 'grade_name', 'comments')
+    return JsonResponse(list(pay_grades), safe=False)
+
+#view to search Grades data
+def search_pay_grades(request):
+    payGradeId = request.GET.get('payGradeId', '')
+    grade_name= request.GET.get('grade_name', '')
+    comments = request.GET.get('comments')
+
+    # Filter based on the selected filters
+    filters = {}
+    if payGradeId:
+        filters['payGradeId__icontains'] = payGradeId
+    if grade_name:
+        filters['grade_name__icontains'] = grade_name
+    if comments:
+        filters['comments__icontains'] = comments
+
+    data = PayGrade.objects.filter(**filters).values('id', 'payGradeId', 'grade_name','comments')
+    return JsonResponse(list(data), safe=False)
+
+#view for create Paygrades 
+def create_paygrade(request):
+    if request.method == 'POST':
+        payGradeId = request.POST.get('payGradeId')
+        grade_name = request.POST.get('grade_name')
+        comments = request.POST.get('comments')
+
+        # Backend validation
+        errors = {}
+        
+        # Validate Pay Grade ID
+        if not payGradeId:
+            errors['payGradeId'] = 'Pay Grade ID is required.'
+        elif not payGradeId.isalnum():
+            errors['payGradeId'] = 'Pay Grade ID must be alphanumeric.'
+        elif not re.match(r'^[a-zA-Z0-9]+$', payGradeId):
+            errors['payGradeId'] = 'Pay Grade ID must be alphanumeric.'
+        elif PayGrade.objects.filter(payGradeId=payGradeId).exists():
+            errors['payGradeId'] = 'Pay Grade ID already exists.'
+
+        # Validate Pay Grade Name
+        if not grade_name:
+            errors['grade_name'] = 'Pay Grade Name is required.'
+
+        # Return errors if any
+        if errors:
+            return JsonResponse({'success': False, 'errors': errors}, status=400)
+
+        # Save to database
+        try:
+            pay_grade = PayGrade(
+                payGradeId=payGradeId,
+                grade_name=grade_name,
+                comments=comments
+            )
+            pay_grade.save()
+            return JsonResponse({'success': True, 'message': 'Pay Grade created successfully!'})
+        except Exception as e:
+            print(f"Error saving PayGrade: {str(e)}")
+            return JsonResponse({'success': False, 'message': 'Failed to save Pay Grade.'}, status=500)
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
+
+
+# View to delete a pay grade by ID
+@csrf_protect
+def delete_pay_grade(request, id):
+    print("Triggerring")
+    try:
+        # Try to get the PayGrade object by ID
+        pay_grade = PayGrade.objects.get(payGradeId=id)
+        print('pay grade : {pay_grade}')
+        pay_grade.delete()  # Delete the pay grade
+        return JsonResponse({'message': 'Pay Grade deleted successfully'}, status=200)
+    except PayGrade.DoesNotExist:
+        # If the PayGrade with the given ID doesn't exist
+        return JsonResponse({'message': 'Pay Grade not found'}, status=404)
+
+
+
+#view for get list show Position Type 
+def get_position_data(request):
+    position_type = request.GET.get('positionType', '')
+    parent_type = request.GET.get('parentType', '')
+    has_table = request.GET.get('hasTable', '')
+    description = request.GET.get('description', '')
+
+    # Filter based on the selected filters
+    filters = {}
+    if position_type:
+        filters['name__icontains'] = position_type
+    if parent_type:
+        filters['parent_type__name__icontains'] = parent_type
+    if has_table:
+        filters['has_table__icontains'] = has_table
+    if description:
+        filters['description__icontains'] = description
+
+    data = PositionType.objects.filter(**filters).values('id', 'name','parent_type__name', 'description')
+    return JsonResponse(list(data), safe=False)
+
+#view to search Position Type data
+def search_position_type(request):
+    # Extract parameters from the GET request
+    position_type = request.GET.get('positionType', '')
+    parent_type = request.GET.get('parentType', '')
+    has_table = request.GET.get('hasTable', '')
+    description = request.GET.get('description', '')
+
+    # Filter the PositionType based on the query parameters
+    filters = {}
+    if position_type:
+        filters['name__icontains'] = position_type
+    if parent_type:
+        filters['parent_type__name__icontains'] = parent_type
+    if has_table:
+        filters['has_table'] = has_table.lower() == 'true'
+    if description:
+        filters['description__icontains'] = description
+
+    # Fetch the filtered position types
+    position_types = PositionType.objects.filter(**filters).values('id', 'name', 'parent_type__name', 'description')
+
+    return JsonResponse(list(position_types), safe=False)
+
+#create Position Type View 
+def create_position(request):
+    if request.method == 'POST':
+        name = request.POST.get('name').strip()
+        parent_type_id = request.POST.get('parent_type').strip()
+        has_table = request.POST.get('has_table')
+        description = request.POST.get('description').strip()
+
+        # Backend validation for alphanumeric (A-Z, a-z, 0-9)
+        if not re.match(r'^[a-zA-Z0-9]+$', name):
+            return JsonResponse({'success': False, 'message': 'Position Type ID must be alphanumeric'}, status=400)
+        
+        if parent_type_id and not re.match(r'^[a-zA-Z0-9]+$', parent_type_id):
+            return JsonResponse({'success': False, 'message': 'Parent Type ID must be alphanumeric'}, status=400)
+
+        # Validate 'has_table' input
+        if has_table not in ['Yes', 'No']:
+            return JsonResponse({'success': False, 'message': 'Invalid value for Has Table'}, status=400)
+
+        # Convert 'has_table' to Boolean
+        has_table_value = True if has_table == 'Yes' else False
+
+        # Check if parent type exists
+        print(f"Parent Type ID entered: {parent_type_id}")
+        print(f"Available Parent Types: {[p.name for p in PositionType.objects.all()]}")
+        parent_type_obj = None
+        if parent_type_id:
+            try:
+                parent_type_obj = PositionType.objects.get(name__iexact=parent_type_id)
+            except PositionType.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'Parent Type ID does not exist'}, status=404)
+
+        # Create new Position Type
+        try:
+            position_type = PositionType.objects.create(
+                name=name,
+                parent_type=parent_type_obj,
+                has_table=has_table_value,
+                description=description
+            )
+            return JsonResponse({'success': True, 'message': 'Position Type created successfully'})
+        except IntegrityError:
+            return JsonResponse({'success': False, 'message': 'Position Type ID must be unique'}, status=400)
+
+    return render(request, 'Edit_PositionTypes.html')
+
+
+# View for delete to Position type by ID
+@csrf_protect
+def delete_position_type(request, id):
+    print(f"Triggering delete for position type ID: {id}")
+    
+    if request.method == 'DELETE':
+        try:
+            # Make sure you are using the correct field, which should be `id` in this case
+            position_type = PositionType.objects.get(id=id)
+            position_type.delete()
+            return JsonResponse({'message': 'Position type deleted successfully'}, status=200)
+        except PositionType.DoesNotExist:
+            return JsonResponse({'message': 'Position type not found'}, status=404)
+        except Exception as e:
+            print(f"Error deleting position type: {str(e)}")
+            return JsonResponse({'message': f'Error: {str(e)}'}, status=500)
+    return JsonResponse({'message': 'Invalid request'}, status=400)
+
+
+
+
+# create Leave Reason Types
+@csrf_protect
+def create_leave_reason_type(request):
+    if request.method == "POST":
+        leave_reason = request.POST.get("leave_reason", "").strip()
+        description = request.POST.get("description", "").strip()
+
+        # Validate leave_reason to contain only alphanumeric characters
+        if not leave_reason.isalnum():
+            return JsonResponse({"success": False, "message": "Leave Reason ID should contain only alphanumeric characters."})
+
+        # Validate description to contain only letters, numbers, and spaces
+        if not description.replace(" ", "").isalnum():
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for duplicate leave_reason ID
+        if LeaveReason.objects.filter(leave_reason=leave_reason).exists():
+            return JsonResponse({"success": False, "message": "This Leave Reason ID already exists. Please enter a unique ID."})
+
+        try:
+            LeaveReason.objects.create(leave_reason=leave_reason, description=description)
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+
+# Delete Leave Reason Types
+@csrf_protect
+def delete_leave_reason_type(request):
+    if request.method == "POST":
+        leave_reason = request.POST.get("leave_reason", "").strip()
+
+        try:
+            leave_reason_instance = LeaveReason.objects.get(leave_reason=leave_reason)
+            leave_reason_instance.delete()
+            return JsonResponse({"success": True})
+        except LeaveReason.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Leave Reason ID not found."})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+# get List Leave Reason Types
+@csrf_protect
+def list_leave_reason_types(request):
+    leave_reasons = LeaveReason.objects.all().values("leave_reason", "description")
+    return JsonResponse({"leave_reasons": list(leave_reasons)})
+
+
+
+#create JobInterviewType view 
+@csrf_protect
+def create_job_interview_type(request):
+    if request.method == "POST":
+        jobinterview_type = request.POST.get("jobinterviewTypeId", "").strip()
+        description = request.POST.get("description", "").strip()
+
+        # Validate jobinterview_type to contain only alphanumeric characters
+        if not jobinterview_type.isalnum():
+            return JsonResponse({"success": False, "message": "Job Interview Type ID should contain only alphanumeric characters."})
+
+        # Validate description to contain only letters, numbers, and spaces
+        if not description.replace(" ", "").isalnum():
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for duplicate jobinterview_type ID
+        if JobInterviewType.objects.filter(jobinterviewType=jobinterview_type).exists():
+            return JsonResponse({"success": False, "message": "This Job Interview Type ID already exists. Please enter a unique ID."})
+
+        try:
+            JobInterviewType.objects.create(jobinterviewType=jobinterview_type, description=description)
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+
+# Delete JobInterviewType view 
+@csrf_protect
+def delete_job_interview_type(request):
+    if request.method == "POST":
+        jobinterview_type = request.POST.get("jobinterviewTypeId", "").strip()
+
+        try:
+            jobinterview_instance = JobInterviewType.objects.get(jobinterviewType=jobinterview_type)
+            jobinterview_instance.delete()
+            return JsonResponse({"success": True})
+        except JobInterviewType.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Job Interview Type ID not found."})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+        
+# get List Jobinterview Type View 
+@csrf_protect
+def list_job_interview_types(request):
+    job_interviews = JobInterviewType.objects.all().values("jobinterviewType", "description")
+    return JsonResponse({"job_interviews": list(job_interviews)})
+
+
+
+#create Public Holiday View 
+@csrf_protect
+def create_public_holiday(request):
+    if request.method == "POST":
+        holiday_name = request.POST.get('holidayName', '').strip()
+        description = request.POST.get('description', '').strip()
+        from_date = request.POST.get('fromDate', '').strip()
+
+        # Validation for holiday_name (Alphanumeric and spaces)
+        if not re.match(r'^[a-zA-Z0-9\s]+$', holiday_name):
+            return JsonResponse({"success": False, "message": "Holiday Name should be alphanumeric."})
+
+        # Validation for description (Optional but must be alphanumeric and spaces if provided)
+        if description and not re.match(r'^[a-zA-Z0-9\s]*$', description):
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Validation for from_date
+        try:
+            datetime.strptime(from_date, '%Y-%m-%d')
+        except ValueError:
+            return JsonResponse({"success": False, "message": "Invalid date format."})
+
+        # Check for unique holiday_name
+        if PublicHoliday.objects.filter(holiday_name=holiday_name).exists():
+            return JsonResponse({"success": False, "message": "Holiday Name already exists."})
+
+        # Create a new Public Holiday
+        PublicHoliday.objects.create(holiday_name=holiday_name, description=description, from_date=from_date)
+        return JsonResponse({"success": True, "message": "Public Holiday added successfully."})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+#delete Public Holiday View 
+@csrf_protect
+def delete_public_holiday(request):
+    if request.method == "POST":
+        holiday_name = request.POST.get('holidayName', '').strip()
+
+        # Delete the specified Public Holiday
+        try:
+            holiday = PublicHoliday.objects.get(holiday_name=holiday_name)
+            holiday.delete()
+            return JsonResponse({"success": True, "message": "Public Holiday deleted successfully."})
+        except PublicHoliday.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Public Holiday not found."})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+
+#Get List Public Holiday View 
+@csrf_protect
+def list_public_holidays(request):
+    if request.method == "GET":
+        holidays = list(PublicHoliday.objects.values("holiday_name", "description", "from_date"))
+        return JsonResponse({"success": True, "data": holidays})
+    
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+#create TrainingClassType view
+@csrf_protect 
+def create_training_class_type(request):
+    if request.method == "POST":
+        tranning_type_id = request.POST.get('tranningTypeId', '').strip()
+        description = request.POST.get('description', '').strip()
+
+        # Validation for tranningTypeId (Alphanumeric)
+        if not re.match(r'^[a-zA-Z0-9]+$', tranning_type_id):
+            return JsonResponse({"success": False, "message": "Training Class Type ID should be alphanumeric."})
+
+        # Validation for description (Letters, numbers, and spaces only)
+        if description and not re.match(r'^[a-zA-Z0-9\s]*$', description):
+            return JsonResponse({"success": False, "message": "Description should contain only letters, numbers, and spaces."})
+
+        # Check for unique tranningTypeId
+        if TrainingClassType.objects.filter(tranningTypeId=tranning_type_id).exists():
+            return JsonResponse({"success": False, "message": "Training Class Type ID already exists."})
+
+        # Create a new Training Class Type
+        TrainingClassType.objects.create(tranningTypeId=tranning_type_id, description=description)
+        return JsonResponse({"success": True, "message": "Training Class Type added successfully."})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+#delete TrainingClassType view
+@csrf_protect
+def delete_training_class_type(request):
+    if request.method == "POST":
+        tranning_type_id = request.POST.get('tranningTypeId', '').strip()
+
+        # Delete the specified Training Class Type
+        try:
+            training_class = TrainingClassType.objects.get(tranningTypeId=tranning_type_id)
+            training_class.delete()
+            return JsonResponse({"success": True, "message": "Training Class Type deleted successfully."})
+        except TrainingClassType.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Training Class Type not found."})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+
+# Get list of Training class View 
+@csrf_protect
+def list_training_class_types(request):
+    if request.method == "GET":
+        # Fetch all Training Class Types
+        training_classes = list(TrainingClassType.objects.values("tranningTypeId", "description"))
+        return JsonResponse({"success": True, "data": training_classes})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}) 
+        
 
 def submit_employee(request):
     if request.method == 'POST':
@@ -1013,7 +1507,7 @@ def add_employee_leave(request):
         except LeaveReason.DoesNotExist:
             errors['leaveReasonType'] = 'Invalid Leave Reason Type.'
         
-        if not re.match("^[a-zA-Z0-9\s]*$", description):
+        if not re.match(r"^[a-zA-Z0-9\s]*$", description):
             errors['description'] = 'Description must contain only alphanumeric characters and spaces.'
 
         # If errors exist after validation, return them to the template
@@ -1123,6 +1617,690 @@ def delete_leave(request):
 
 ##############################################################################################################################################
 
+def create_employee_resume(request):
+    errors = {}  # Dictionary to store validation errors
+
+    if request.method == 'POST':
+        # Extract data from the form
+        resume_id = request.POST.get('resumeID')
+        employee_id = request.POST.get('employee_id')
+        content_id = request.POST.get('contentID')
+        resume_date = request.POST.get('resumeDate')
+
+        # Regex pattern for allowed characters (alphanumeric and underscores only)
+        allowed_pattern = r'^[\w_]+$'
+
+        # Validate employee_id exists in HR_Employee model
+        try:
+            employee = HR_Employee.objects.get(employee_id=employee_id)
+        except HR_Employee.DoesNotExist:
+            errors['employee_id'] = 'Employee ID does not exist in HR_Employee records.'
+
+        # Validate resume_id is unique and follows the pattern
+        if not resume_id:
+            errors['resume_id'] = 'Resume ID is required.'
+        elif not re.match(allowed_pattern, resume_id):
+            errors['resume_id'] = 'Resume ID can only contain alphanumeric characters and underscores.'
+        elif EmployeeResume.objects.filter(resume_id=resume_id).exists():
+            errors['resume_id'] = 'Resume ID must be unique.'
+
+        # Validate content_id is unique and follows the pattern
+        if not content_id:
+            errors['content_id'] = 'Content ID is required.'
+        elif not re.match(allowed_pattern, content_id):
+            errors['content_id'] = 'Content ID can only contain alphanumeric characters and underscores.'
+        elif EmployeeResume.objects.filter(content_id=content_id).exists():
+            errors['content_id'] = 'Content ID must be unique.'
+
+        # Check if resume_date is provided
+        if not resume_date:
+            errors['resume_date'] = 'Resume date is required.'
+
+        # If there are errors, return them to the template
+        if errors:
+            return render(request, 'hrms/emp_res_lea/New_resume.html', {'errors': errors})
+
+        # If no errors, save the data to EmployeeResume model
+        party_resume = EmployeeResume(
+            resume_id=resume_id,
+            employee_id=employee,
+            content_id=content_id,
+            resume_date=resume_date
+        )
+        try:
+            party_resume.save()
+        except ValidationError as e:
+            # Handle any model-level validation errors
+            errors['model_error'] = str(e)
+            return render(request, 'hrms/emp_res_lea/New_resume.html', {'errors': errors})
+
+        # Return a success message if saved successfully
+        return render(request, 'hrms/emp_res_lea/New_resume.html', {'success': True})
+
+    # Display form without errors if method is not POST
+    return render(request, 'hrms/emp_res_lea/New_resume.html')
+
+def employee_resume_search(request):
+    if request.method == 'POST':
+        # Decode and parse JSON data from the request
+        data = request.body.decode('utf-8')
+        json_data = json.loads(data)
+
+        # Extract search parameters from the JSON data
+        employee_id = json_data.get('employee_id')
+        resume_id = json_data.get('resume_id')
+        from_date = json_data.get('from_date')
+        through_date = json_data.get('through_date')
+
+        # Build the filter dictionary
+        filters = {}
+
+        if employee_id:
+            filters['employee_id__employee_id'] = employee_id
+        if resume_id:
+            filters['resume_id__icontains'] = resume_id
+        if from_date:
+            filters['resume_date__gte'] = from_date
+        if through_date:
+            filters['resume_date__lte'] = through_date
+
+        # Query the EmployeeResume model based on the filters
+        resumes = EmployeeResume.objects.filter(**filters)
+
+        # Prepare response data
+        response_data = []
+        for resume in resumes:
+            response_data.append({
+                'employee_id': resume.employee_id.employee_id,
+                'resume_id': resume.resume_id,
+                'content_id': resume.content_id,
+                'resume_date': resume.resume_date.strftime('%Y-%m-%d') if resume.resume_date else 'N/A',
+            })
+
+        return JsonResponse(response_data, safe=False)
+
+    # Return error response if the request method is not POST
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def delete_resume(request):
+    if request.method == 'DELETE':
+        employee_id = request.GET.get('employee_id')
+        resume_id = request.GET.get('resume_id')
+
+        try:
+            # Find and delete the specific record
+            resume_record = EmployeeResume.objects.get(
+                employee_id=employee_id, 
+                resume_id=resume_id, 
+            )
+            resume_record.delete()
+            return JsonResponse({'message': 'Leave record deleted successfully'}, status=200)
+        except EmployeeLeave.DoesNotExist:
+            return JsonResponse({'error': 'Leave record not found'}, status=404)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+###################################### Job Requisition #############################################################################
+
+def create_job_requisition(request):
+    if request.method == 'POST':
+        # Get data from the form
+        job_location = request.POST.get('jobLocation')
+        job_posting_type = request.POST.get('jobPostingType')
+        age = request.POST.get('age') or None
+        no_of_resources = request.POST.get('noOfResources')
+        gender = request.POST.get('gender')
+        duration_months = request.POST.get('durationMonths') or None
+        qualification = request.POST.get('qualification')
+        exam_type_enum_id = request.POST.get('examTypeEnumId') or None
+        skill_type_id = request.POST.get('skillTypeId')
+        experience_years = request.POST.get('experienceYears')
+        experience_months = request.POST.get('experienceMonths')
+
+        # Initialize a dictionary to store error messages
+        errors = {}
+
+        # Validation for Job Location (required, no special characters)
+        if not job_location:
+            errors['job_location'] = 'Job Location is required.'
+        elif len(job_location) < 3:
+            errors['job_location'] = 'Job Location must be at least 3 characters long.'
+        elif not re.match(r'^[A-Za-z0-9\s,.-]*$', job_location):  # regex to check for special characters
+            errors['job_location'] = 'Job Location must not contain special characters.'
+
+        # Validation for No of Resources (must be a positive integer)
+        if not no_of_resources or int(no_of_resources) <= 0:
+            errors['no_of_resources'] = 'Number of Resources must be a positive integer.'
+
+        # Validation for Age (must be a positive integer or None)
+        if age and int(age) < 0:
+            errors['age'] = 'Age cannot be negative.'
+
+        # Validation for Duration Months (must be a non-negative integer or None)
+        if duration_months and int(duration_months) < 0:
+            errors['duration_months'] = 'Duration in months cannot be negative.'
+
+        # Validation for Experience Years (must be a non-negative integer)
+        if not experience_years or int(experience_years) < 0:
+            errors['experience_years'] = 'Experience years cannot be negative.'
+
+        # Validation for Experience Months (must be a non-negative integer)
+        if not experience_months or int(experience_months) < 0:
+            errors['experience_months'] = 'Experience months cannot be negative.'
+
+        # Fetch the skill type instance if skill_type_id is provided
+        skill_type = SkillType.objects.get(skillTypeId=skill_type_id) if skill_type_id else None
+
+        # Check if there are any validation errors
+        if errors:
+            return render(request, 'hrms/skill_qual/NewJobRequision.html', {
+                'errors': errors,
+                'job_location': job_location,
+                'job_posting_type': job_posting_type,
+                'age': age,
+                'no_of_resources': no_of_resources,
+                'gender': gender,
+                'duration_months': duration_months,
+                'qualification': qualification,
+                'exam_type_enum_id': exam_type_enum_id,
+                'skill_type_id': skill_type_id,
+                'experience_years': experience_years,
+                'experience_months': experience_months
+            })
+
+        # If no errors, create a new Job Requisition record
+        new_requisition = JobRequisition(
+            job_location=job_location,
+            job_posting_type=job_posting_type,
+            age=int(age) if age else None,
+            no_of_resources=int(no_of_resources),
+            gender=gender,
+            duration_months=int(duration_months) if duration_months else None,
+            qualification=qualification,
+            exam_type_enum_id=exam_type_enum_id,
+            skill_type=skill_type,
+            experience_years=int(experience_years),
+            experience_months=int(experience_months)
+        )
+        new_requisition.save()
+
+        # Redirect to the same page with a success message
+        return render(request, 'hrms/skill_qual/NewJobRequision.html', {'success': True})
+
+    # For GET request, render the form
+    return render(request, 'hrms/skill_qual/NewJobRequision.html')
+
+
+def job_requisition_search(request):
+    if request.method == 'POST':
+        try:
+            # Decode and parse JSON data from the request
+            data = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+
+        # Extract search parameters using the correct keys
+        requisition_id = data.get('job_requisition_id')
+        experience_months = data.get('experience_months')
+        experience_years = data.get('experience_years')
+        job_location = data.get('job_location')
+        skill_type_id = data.get('skill_type')
+        job_posting_type = data.get('job_posting_type')
+        exam_type_enum_id = data.get('exam_type_enum_id')
+
+
+        # Build the filter dictionary based on received parameters
+        filters = {}
+        if requisition_id:
+            try:
+                filters['job_requisition_id'] = int(requisition_id)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid job requisition ID'}, status=400)
+        if experience_months:
+            try:
+                filters['experience_months__gte'] = int(experience_months)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid experience months'}, status=400)
+        if experience_years:
+            try:
+                filters['experience_years__gte'] = int(experience_years)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid experience years'}, status=400)
+        if job_location:
+            filters['job_location__icontains'] = job_location.strip()
+        if skill_type_id:
+            try:
+                filters['skill_type__id'] = int(skill_type_id)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid skill type ID'}, status=400)
+        if job_posting_type:
+            filters['job_posting_type'] = job_posting_type.strip()
+        if exam_type_enum_id:
+            try:
+                filters['exam_type_enum_id'] = int(exam_type_enum_id)
+            except ValueError:
+                return JsonResponse({'error': 'Invalid exam type ID'}, status=400)
+
+        # Debugging output
+        # print("Filters applied:", filters)
+
+        # Query the database with the filters
+        requisitions = JobRequisition.objects.filter(**filters)
+        # print("Requisition count:", requisitions.count())  # Debug output
+
+        if not requisitions.exists():
+            return JsonResponse({'message': 'No job requisitions found'}, status=404)
+
+        # Prepare the response data
+        response_data = [
+            {
+                'job_requisition_id': req.job_requisition_id,
+                'skill_type': req.skill_type.skillTypeId if req.skill_type else 'N/A',
+                'job_posting_type': req.job_posting_type,
+                'exam_type_enum_id': req.exam_type_enum_id if req.exam_type_enum_id else 'N/A',
+                'qualification': req.qualification,
+                'job_location': req.job_location,
+                'experience_years': req.experience_years,
+                'experience_months': req.experience_months,
+            }
+            for req in requisitions
+        ]
+
+        return JsonResponse(response_data, safe=False)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def delete_job_requisition(request):
+    if request.method == 'DELETE':
+        # Extract query parameters from the request
+        job_requisition_id = request.GET.get('job_requisition_id')
+        job_location = request.GET.get('job_location')
+        job_posting_type = request.GET.get('job_posting_type')
+
+        if not job_requisition_id or not job_location or not job_posting_type:
+            return JsonResponse({'error': 'Missing parameters'}, status=400)
+
+        try:
+            # Find and delete the specific job record based on the given parameters
+            resume_record = JobRequisition.objects.get(
+                job_requisition_id=job_requisition_id,
+                job_location=job_location,
+                job_posting_type=job_posting_type
+            )
+            resume_record.delete()
+            
+            # Return success response if deletion is successful
+            return JsonResponse({'message': 'Job requisition deleted successfully'}, status=200)
+        
+        except EmployeeResume.DoesNotExist:
+            return JsonResponse({'error': 'Job requisition not found'}, status=404)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+####################################################################################################################
+
+def create_internal_job(request):
+    errors = {}  # Dictionary to store error messages
+    
+    if request.method == 'POST':
+        # Get form data from the request
+        application_date = request.POST.get('applicationDate')
+        applying_party_id = request.POST.get('applyingPartyId')
+        approver_party_id = request.POST.get('approverPartyId')
+        job_requisition_id = request.POST.get('jobRequisitionId')
+
+        # Step 1: Validate application date
+        if not application_date:
+            errors['applicationDate'] = "Application date is required."
+        else:
+            # Check if the date is valid and timezone aware
+            from django.utils import timezone
+            from datetime import datetime
+            try:
+                # Convert to datetime and make it aware
+                application_date = timezone.make_aware(
+                    datetime.strptime(application_date, "%Y-%m-%d")
+                )
+            except ValueError:
+                errors['applicationDate'] = "Invalid date format. Please use YYYY-MM-DD format."
+
+        # Step 2: Validate applying party ID
+        if not applying_party_id:
+            errors['applyingPartyId'] = "Applying Party ID is required."
+        else:
+            try:
+                applying_party = HR_Employee.objects.get(employee_id=applying_party_id)
+            except HR_Employee.DoesNotExist:
+                errors['applyingPartyId'] = "Applying Party ID does not exist."
+
+        # Step 3: Validate approver party ID
+        if not approver_party_id:
+            errors['approverPartyId'] = "Approver Party ID is required."
+        else:
+            try:
+                approver_party = HR_Employee.objects.get(employee_id=approver_party_id)
+            except HR_Employee.DoesNotExist:
+                errors['approverPartyId'] = "Approver Party ID does not exist."
+
+        # Step 4: Validate job requisition ID
+        if not job_requisition_id:
+            errors['jobRequisitionId'] = "Job Requisition ID is required."
+        else:
+            try:
+                job_requisition = JobRequisition.objects.get(job_requisition_id=job_requisition_id)
+            except JobRequisition.DoesNotExist:
+                errors['jobRequisitionId'] = "Job Requisition ID does not exist."
+
+        # Step 5: If no errors, create a new InternalJobPosting entry
+        if not errors:
+            new_posting = InternalJobPosting.objects.create(
+                applicationDate=application_date,
+                applyingPartyId=applying_party,
+                approverPartyId=approver_party,
+                jobRequisitionId=job_requisition,
+                status='Applied'
+            )
+            return render(request, 'hrms/skill_qual/newInternalJobPosting.html', {'success': True})
+
+    # If there are errors, render the form again with error messages
+    return render(request, 'hrms/skill_qual/newInternalJobPosting.html', {'errors': errors})
+
+
+def job_application_search(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        
+        # Extract parameters from the POST data
+        application_id = data.get('applicationId', None)
+        status = data.get('status', None)
+        application_date = data.get('applicationDate', None)
+        application_date_operator = data.get('applicationDateOperator', 'equals')
+        applying_party_id = data.get('applyingPartyId', None)
+        approver_party_id = data.get('approverPartyId', None)
+        job_requisition_id = data.get('jobRequisitionId', None)
+
+        # Prepare the filter criteria
+        filters = Q()
+        
+        if application_id:
+            filters &= Q(applicationId=application_id)
+        if status:
+            filters &= Q(status=status)
+        if applying_party_id:
+            filters &= Q(applyingPartyId__employee_id=applying_party_id)
+        if approver_party_id:
+            filters &= Q(approverPartyId__employee_id=approver_party_id)
+        if job_requisition_id:
+            filters &= Q(jobRequisitionId__job_requisition_id=job_requisition_id)
+        
+        if application_date:
+            try:
+                date_obj = datetime.strptime(application_date, '%Y-%m-%d').date()
+            except ValueError:
+                date_obj = None
+
+            # Handle the operator logic for date filtering
+            if application_date_operator == 'equals' and date_obj:
+                filters &= Q(applicationDate=date_obj)
+            elif application_date_operator == 'lessThan' and date_obj:
+                filters &= Q(applicationDate__lt=date_obj)
+            elif application_date_operator == 'greaterThan' and date_obj:
+                filters &= Q(applicationDate__gt=date_obj)
+
+        # Query the database based on the filters
+        job_applications = InternalJobPosting.objects.filter(filters)
+
+        # Serialize the data into a response format
+        results = []
+        for application in job_applications:
+            results.append({
+                'applicationId': application.applicationId,
+                'status': application.status,
+                'applyingPartyId': application.applyingPartyId.employee_id,  # Adjusted for employee_id
+                'approverPartyId': application.approverPartyId.employee_id,  # Adjusted for employee_id
+                'jobRequisitionId': application.jobRequisitionId.job_requisition_id,  # Adjusted for job_requisition_id
+                'applicationDate': application.applicationDate,
+            })
+
+        return JsonResponse(results, safe=False)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def delete_job_application(request):
+    if request.method == 'DELETE':
+        # Get query parameters
+        application_id = request.GET.get('applicationId')
+        applying_party_id = request.GET.get('applyingPartyId')
+
+        # Find the job application to delete
+        try:
+            application = InternalJobPosting.objects.get(applicationId=application_id, applyingPartyId__employee_id=applying_party_id)
+            application.delete()
+            return JsonResponse({'message': 'Job application deleted successfully'}, status=200)
+        except InternalJobPosting.DoesNotExist:
+            return JsonResponse({'error': 'Job application not found'}, status=404)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+def update_application_status(request, application_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            status = data.get('status')
+
+            print(f'Status: {status}')
+
+            # Validate the status value against the choices defined in the model
+            if status not in dict(InternalJobPosting.APPLICATION_STATUS_CHOICES):
+                return JsonResponse({'error': 'Invalid status'}, status=400)
+
+            # Fetch the application record
+            application = InternalJobPosting.objects.get(applicationId=application_id)
+
+            # Update the status
+            application.status = status
+            application.save()
+
+            return JsonResponse({'message': f'Application {application_id} status updated to {status}.'})
+
+        except InternalJobPosting.DoesNotExist:
+            return JsonResponse({'error': 'Application not found.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+###########################################################################################################################
+
+def create_job_interview(request):
+    errors = {}  # Dictionary to store error messages
+
+    if request.method == 'POST':
+        # Get form data from the request
+        job_interviewee_id = request.POST.get('jobIntervieweePartyId')
+        job_interviewer_id = request.POST.get('jobInterviewerPartyId')
+        job_requisition_id = request.POST.get('jobRequisitionId')
+        job_interview_type_id = request.POST.get('jobInterviewTypeId')
+        grade_secured = request.POST.get('gradeSecuredEnumId')
+        interview_result = request.POST.get('jobInterviewResult')
+        interview_date = request.POST.get('jobInterviewDate')
+
+        # Step 1: Validate interview date
+        if not interview_date:
+            errors['jobInterviewDate'] = "Interview date is required."
+        else:
+            # Validate date format and make it timezone aware
+            from django.utils import timezone
+            from datetime import datetime
+            try:
+                interview_date = timezone.make_aware(
+                    datetime.strptime(interview_date, "%Y-%m-%d")
+                )
+            except ValueError:
+                errors['jobInterviewDate'] = "Invalid date format. Please use YYYY-MM-DD format."
+
+        # Step 2: Validate job interviewee ID
+        if not job_interviewee_id:
+            errors['jobIntervieweePartyId'] = "Interviewee Party ID is required."
+        else:
+            try:
+                job_interviewee = HR_Employee.objects.get(employee_id=job_interviewee_id)
+            except HR_Employee.DoesNotExist:
+                errors['jobIntervieweePartyId'] = "Interviewee Party ID does not exist."
+
+        # Step 3: Validate job interviewer ID
+        if not job_interviewer_id:
+            errors['jobInterviewerPartyId'] = "Interviewer Party ID is required."
+        else:
+            try:
+                job_interviewer = HR_Employee.objects.get(employee_id=job_interviewer_id)
+            except HR_Employee.DoesNotExist:
+                errors['jobInterviewerPartyId'] = "Interviewer Party ID does not exist."
+
+        # Step 4: Validate job requisition ID
+        if not job_requisition_id:
+            errors['jobRequisitionId'] = "Job Requisition ID is required."
+        else:
+            try:
+                job_requisition = JobRequisition.objects.get(job_requisition_id=job_requisition_id)
+            except JobRequisition.DoesNotExist:
+                errors['jobRequisitionId'] = "Job Requisition ID does not exist."
+
+        # Step 5: Validate job interview type ID
+        if not job_interview_type_id:
+            errors['jobInterviewTypeId'] = "Job Interview Type ID is required."
+        else:
+            try:
+                job_interview_type = JobInterviewType.objects.get(jobinterviewType=job_interview_type_id)
+            except JobInterviewType.DoesNotExist:
+                errors['jobInterviewTypeId'] = "Job Interview Type ID does not exist."
+
+        # Step 6: If no errors, create or update the JobInterview entry
+        if not errors:
+            job_interview, created = JobInterview.objects.update_or_create(
+                job_interviewee_party=job_interviewee,
+                job_interviewer_party=job_interviewer,
+                job_requisition=job_requisition,
+                defaults={
+                    'job_interview_type': job_interview_type,
+                    'grade_secured_enum_id': grade_secured,
+                    'job_interview_result': interview_result,
+                    'job_interview_date': interview_date,
+                }
+            )
+            return render(request, 'hrms/skill_qual/NewjobInterview.html', {'success': True})
+
+    # If there are errors, render the form again with error messages
+    return render(request, 'hrms/skill_qual/NewjobInterview.html', 
+                  {
+                      'errors': errors,
+                      'job_interviewee_party': job_interviewee_id,
+                      'job_interviewer_party': job_interviewer_id,
+                      'job_requisition': job_requisition_id,
+                      'job_interview_date': interview_date.strftime('%Y-%m-%d') if interview_date else '',
+                      })
+
+
+def job_interview_search(request):
+    if request.method == 'POST':
+        try:
+            # Parse the incoming JSON payload
+            data = json.loads(request.body)
+
+            # Extract the filters from the payload
+            job_interview_id = data.get('job_interview_id')
+            job_interview_id_op = data.get('job_interview_id_op', 'equals')  # Default to 'equals'
+
+            job_interviewee_party_id = data.get('job_interviewee_party_id')
+            job_requisition_id = data.get('job_requisition_id')
+            job_interviewer_party_id = data.get('job_interviewer_party_id')
+
+            job_interview_type_id = data.get('job_interview_type_id')
+            grade_secured_enum_id = data.get('grade_secured_enum_id')
+            job_interview_result = data.get('job_interview_result')
+
+            job_interview_start_date = data.get('job_interview_start_date')
+            job_interview_start_date_op = data.get('job_interview_start_date_op', 'equals')  # Default to 'equals'
+            job_interview_end_date = data.get('job_interview_end_date')
+            job_interview_end_date_op = data.get('job_interview_end_date_op', 'equals')  # Default to 'equals'
+
+            # Prepare the filter criteria
+            filters = Q()
+
+            # Apply filters for the fields with operators
+            if job_interview_id:
+                if job_interview_id_op == 'equals':
+                    filters &= Q(id=job_interview_id)
+                elif job_interview_id_op == 'lessThan':
+                    filters &= Q(id__lt=job_interview_id)
+                elif job_interview_id_op == 'greaterThan':
+                    filters &= Q(id__gt=job_interview_id)
+
+            if job_interviewee_party_id:
+                filters &= Q(job_interviewee_party__employee_id=job_interviewee_party_id)
+            if job_requisition_id:
+                filters &= Q(job_requisition__job_requisition_id=job_requisition_id)
+            if job_interviewer_party_id:
+                filters &= Q(job_interviewer_party__employee_id=job_interviewer_party_id)
+            if job_interview_type_id:
+                filters &= Q(job_interview_type__jobinterviewType=job_interview_type_id)
+            if grade_secured_enum_id:
+                filters &= Q(grade_secured_enum_id=grade_secured_enum_id)
+            if job_interview_result:
+                filters &= Q(job_interview_result=job_interview_result)
+
+            # Handle start date filtering
+            if job_interview_start_date:
+                try:
+                    start_date_obj = datetime.strptime(job_interview_start_date, '%Y-%m-%d').date()
+                except ValueError:
+                    start_date_obj = None
+
+                if start_date_obj:
+                    if job_interview_start_date_op == 'equals':
+                        filters &= Q(job_interview_date=start_date_obj)  # Use job_interview_date here
+                    elif job_interview_start_date_op == 'lessThan':
+                        filters &= Q(job_interview_date__lt=start_date_obj)  # Use job_interview_date here
+                    elif job_interview_start_date_op == 'greaterThan':
+                        filters &= Q(job_interview_date__gt=start_date_obj)
+
+            # Handle end date filtering
+            if job_interview_end_date:
+                try:
+                    end_date_obj = datetime.strptime(job_interview_end_date, '%Y-%m-%d').date()
+                except ValueError:
+                    end_date_obj = None
+
+                if end_date_obj:
+                    if job_interview_end_date_op == 'equals':
+                        filters &= Q(job_interview_date=end_date_obj)
+                    elif job_interview_end_date_op == 'lessThan':
+                        filters &= Q(job_interview_date__lt=end_date_obj)
+                    elif job_interview_end_date_op == 'greaterThan':
+                        filters &= Q(job_interview_date__gt=end_date_obj)
+
+            # Query the database based on the filters
+            job_interviews = JobInterview.objects.filter(filters)
+
+            # Serialize the data into a response format
+            results = []
+            for interview in job_interviews:
+                results.append({
+                    'jobInterviewId': interview.id,
+                    'jobIntervieweePartyId': interview.job_interviewee_party.employee_id,
+                    'jobRequisitionId': interview.job_requisition.job_requisition_id,
+                    'jobInterviewerPartyId': interview.job_interviewer_party.employee_id,
+                    'jobInterviewTypeId': interview.job_interview_type.jobinterviewType,
+                    'gradeSecuredEnumId': interview.grade_secured_enum_id,
+                    'jobInterviewResult': interview.job_interview_result,
+                    'jobInterviewDate': interview.job_interview_date,
+                })
+
+            return JsonResponse(results, safe=False)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+#########################################################################################################################
 
 # anuj
 def emp_main(request):
@@ -1656,6 +2834,18 @@ class LeaveReasonList(APIView):
     def get(self, request):
         leave_reasons = LeaveReason.objects.all()
         serializer = LeaveReasonSerializer(leave_reasons, many=True)
+        return Response(serializer.data)
+
+class SkillTypeList(APIView):
+    def get(self, request):
+        skillTypeId = SkillType.objects.all()
+        serializer = SkillTypeSerializer(skillTypeId, many=True)
+        return Response(serializer.data)
+    
+class JobInterviewTypeList(APIView):
+    def get(self, request):
+        jobinterviewType = JobInterviewType.objects.all()
+        serializer = JobInterviewTypeSerializer(jobinterviewType, many=True)
         return Response(serializer.data)
     
 

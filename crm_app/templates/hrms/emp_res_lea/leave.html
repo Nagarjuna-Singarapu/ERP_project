@@ -370,7 +370,7 @@ function deleteRow(employee_id, from_date, through_date) {
 <script>
     async function loadDropdowns() {
 
-      // Load pay grades
+      // Load Leave Types
       const leaveTypeResponse = await fetch('/hrms/api/leavetypes/');
       const leaveTypes = await leaveTypeResponse.json();
       const leaveTypeSelect = document.getElementById('leaveTypeID');
@@ -382,7 +382,7 @@ function deleteRow(employee_id, from_date, through_date) {
           leaveTypeSelect.appendChild(option);
       });
 
-      // Load salary steps
+      // Load Leave Reasons
       const leaveReasonResponse = await fetch('/hrms/api/leavereasons/');
       const leaveReasons = await leaveReasonResponse.json();
       const leaveReasonSelect = document.getElementById('leaveReasonType');

@@ -21,4 +21,5 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('crm_app.urls')),
+    path('hrms/', include('crm_app.HRMS.urls')),
 ]

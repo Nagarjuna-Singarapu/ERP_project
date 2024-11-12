@@ -148,4 +148,7 @@ urlpatterns = [
     path('find-performance-review/', views.find_performance_review, name='find_performance_review'),
 
     path('create-employment-application/', views.create_employment_application, name='create_employment_application'),
+    path('search-employment-applications/', views.search_employment_applications, name='search_employment_applications'),
+    path('delete-employment-application/', views.delete_employment_application, name='delete_employment_application'),
+
 ]

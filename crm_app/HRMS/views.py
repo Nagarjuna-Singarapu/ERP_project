@@ -3,7 +3,8 @@
 
 from datetime import datetime
 from django.views.decorators.http import require_POST
-
+from django.db.models import Q
+from django.utils.dateparse import parse_date
 from rest_framework import viewsets, status
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -1695,5 +1696,72 @@ def create_employment_application(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-
+@csrf_exempt
+def search_employment_applications(request):
+    # Fetch parameters from the request query
+    appID = request.GET.get('appID', '')
+    positionID = request.GET.get('positionID', '')
+    empappSourceId = request.GET.get('empappSourceId', '')
+    applyingParty = request.GET.get('applyingParty', '')
+    applicationDateStart = request.GET.get('applicationDateStart', '')
+    applicationDateEnd = request.GET.get('applicationDateEnd', '')
     
+    # Build the filter condition dynamically based on input
+    filter_conditions = Q()
+
+    if appID:
+        filter_conditions &= Q(application_id__icontains=appID)
+    if positionID:
+        filter_conditions &= Q(position__name__icontains=positionID)
+    if empappSourceId:
+        filter_conditions &= Q(source=empappSourceId)
+    if applyingParty:
+        # Filter based on the HR_Employee's employee_id
+        filter_conditions &= Q(applying_party__employee_id=applyingParty)
+    if applicationDateStart:
+        filter_conditions &= Q(application_date__gte=parse_date(applicationDateStart))
+    if applicationDateEnd:
+        filter_conditions &= Q(application_date__lte=parse_date(applicationDateEnd))
+    
+    # Fetch the filtered applications
+    applications = EmploymentApplication.objects.filter(filter_conditions)
+
+    # Prepare the response data
+    result_data = []
+    for app in applications:
+        app_data = {
+            'appID': app.application_id,
+            'positionID': app.position.name if app.position else None,  # Position name instead of ID
+            'status': dict(EmploymentApplication.STATUS_CHOICES).get(app.status, 'Unknown'),
+            'empappSource': dict(EmploymentApplication.SOURCE_CHOICES).get(app.source, 'Unknown'),
+            'applicationDate': app.application_date.strftime('%Y-%m-%d'),
+        }
+        
+        # Add applyingParty only if applying_party exists
+        if app.applying_party:
+            app_data['applyingParty'] = app.applying_party.employee_id
+        
+        result_data.append(app_data)
+
+    # Return the response as JSON
+    return JsonResponse({'success': True, 'data': result_data})
+
+def delete_employment_application(request):
+    if request.method == 'DELETE':
+        # Get query parameters
+        application_id = request.GET.get('applicationId')
+        applying_party_id = request.GET.get('applyingPartyId')
+
+        # Validate the parameters
+        if not application_id or not applying_party_id:
+            return JsonResponse({'error': 'Missing required parameters'}, status=400)
+
+        # Find the job application to delete
+        try:
+            application = EmploymentApplication.objects.get(application_id=application_id, applying_party_id__employee_id=applying_party_id)
+            application.delete()
+            return JsonResponse({'message': 'Job application deleted successfully'}, status=200)
+        except EmploymentApplication.DoesNotExist:
+            return JsonResponse({'error': 'Job application not found'}, status=404)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

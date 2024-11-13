@@ -1,3 +1,5 @@
+<!-- ERP_project/crm_app/templates/hrms/skill_qual/lookup.html -->
+
 {% load static %}
 
 <!DOCTYPE html>
@@ -44,7 +46,6 @@
     </div>
 
     <script>
-        // Trigger the search when the search button is clicked
         document.getElementById('lookupSearchButton').addEventListener('click', function (event) {
             event.preventDefault();  // Prevent form submission
             const firstName = document.getElementById('firstName').value;
@@ -53,51 +54,42 @@
 
             const url = `/hrms/search-employees/?first_name=${firstName}&last_name=${lastName}&phone_number=${phoneNumber}`;
 
-            // Fetch employee search results from the server
             fetch(url)
                 .then(response => response.json())
                 .then(data => populateLookupTable(data))
                 .catch(error => console.error('Error fetching lookup data:', error));
         });
 
-        // Populate the table with the search results
         function populateLookupTable(data) {
             const tbody = document.querySelector('#lookup-results-table tbody');
             tbody.innerHTML = '';  // Clear previous results
 
-            if (data.length > 0) {
-                data.forEach(employee => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><a href="#" class="employee-id-link">${employee.employee_id}</a></td>
-                        <td>${employee.title}</td>
-                        <td>${employee.first_name} ${employee.last_name}</td>
-                        <td>${employee.phone_number}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
+            data.forEach(employee => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><a href="#" class="employee-id-link">${employee.employee_id}</a></td>
+                    <td>${employee.title}</td>
+                    <td>${employee.first_name} ${employee.last_name}</td>
+                    <td>${employee.phone_number}</td>
+                `;
+                tbody.appendChild(row);
+            });
 
-                // Add click event to each employee ID link
-                document.querySelectorAll('.employee-id-link').forEach(link => {
-                    link.addEventListener('click', function (event) {
-                        event.preventDefault();
-                        const employeeId = this.textContent;  // Get the employee ID from the clicked link
-                        selectEmployee(employeeId);  // Call the function to send ID to the parent
-                    });
+            // Add click event to each employee ID link
+            document.querySelectorAll('.employee-id-link').forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const employeeId = this.textContent;
+                    selectEmployee(employeeId);  // Call the function to send ID to the parent
                 });
-            } else {
-                // If no data is found, display a message
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center">No employees found.</td></tr>`;
-            }
+            });
         }
 
-        // This function sends the selected employee ID to the parent window (the main form page)
+        // This function sends the selected employee ID to the parent window
         function selectEmployee(employeeId) {
-            // Send the employee ID to the parent page
-            window.parent.selectEmployeeId(employeeId);  
-
-            // Optionally close the modal after selection
-            window.parent.closeLookupModal();  // This function should be in the parent window's JS to close the modal
+            window.parent.selectEmployeeId(employeeId);  // Sends employee ID to parent window
+            // Optionally, you can close the modal if needed:
+            window.parent.closeLookupModal();  // Assuming you have a function to close the modal
         }
     </script>
 </body>

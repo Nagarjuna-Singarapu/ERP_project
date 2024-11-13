@@ -29,9 +29,6 @@ class Responsibility_Type(models.Model):
 
 class PayGrade(models.Model):
     grade_name = models.CharField(max_length=50)
-    payGradeId = models.CharField(max_length=100, unique=True, null=True, blank=True)  # Allow null temporarily
-    grade_name = models.CharField(max_length=50, null=True, blank=True)
-    comments = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.grade_name

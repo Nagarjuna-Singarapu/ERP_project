@@ -67,178 +67,98 @@
             <button class="btn btn-custom"  onclick="window.location.href=`{% url 'tranning_class_types' %}`">Training Class Type</button>
           </div>
     
-          <div class="container my-4">
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>Find Pay Grade</h3>
-                <button class="btn btn-primary"  onclick="window.location.href=`{% url 'EditPayGrade' %}`">New Pay Grade</button>
-            </div>
+
+
+    <div class="container my-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>Find Pay Grade</h3>
+            <button class="btn btn-primary"  onclick="window.location.href='{% url 'EditPayGrade' %}'">New Pay Grade</button>
+        </div>
 
         <!-- Search Options -->
-    <div class="card mb-4">
-        <div class="section-header">Search Options</div>
-        <div class="card-body">
-            <form id="searchForm">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label for="payGradeId" class="form-label">Pay Grade ID</label>
-                        <div class="input-group">
-                            <select class="form-select"  id="payGradeId">
-                                <option value="" selected>Pay Grade ID</option>
-                            </select>
+        <div class="card mb-4">
+            <div class="section-header">Search Options</div>
+            <div class="card-body">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="payGradeId" class="form-label">Pay Grade ID</label>
+                            <input type="text" class="form-control" id="payGradeId" placeholder="Enter Pay Grade ID">
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="grade_name" class="form-label">Pay Grade Name</label>
-                        <div class="input-group">
-                            <select class="form-select" id="grade_name">
-                                <option value="Pay Grade Name" selected>Pay Grade Name</option>
-                            </select>
+                        <div class="col-md-4">
+                            <label for="payGradeName" class="form-label">Pay Grade Name</label>
+                            <div class="input-group">
+                                <select class="form-select" aria-label="Filter option">
+                                    <option value="contains">Contains</option>
+                                    <option value="equals">Equals</option>
+                                    <option value="starts">Starts With</option>
+                                </select>
+                                <input type="text" class="form-control" id="payGradeName" placeholder="Enter Pay Grade Name">
+                            </div>
+                            <div class="form-check mt-1">
+                                <input class="form-check-input" type="checkbox" id="ignoreCaseName" checked>
+                                <label class="form-check-label" for="ignoreCaseName">Ignore Case</label>
+                            </div>
                         </div>
-                    </div>
-
                         <div class="col-md-4">
                             <label for="comments" class="form-label">Comments</label>
                             <div class="input-group">
-                                <select class="form-select" aria-label="Filter option" id="comments">
-                                    <option value="Comments" selected>Comments</option>
+                                <select class="form-select" aria-label="Filter option">
+                                    <option value="contains">Contains</option>
+                                    <option value="equals">Equals</option>
+                                    <option value="starts">Starts With</option>
                                 </select>
+                                <input type="text" class="form-control" id="comments" placeholder="Enter Comments">
+                            </div>
+                            <div class="form-check mt-1">
+                                <input class="form-check-input" type="checkbox" id="ignoreCaseComments" checked>
+                                <label class="form-check-label" for="ignoreCaseComments">Ignore Case</label>
                             </div>
                         </div>
                     </div>
                     <div class="mt-3">
-                        <button type="button" class="btn btn-primary mt-4" onclick="searchPayGrades()">Find</button>
+                        <button type="button" class="btn btn-primary">Find</button>
                     </div>
                 </form>
             </div>
         </div>
 
-       <!-- Search Results -->
-    <div class="card">
-        <div class="section-header">Search Results</div>
-        <div class="table-responsive">
-            <table class="table table-bordered mb-0">
-                <thead class="table-header">
-                    <tr>
-                        <th>Pay Grade ID</th>
-                        <th>Pay Grade Name</th>
-                        <th>Comments</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="payGradesTable">
-                    <tr><td colspan="4">No records found</td></tr>
-                </tbody>
-            </table>
+        <!-- Search Results -->
+        <div class="card">
+            <div class="section-header">Search Results</div>
+            <div class="table-responsive">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-header">
+                        <tr>
+                            <th>Pay Grade ID</th>
+                            <th>Pay Grade Name</th>
+                            <th>Comments</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PG001</td>
+                            <td>Grade A</td>
+                            <td>General Staff</td>
+                            <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
+                        </tr>
+                        <tr>
+                            <td>PG002</td>
+                            <td>Grade B</td>
+                            <td>Management Level</td>
+                            <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <!-- Bootstrap JS and Popper -->
-  <!-- Bootstrap JS and Popper -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-<script>
-     const csrftoken = '{{ csrf_token }}';
-    // Function to populate the dropdowns with pay grade data
-    async function loadPayGradeData() {
-        const response = await fetch('{% url "get_paygrade_data" %}');
-        const payGrades = await response.json();
-
-        const payGradeIdSelect = document.getElementById('payGradeId');
-        const gradeNameSelect = document.getElementById('grade_name');
-        const commentsSelect = document.getElementById('comments');
-
-        payGradeIdSelect.innerHTML = '<option value="">Select Pay Grade ID</option>';
-        gradeNameSelect.innerHTML = '<option value="">Select Pay Grade Name</option>';
-        commentsSelect.innerHTML = '<option value="">Select Comments</option>';
-
-        payGrades.forEach(grade => {
-            const option1 = document.createElement('option');
-            option1.value = grade.payGradeId;
-            option1.textContent = grade.payGradeId;
-            payGradeIdSelect.appendChild(option1);
-
-            const option2 = document.createElement('option');
-            option2.value = grade.grade_name;
-            option2.textContent = grade.grade_name;
-            gradeNameSelect.appendChild(option2);
-            if (grade.comments) {
-                const option3 = document.createElement('option');
-                option3.value = grade.comments;
-                option3.textContent = grade.comments;
-                commentsSelect.appendChild(option3);
-            }
-        });
-    }
-
-    // Call loadPayGradeData function on page load
-    document.addEventListener('DOMContentLoaded', loadPayGradeData);
-
-    // Function to search Pay Grades based on filters
-    async function searchPayGrades() {
-        const payGradeId = document.getElementById('payGradeId').value;
-        const gradeName = document.getElementById('grade_name').value;
-        const comments = document.getElementById('comments').value;
-
-        const response = await fetch(`{% url 'search_pay_grades' %}?payGradeId=${payGradeId}&grade_name=${gradeName}&comments=${comments}`);
-        const results = await response.json();
-
-        const resultsTable = document.getElementById('payGradesTable');
-        resultsTable.innerHTML = '';
-
-        if (results.length === 0) {
-            resultsTable.innerHTML = `<tr><td colspan="4">No records found</td></tr>`;
-        } else {
-            results.forEach(result => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${result.payGradeId}</td>
-                    <td>${result.grade_name}</td>
-                    <td>${result.comments}</td>
-                    <td><button class="btn btn-danger btn-sm" onclick="deletePayGrade('${result.payGradeId}')">Delete</button></td>
-                `;
-                resultsTable.appendChild(row);
-            });
-        }
-    }
-
-    // Function to delete a Pay Grade
-    async function deletePayGrade(id) {
-        console.log("Pay Grade ID to delete:", id);
-        if (!id) {
-        alert('Invalid Pay Grade ID');
-        return;
-    }
-    if (confirm('Are you sure you want to delete this Pay Grade?')) {
-        // Directly use CSRFTOKEN 
-        if (!csrftoken) {
-            alert('CSRF token not found. Please reload the page.');
-            return;
-        }
-
-        try {
-            const response = await fetch(`/hrms/api/delete-pay-grade/${id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': csrftoken,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                alert('Pay Grade deleted successfully');
-                searchPayGrades(); // after Deleting refrecing table 
-            } else {
-                const errorData = await response.json();
-                alert('Failed to delete Pay Grade: ' + (errorData.message || 'Unknown error'));
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred while deleting the Pay Grade.');
-        }
-    }
-}
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

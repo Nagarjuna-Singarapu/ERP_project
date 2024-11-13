@@ -2578,7 +2578,7 @@ def create_performance_review(request):
             manager_party_id = data.get('managerPartyId', '')
             manager_role_type = data.get('managerRoleType', '')
             payment_id = data.get('paymentId', '')
-            empl_position_id = data.get('emplPositionId', '')  # Position ID might be empty or invalid
+            empl_position_name = data.get('emplPositionId', '')
             from_date = data.get('fromDate', '')
             through_date = data.get('throughDate', '')
             comments = data.get('comments', '')
@@ -2591,15 +2591,14 @@ def create_performance_review(request):
 
             # Handle missing or invalid Position Type
             position_type = None
-            if empl_position_id:  # Only try to find a PositionType if one is provided
+            if empl_position_name:  # Only try to find a PositionType if one is provided
                 try:
-                    position_type = PositionType.objects.get(id=empl_position_id)
+                    position_type = PositionType.objects.get(name=empl_position_name)
                 except PositionType.DoesNotExist:
                     # If PositionType doesn't exist, we just keep it as None
-                    position_type = None
+                    
                     # Optional: You could return an error here if you want strict validation
-                    # return JsonResponse({'status': 'error', 'message': 'Position Type not found.'})
-
+                    return JsonResponse({'status': 'error', 'message': 'Position Type not found.'})
             # Parse dates
             from_date_parsed = datetime.strptime(from_date, '%Y-%m-%d').date() if from_date else None
             through_date_parsed = datetime.strptime(through_date, '%Y-%m-%d').date() if through_date else None
@@ -2634,7 +2633,7 @@ def find_performance_review(request):
         manager_party_id = request.POST.get('managerPartyId', '').strip()
         manager_role_type_id = request.POST.get('managerRoleTypeId', '').strip()
         payment_id = request.POST.get('paymentId', '').strip()
-        empl_position_type_id = request.POST.get('emplPositionId', '').strip()
+        empl_position_name = request.POST.get('emplPositionName', '').strip()
         from_date = request.POST.get('fromDate', '').strip()
         through_date = request.POST.get('throughDate', '').strip()
         comments = request.POST.get('comments', '').strip()
@@ -2679,8 +2678,8 @@ def find_performance_review(request):
             filters['payment_id__icontains'] = payment_id
 
         # Filter by Employee Position Type ID
-        if empl_position_type_id:
-            filters['empl_position_type_id__icontains'] = empl_position_type_id
+        if empl_position_name:
+            filters['empl_position_type__name__icontains'] = empl_position_name
 
         # Filter by Date Range (From Date, Through Date)
         if from_date:
@@ -2707,7 +2706,7 @@ def find_performance_review(request):
                 'manager_party_id': review.manager_party_id,
                 'manager_role_type_id': review.manager_role_type,
                 'payment_id': review.payment_id,
-                'empl_position_id': review.empl_position_type.id if review.empl_position_type else None,  # Include the Employee Position ID
+                'empl_position_name': review.empl_position_type.name if review.empl_position_type else None,  # Include the Employee Position ID
                 'from_date': review.from_date,
                 'through_date': review.through_date,
                 'comments': review.comments,
@@ -2895,6 +2894,7 @@ def search_employment_applications(request):
     applyingParty = request.GET.get('applyingParty', '')
     applicationDateStart = request.GET.get('applicationDateStart', '')
     applicationDateEnd = request.GET.get('applicationDateEnd', '')
+    statuses = request.GET.get('statuses', '')  # Get the statuses from the request
     
     # Build the filter condition dynamically based on input
     filter_conditions = Q()
@@ -2913,6 +2913,11 @@ def search_employment_applications(request):
     if applicationDateEnd:
         filter_conditions &= Q(application_date__lte=parse_date(applicationDateEnd))
     
+    # If the 'statuses' parameter is provided, add it to the filter
+    if statuses:
+        status_list = [int(status) for status in statuses.split(',')]  # Convert the string to a list of integers
+        filter_conditions &= Q(status__in=status_list)  # Filter by status
+
     # Fetch the filtered applications
     applications = EmploymentApplication.objects.filter(filter_conditions)
 

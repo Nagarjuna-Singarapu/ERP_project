@@ -86,7 +86,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="employeePartyIdIcon">Employee Party ID</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="employeePartyId" placeholder="Enter Employee ID">
+                        <input type="text" class="form-control" id="employeePartyId" placeholder="Enter Employee ID" required>
                         <button type="button" class="btn btn-outline-secondary" id="show-modal-btn">
                             <i class="fas fa-user"></i>
                         </button>
@@ -98,7 +98,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="perfReviewId">Perf Review ID</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="perfReviewId" placeholder="Enter Review ID">
+                        <input type="text" class="form-control" id="perfReviewId" placeholder="Enter Review ID" required>
                         
                     </div>
                 </div>
@@ -106,7 +106,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="managerPartyId">Manager Party ID</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="managerPartyId" placeholder="Enter Manager ID">
+                        <input type="text" class="form-control" id="managerPartyId" placeholder="Enter Manager Party ID" required>
                         <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
                             <i class="fas fa-user"></i>
                         </button>
@@ -115,8 +115,8 @@
 
                 <div class="col-md-6 mb-3">
                     <label for="managerRoleTypeId">Manager Role Type ID</label>
-                    <select class="form-control" id="managerRoleTypeId">
-                        <option selected disabled>Main Role</option>
+                    <select class="form-control" id="managerRoleTypeId" pla required>
+                        <option selected disabled></option>
                         <option>Account Lead</option>
                         <option>Administrator</option>
                         <option>Agent</option>
@@ -141,7 +141,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="paymentId">Payment ID</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="paymentId" placeholder="Enter Payment ID">
+                        <input type="text" class="form-control" id="paymentId" placeholder="Enter Payment ID" required>
                         <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
                             <i class="fas fa-user"></i>
                         </button>
@@ -151,7 +151,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="emplPositionId">Empl Position ID</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="emplPositionId" placeholder="Enter Position ID">
+                        <input type="text" class="form-control" id="emplPositionId" name="emplPositionId" placeholder="Enter Position ID" required>
                         <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
                             <i class="fas fa-user"></i>
                         </button>
@@ -160,15 +160,15 @@
 
                 <div class="col-md-3 mb-3">
                     <label for="fromDate">From Date</label>
-                    <input type="date" class="form-control" id="fromDate">
+                    <input type="date" class="form-control" id="fromDate" required>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="throughDate">Through Date</label>
-                    <input type="date" class="form-control" id="throughDate">
+                    <input type="date" class="form-control" id="throughDate" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="comments">Comments</label>
-                    <input type="text" class="form-control" id="comments" placeholder="Enter Comments">
+                    <input type="text" class="form-control" id="comments" placeholder="Enter Comments" required>
                 </div>
                 <div class="col-md-12 text-right">
                     <button type="submit" class="btn btn-success">Create</button>

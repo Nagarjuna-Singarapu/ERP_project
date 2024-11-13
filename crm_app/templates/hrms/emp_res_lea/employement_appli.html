@@ -235,6 +235,12 @@
                 const applicationDateStart = document.getElementById('applicationDateStart').value;
                 const applicationDateEnd = document.getElementById('applicationDateEnd').value;
     
+                // Collect status values from checkboxes
+                const statuses = [];
+                if (document.getElementById('active').checked) statuses.push(1);   // Active/Open
+                if (document.getElementById('inactive').checked) statuses.push(2); // Inactive/Closed
+                if (document.getElementById('planned').checked) statuses.push(3);  // Planned For
+
                 // Construct the query parameters
                 let queryParams = new URLSearchParams({
                     appID: appID,
@@ -242,7 +248,8 @@
                     empappSourceId: empappSourceId,
                     applyingParty: applyingParty,
                     applicationDateStart: applicationDateStart,
-                    applicationDateEnd: applicationDateEnd
+                    applicationDateEnd: applicationDateEnd,
+                    statuses: statuses.join(',') // Convert array to a comma-separated string
                 }).toString();
     
                 // Fetch data from the backend

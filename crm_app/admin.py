@@ -1,11 +1,10 @@
 from django.contrib import admin
 
 from .models import UserSignup, Profile, RegisterUser, Contacts, Leads, Opportunities, Invoice, Calls, Calendar
-<<<<<<< HEAD
+
 from crm_app.HRMS.models import PerformanceReview, PartySkill, HR_Employee, Employment, PayGrade, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, EmploymentApplication
-=======
+
 from crm_app.HRMS.models import HR_Employee, Employment, EmployeeResume, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, PartySkill, PayGrade, PerformanceReview, PublicHoliday, SkillType, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, TrainingClassType
->>>>>>> 503e55143edcf3682db48c0dc29d281aedfd98de
 
 # Register your models here.
 admin.site.register(UserSignup)
@@ -98,14 +97,6 @@ class BudgetRequestAdmin(admin.ModelAdmin):
     ordering = ('-start_date',)
 
 admin.site.register(BudgetRequest, BudgetRequestAdmin)
-
-<<<<<<< HEAD
-
-
-
-
-=======
->>>>>>> 503e55143edcf3682db48c0dc29d281aedfd98de
 admin.site.register(HR_Employee)
 admin.site.register(PerformanceReview)
 admin.site.register(Employment)
@@ -122,9 +113,7 @@ admin.site.register(EmployeeQualification)
 admin.site.register(LeaveType)
 admin.site.register(LeaveReason)
 admin.site.register(EmployeeLeave)
-<<<<<<< HEAD
 admin.site.register(EmploymentApplication)
-=======
 admin.site.register(JobInterviewType)
 admin.site.register(TrainingClassType)
 admin.site.register(PublicHoliday)
@@ -133,5 +122,4 @@ admin.site.register(EmployeeResume)
 admin.site.register(JobRequisition)
 admin.site.register(InternalJobPosting)
 admin.site.register(JobInterview)
->>>>>>> 503e55143edcf3682db48c0dc29d281aedfd98de
 

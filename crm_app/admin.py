@@ -1,10 +1,19 @@
 from django.contrib import admin
 
-from .models import UserSignup, Profile, RegisterUser, Contacts, Leads, Opportunities, Invoice, Calls, Calendar
+# Import models from the current app (CRM)
+from .models import (
+    UserSignup, Profile, RegisterUser, Contacts, Leads, Opportunities, 
+    Invoice, Calls, Calendar
+)
 
-from crm_app.HRMS.models import PerformanceReview, PartySkill, HR_Employee, Employment, PayGrade, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, EmploymentApplication
-
-from crm_app.HRMS.models import HR_Employee, Employment, EmployeeResume, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, PartySkill, PayGrade, PerformanceReview, PublicHoliday, SkillType, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, TrainingClassType
+# Import models from the HRMS app
+from crm_app.HRMS.models import (
+    EmploymentApplication, HR_Employee, Employment, EmployeeResume, InternalJobPosting, JobInterview, 
+    JobInterviewType, JobRequisition, PartySkill, PayGrade, PerformanceReview, 
+    PublicHoliday, Responsibility_Type, SkillType, SalaryStepGrade, HR_Company, 
+    HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, 
+    EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, TrainingClassType
+)
 
 # Register your models here.
 admin.site.register(UserSignup)
@@ -110,6 +119,7 @@ admin.site.register(PartySkill)
 admin.site.register(PositionType)
 admin.site.register(EmployeePosition)
 admin.site.register(EmployeeQualification)
+admin.site.register(Responsibility_Type)
 admin.site.register(LeaveType)
 admin.site.register(LeaveReason)
 admin.site.register(EmployeeLeave)

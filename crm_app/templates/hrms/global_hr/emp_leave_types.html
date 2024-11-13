@@ -102,11 +102,11 @@
         <div class="card mb-4">
             <div class="section-header">Add EmplLeave Types</div>
             <div class="card-body">
-                <form>
+                <form id="leaveTypeForm">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="leaveTypeId" class="form-label">Leave Type ID</label>
-                            <input type="text" class="form-control" id="leaveTypeId" placeholder="Enter Leave Type ID">
+                            <label for="leave_type" class="form-label">Leave Type ID</label>
+                            <input type="text" class="form-control" id="leave_type" placeholder="Enter Leave Type ID">
                         </div>
                         <div class="col-md-6">
                             <label for="description" class="form-label">Description</label>
@@ -129,65 +129,103 @@
                         <tr>
                             <th>Leave Type ID</th>
                             <th>Description</th>
-                            <th>Delete</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>INLAND_EARNED</td>
-                            <td>Inland earned</td>
-                            <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
-                        </tr>
-                        <tr>
-                            <td>LOSS_OF_PAY</td>
-                            <td>Loss of pay</td>
-                            <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
-                        </tr>
-                        <tr>
-                            <td>RESTRICTED_HOLIDAY</td>
-                            <td>Restricted holiday</td>
-                            <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
-                        </tr>
-                        <tr>
-                            <td>SPECIAL_DAY_OFF</td>
-                            <td>Special day off</td>
-                            <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
-                        </tr>
+                    <tbody id="leaveTypeTable">
                     </tbody>
                 </table>
             </div>
         </div>
-
-        <!-- Submit Button Below the Table -->
-        <div class="d-flex justify-content-end mt-3">
-            <button type="button" class="btn btn-primary">Submit</button>
-        </div>
     </div>
 
     <!-- Bootstrap JS and Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
         // JavaScript function to open a new page when Reason Type tab is clicked
-        {% comment %} function openReasonTypePage() {
-            window.location.href = '{% url 'EmpLeaveReasonType' %}'; // Change to the path of your Reason Type page
-        } {% endcomment %}
+        $(document).ready(function() {
+        loadLeaveTypes();
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const currentPage = window.location.pathname.split("/").pop(); // Get the current page name
-            const navLinks = document.querySelectorAll(".nav-link");
+        $('#leaveTypeForm button').click(function() {
+          let leave_type = $('#leave_type').val().trim();
+          let description = $('#description').val().trim();
+          let valid = true;
 
-            navLinks.forEach((link) => {
-                const linkHref = link.getAttribute("href").split("/").pop(); // Get the link's page name
+          $('#leaveTypeError, #descriptionError').text('');
+          // ID validation: only alphanumeric
+          if (!/^[a-zA-Z0-9]+$/.test(leave_type)) {
+            alert("ID should contain only alphanumeric characters.");
+            valid = false;
+          }
 
-                if (linkHref === currentPage) {
-                    link.classList.add("active"); // Add active class to the current page link
-                } else {
-                    link.classList.remove("active"); // Remove active class from other links
-                }
-            });
+          // Description validation: only letters, numbers, and spaces
+          if (!/^[a-zA-Z0-9\s]+$/.test(description)) {
+            alert("Description should contain only letters, numbers, and spaces.");
+            valid = false;
+          }
+
+          if (!valid) return;  // Stop form submission if validation fails
+
+          $.ajax({
+            url: "{% url 'leave_type_create' %}",
+            method: "POST",
+            data: {
+              leave_type: leave_type,
+              description: description,
+              csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+            success: function(response) {
+              if (response.success) {
+                alert("Leave Type added successfully.");
+                loadLeaveTypes();
+                $('#leaveTypeForm')[0].reset();
+              } else {
+                alert(response.message || "Error adding Leave Type.");
+              }
+            }
+          });
         });
+
+        $(document).on("click", ".delete-btn", function() {
+          const leaveTypeId = $(this).data("id");
+          if (!confirm("Are you sure you want to delete this entry?")) return;
+
+          $.ajax({
+            url: "{% url 'leave_type_delete' %}",
+            method: "POST",
+            headers: { 'X-HTTP-Method-Override': 'DELETE' },
+            data: {
+              leave_type: leaveTypeId,
+              csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+            success: function(response) {
+              if (response.success) {
+                alert("Leave Type deleted successfully.");
+                loadLeaveTypes();
+              } else {
+                alert(response.message || "Error deleting Leave Type.");
+              }
+            }
+          });
+        });
+
+        function loadLeaveTypes() {
+          $.get("{% url 'leave_type_list' %}", function(response) {
+            const tableBody = $("#leaveTypeTable");
+            tableBody.empty();
+            response.leave_types.forEach(type => {
+              tableBody.append(`
+                <tr>
+                  <td>${type.leave_type}</td>
+                  <td>${type.description}</td>
+                  <td><button class="btn btn-danger delete-btn" data-id="${type.leave_type}">Delete</button></td>
+                </tr>
+              `);
+            });
+          });
+        }
+      });
 
     </script>
 </body>

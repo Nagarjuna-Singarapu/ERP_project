@@ -83,7 +83,6 @@ def get_skill_type(request):
 
 
 #View for adding  skill types
-@csrf_exempt
 def skill_type(request):
     if request.method == 'POST':
         try:
@@ -91,7 +90,7 @@ def skill_type(request):
             data = json.loads(request.body.decode('utf-8'))
             skill_type_id = data.get('skillTypeId')
             description = data.get('description')
-
+            print(' ',skill_type_id)
             # Validate received data
             if not skill_type_id or not description:
                 return JsonResponse({'status': 'error', 'message': 'Missing skillTypeId or description'}, status=400)

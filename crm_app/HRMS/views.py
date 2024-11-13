@@ -30,14 +30,14 @@ from .models import (
     EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume,
     HR_Employee, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, PublicHoliday, Responsibility_Type, SalaryStepGrade,
     Employment, HR_Company, HR_Department, SkillType, TerminationReason, TerminationType,
-    PerformanceReview, PartySkill, TrainingClassType
+    PerformanceReview, PartySkill, TrainingClass, TrainingClassType
 )
 
 # Project Specific Imports - Serializers
 from .serializers import (
     JobInterviewTypeSerializer, PerformanceReviewSerializer, PayGradeSerializer, SalaryStepGradeSerializer,
     LeaveReasonSerializer, LeaveTypeSerializer, PositionTypeSerializer, SkillTypeSerializer,
-    TerminationReasonSerializer, TerminationTypeSerializer
+    TerminationReasonSerializer, TerminationTypeSerializer, TrainingClassTypeSerializer
 )
 
 # Project Specific Utilities
@@ -1018,7 +1018,7 @@ def employment_data(request):
 
 ##############################################################################################################################################
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 def create_employee_position(request):
     errors = {}
@@ -2298,6 +2298,100 @@ def job_interview_search(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 #########################################################################################################################
 
+from django.utils import timezone
+from datetime import datetime
+
+def add_training_class(request):
+    errors = {}  # Dictionary to store error messages
+
+    if request.method == 'POST':
+        # Get form data from the request
+        approver_id = request.POST.get('approverId')
+        training_type_id = request.POST.get('trainingType')
+        description = request.POST.get('description')
+        from_date = request.POST.get('fromDate')
+        from_time = request.POST.get('fromTime')
+        through_date = request.POST.get('throughDate')
+        through_time = request.POST.get('throughTime')
+
+        # Step 1: Validate Approver ID
+        if not approver_id:
+            errors['approverId'] = "Approver Party ID is required."
+        else:
+            try:
+                approver = HR_Employee.objects.get(employee_id=approver_id)
+            except HR_Employee.DoesNotExist:
+                errors['approverId'] = "Approver Party ID does not exist."
+
+        # Step 2: Validate Training Type
+        if not training_type_id or training_type_id == "Select Training Type":
+            errors['trainingType'] = "Training Type is required."
+        else:
+            try:
+                training_type = TrainingClassType.objects.get(tranningTypeId=training_type_id)
+            except TrainingClassType.DoesNotExist:
+                errors['trainingType'] = "Training Type does not exist."
+
+        # Step 3: Validate From Date
+        if not from_date:
+            errors['fromDate'] = "From Date is required."
+        else:
+            try:
+                from_date = timezone.make_aware(datetime.strptime(from_date, "%Y-%m-%d"))
+            except ValueError:
+                errors['fromDate'] = "Invalid date format. Please use YYYY-MM-DD."
+
+        # Step 4: Validate Through Date
+        if not through_date:
+            errors['throughDate'] = "Through Date is required."
+        else:
+            try:
+                through_date = timezone.make_aware(datetime.strptime(through_date, "%Y-%m-%d"))
+            except ValueError:
+                errors['throughDate'] = "Invalid date format. Please use YYYY-MM-DD."
+
+        # Step 5: Validate From Time and Through Time
+        if not from_time:
+            errors['fromTime'] = "From Time is required."
+        if not through_time:
+            errors['throughTime'] = "Through Time is required."
+
+        # Step 6: If no errors, create or update the TrainingClass entry
+        if not errors:
+            try:
+                training_class, created = TrainingClass.objects.update_or_create(
+                    approverId=approver,
+                    trainingType=training_type,
+                    defaults={
+                        'description': description,
+                        'fromDate': from_date,
+                        'fromTime': from_time,
+                        'throughDate': through_date,
+                        'throughTime': through_time
+                    }
+                )
+                return render(request, 'hrms/skill_qual/addnewEvent.html', {'success': True})
+            except Exception as e:
+                messages.error(request, f"An error occurred: {str(e)}")
+
+    # Fetch data for dropdowns and render the form
+    employees = HR_Employee.objects.all()
+    training_types = TrainingClassType.objects.all()
+
+    return render(request, 'hrms/skill_qual/addnewEvent.html', {
+        'errors': errors,
+        'employees': employees,
+        'training_types': training_types,
+        'approverId': request.POST.get('approverId', ''),
+        'description': request.POST.get('description', ''),
+        'fromDate': request.POST.get('fromDate', ''),
+        'fromTime': request.POST.get('fromTime', ''),
+        'throughDate': request.POST.get('throughDate', ''),
+        'throughTime': request.POST.get('throughTime', ''),
+    })
+
+#########################################################################################################################
+
 # anuj
 def emp_main(request):
     return render(request, 'hrms/emp_per/emp_main.html')
@@ -2692,5 +2786,11 @@ class JobInterviewTypeList(APIView):
     def get(self, request):
         jobinterviewType = JobInterviewType.objects.all()
         serializer = JobInterviewTypeSerializer(jobinterviewType, many=True)
+        return Response(serializer.data)
+
+class TrainingClassTypeList(APIView):
+    def get(self, request):
+        TrainingClassTypes = TrainingClassType.objects.all()
+        serializer = TrainingClassTypeSerializer(TrainingClassTypes, many=True)
         return Response(serializer.data)
     

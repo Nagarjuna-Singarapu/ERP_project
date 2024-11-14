@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/leavereasons/', views.LeaveReasonList.as_view(), name='leaveReason-list'),
     path('api/skilltypes/', views.SkillTypeList.as_view(), name='skillType-list'),
     path('api/jobinterviewtypes/', views.JobInterviewTypeList.as_view(), name='jobInterviewType-list'),
+    path('api/trainingclasstypes/', views.TrainingClassTypeList.as_view(), name='trainingClassType-list'),
 
     path('employment-search/', views.employment_search, name='employment_search'),
     path('api/employment-data/', views.employment_data, name='employment_data'),
@@ -66,6 +67,11 @@ urlpatterns = [
 
     path('create-job-interview/', views.create_job_interview, name='create_job_interview'),
     path('job-interview-search/', views.job_interview_search, name='job_interview_search'),
+
+    path('add-training/', views.add_training_class, name='add_training_class'),
+    path('api/get-trainings/', views.get_trainings, name='get_trainings'),
+    path('add-attendee/', views.add_attendee, name='add_attendee'),
+    path('get-attendees/<int:training_class_id>/', views.get_attendees, name='get_attendees'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),

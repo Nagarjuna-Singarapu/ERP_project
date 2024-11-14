@@ -460,4 +460,46 @@ class JobInterview(models.Model):
         verbose_name = 'Job Interview'
         verbose_name_plural = 'Job Interviews'
 
+# TrainingClass model
+class TrainingClass(models.Model):
+    trainingClassId = models.AutoField(primary_key=True, unique=True)
+    approverId = models.ForeignKey(
+        HR_Employee, 
+        to_field='employee_id', 
+        on_delete=models.CASCADE, 
+        verbose_name="Approver Party Id"
+    )
+    trainingType = models.ForeignKey(
+        TrainingClassType, 
+        to_field='tranningTypeId', 
+        on_delete=models.CASCADE, 
+        verbose_name="Training Name"
+    )
+    description = models.TextField(blank=True, null=True)
+    fromDate = models.DateField()
+    fromTime = models.TimeField()
+    throughDate = models.DateField()
+    throughTime = models.TimeField()
 
+    def __str__(self):
+        return f"Training Class {self.trainingClassId} - {self.trainingType.description}"
+    
+
+class TrainingAttendee(models.Model):
+    attendeeId = models.AutoField(primary_key=True, unique=True)
+    employee = models.ForeignKey(
+        HR_Employee,
+        to_field='employee_id',
+        on_delete=models.CASCADE,
+        verbose_name="Employee Party ID"
+    )
+    trainingClass = models.ForeignKey(
+        TrainingClass,
+        to_field='trainingClassId',
+        on_delete=models.CASCADE,
+        verbose_name="Training Class ID"
+    )
+    status = models.CharField(max_length=20, default='Assigned')
+
+    def __str__(self):
+        return f"Employee Id: {self.employee.employee_id} - Training Class Id: {self.trainingClass.trainingClassId} - Attendee Id: {self.attendeeId}"

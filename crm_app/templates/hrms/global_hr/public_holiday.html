@@ -162,23 +162,46 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-         // Fetch Public Holidays
-         function fetchPublicHolidays() {
-            $.get("{% url 'list_public_holidays' %}", function(response) {
-                let rows = "";
-                if (response.success) {
-                    response.data.forEach(item => {
-                        rows += `<tr>
-                            <td>${item.holiday_name}</td>
-                            <td>${item.description}</td>
-                            <td>${item.from_date}</td>
-                            <td><button class="btn btn-danger btn-sm" onclick="deletePublicHoliday('${item.holiday_name}')">Delete</button></td>
-                        </tr>`;
-                    });
-                }
+   // Function to fetch and display public holidays
+let existingHolidayIds = [];
+
+function fetchPublicHolidays() {
+    $.ajax({
+        url: "{% url 'list_public_holidays' %}",
+        method: "GET",
+        success: function(response) {
+            let rows = "";
+            if (response.success && response.data.length > 0) {
+                existingHolidayIds = response.data.map(item => item.holiday_name);
+
+                // Clear the existing table rows
+                const holidayTable = document.getElementById('publicHolidayTable');
+                holidayTable.innerHTML = '';
+
+                // Populate the table with fetched data
+                response.data.forEach(item => {
+                    const newRow = `<tr>
+                        <td>${item.holiday_name}</td>
+                        <td>${item.description || 'N/A'}</td>
+                        <td>${item.from_date || 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deletePublicHoliday('${item.holiday_name}')">Delete</button>
+                        </td>
+                    </tr>`;
+                    holidayTable.insertAdjacentHTML('beforeend', newRow);
+                });
+            } else {
+                // If no data is available
+                rows = `<tr><td colspan="4" class="text-center">No public holidays found</td></tr>`;
                 $("#publicHolidayTable").html(rows);
-            });
+            }
+        },
+        error: function(error) {
+            console.error("Error fetching public holidays:", error);
+            alert('Failed to load public holidays. Please try again later.');
         }
+    });
+}
 
         // Add Public Holiday
 
@@ -212,6 +235,14 @@
                 });
             }
         }
+
+// Automatically fetch public holidays on page load
+$(document).ready(function() {
+    fetchPublicHolidays(); // Call function to load data when the page loads
+});
+
+
+
     </script>
   </body>
 </html>

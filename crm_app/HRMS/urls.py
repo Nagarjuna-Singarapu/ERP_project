@@ -161,7 +161,7 @@ urlpatterns = [
   #Public Holiday Type
     path('public_holiday/', views.public_holiday, name='public_holiday'),
     path('create-public-holiday/', views.create_public_holiday, name='create_public_holiday'),
-    path('list-public-holidays/', views.list_public_holidays, name='list_public_holidays'),
+    path('api/list-public-holidays/', views.list_public_holidays, name='list_public_holidays'),
     path('delete-public-holiday/', views.delete_public_holiday, name='delete_public_holiday'),
     
     path('EditPayGrade/', views.EditPayGrade, name='EditPayGrade'),

@@ -21,6 +21,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect,csrf_exempt
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q
+from django.views.decorators.http import require_GET
 
 # Django REST Framework Imports
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -34,14 +35,14 @@ from .models import (
     EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume, EmploymentApplication,
     HR_Employee, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, PublicHoliday, Responsibility_Type, SalaryStepGrade,
     Employment, HR_Company, HR_Department, SkillType, TerminationReason, TerminationType,
-    PerformanceReview, PartySkill, TrainingClassType
+    PerformanceReview, PartySkill, TrainingAttendee, TrainingClass, TrainingClassType
 )
 
 # Project Specific Imports - Serializers
 from .serializers import (
     JobInterviewTypeSerializer, PerformanceReviewSerializer, PayGradeSerializer, SalaryStepGradeSerializer,
     LeaveReasonSerializer, LeaveTypeSerializer, PositionTypeSerializer, SkillTypeSerializer,
-    TerminationReasonSerializer, TerminationTypeSerializer
+    TerminationReasonSerializer, TerminationTypeSerializer, TrainingClassTypeSerializer
 )
 
 # Project Specific Utilities
@@ -336,7 +337,6 @@ def search_pay_grades(request):
     data = PayGrade.objects.filter(**filters).values('id', 'payGradeId', 'grade_name','comments')
     return JsonResponse(list(data), safe=False)
 
-#view for create Paygrades 
 def create_paygrade(request):
     if request.method == 'POST':
         payGradeId = request.POST.get('payGradeId')
@@ -345,20 +345,26 @@ def create_paygrade(request):
 
         # Backend validation
         errors = {}
-        
+
         # Validate Pay Grade ID
         if not payGradeId:
             errors['payGradeId'] = 'Pay Grade ID is required.'
         elif not payGradeId.isalnum():
             errors['payGradeId'] = 'Pay Grade ID must be alphanumeric.'
-        elif not re.match(r'^[a-zA-Z0-9]+$', payGradeId):
-            errors['payGradeId'] = 'Pay Grade ID must be alphanumeric.'
-        elif PayGrade.objects.filter(payGradeId=payGradeId).exists():
-            errors['payGradeId'] = 'Pay Grade ID already exists.'
-
+        
         # Validate Pay Grade Name
         if not grade_name:
             errors['grade_name'] = 'Pay Grade Name is required.'
+        elif not re.match(r'^[a-zA-Z0-9\s]+$', grade_name):
+            errors['grade_name'] = 'Pay Grade Name must be alphanumeric.'
+
+        # Validate Comments (if provided)
+        if comments and not re.match(r'^[a-zA-Z\s]*$', comments):
+            errors['comments'] = 'Comments should only contain alphabets.'
+
+        # Check if Pay Grade ID already exists
+        if PayGrade.objects.filter(payGradeId=payGradeId).exists():
+            errors['payGradeId'] = 'Pay Grade ID already exists.'
 
         # Return errors if any
         if errors:
@@ -379,7 +385,6 @@ def create_paygrade(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
 
-
 # View to delete a pay grade by ID
 @csrf_protect
 def delete_pay_grade(request, id):
@@ -398,23 +403,7 @@ def delete_pay_grade(request, id):
 
 #view for get list show Position Type 
 def get_position_data(request):
-    position_type = request.GET.get('positionType', '')
-    parent_type = request.GET.get('parentType', '')
-    has_table = request.GET.get('hasTable', '')
-    description = request.GET.get('description', '')
-
-    # Filter based on the selected filters
-    filters = {}
-    if position_type:
-        filters['name__icontains'] = position_type
-    if parent_type:
-        filters['parent_type__name__icontains'] = parent_type
-    if has_table:
-        filters['has_table__icontains'] = has_table
-    if description:
-        filters['description__icontains'] = description
-
-    data = PositionType.objects.filter(**filters).values('id', 'name','parent_type__name', 'description')
+    data = PositionType.objects.all().values('name','parent_type','has_table', 'description')
     return JsonResponse(list(data), safe=False)
 
 #view to search Position Type data
@@ -490,13 +479,13 @@ def create_position(request):
 
 # View for delete to Position type by ID
 @csrf_protect
-def delete_position_type(request, id):
-    print(f"Triggering delete for position type ID: {id}")
+def delete_position_type(request, name):
+    print(f"Triggering delete for position type ID: {name}")
     
     if request.method == 'DELETE':
         try:
             # Make sure you are using the correct field, which should be `id` in this case
-            position_type = PositionType.objects.get(id=id)
+            position_type = PositionType.objects.get(name=name)
             position_type.delete()
             return JsonResponse({'message': 'Position type deleted successfully'}, status=200)
         except PositionType.DoesNotExist:
@@ -1021,7 +1010,7 @@ def employment_data(request):
 
 ##############################################################################################################################################
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 def create_employee_position(request):
     errors = {}
@@ -2301,6 +2290,167 @@ def job_interview_search(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 #########################################################################################################################
 
+from django.utils import timezone
+from datetime import datetime
+
+def add_training_class(request):
+    errors = {}  # Dictionary to store error messages
+
+    if request.method == 'POST':
+        # Get form data from the request
+        approver_id = request.POST.get('approverId')
+        training_type_id = request.POST.get('trainingType')
+        description = request.POST.get('description')
+        from_date = request.POST.get('fromDate')
+        from_time = request.POST.get('fromTime')
+        through_date = request.POST.get('throughDate')
+        through_time = request.POST.get('throughTime')
+
+        # Step 1: Validate Approver ID
+        if not approver_id:
+            errors['approverId'] = "Approver Party ID is required."
+        else:
+            try:
+                approver = HR_Employee.objects.get(employee_id=approver_id)
+            except HR_Employee.DoesNotExist:
+                errors['approverId'] = "Approver Party ID does not exist."
+
+        # Step 2: Validate Training Type
+        if not training_type_id or training_type_id == "Select Training Type":
+            errors['trainingType'] = "Training Type is required."
+        else:
+            try:
+                training_type = TrainingClassType.objects.get(tranningTypeId=training_type_id)
+            except TrainingClassType.DoesNotExist:
+                errors['trainingType'] = "Training Type does not exist."
+
+        # Step 3: Validate From Date
+        if not from_date:
+            errors['fromDate'] = "From Date is required."
+        else:
+            try:
+                from_date = timezone.make_aware(datetime.strptime(from_date, "%Y-%m-%d"))
+            except ValueError:
+                errors['fromDate'] = "Invalid date format. Please use YYYY-MM-DD."
+
+        # Step 4: Validate Through Date
+        if not through_date:
+            errors['throughDate'] = "Through Date is required."
+        else:
+            try:
+                through_date = timezone.make_aware(datetime.strptime(through_date, "%Y-%m-%d"))
+            except ValueError:
+                errors['throughDate'] = "Invalid date format. Please use YYYY-MM-DD."
+
+        # Step 5: Validate From Time and Through Time
+        if not from_time:
+            errors['fromTime'] = "From Time is required."
+        if not through_time:
+            errors['throughTime'] = "Through Time is required."
+
+        # Step 6: If no errors, create or update the TrainingClass entry
+        if not errors:
+            try:
+                training_class, created = TrainingClass.objects.update_or_create(
+                    approverId=approver,
+                    trainingType=training_type,
+                    defaults={
+                        'description': description,
+                        'fromDate': from_date,
+                        'fromTime': from_time,
+                        'throughDate': through_date,
+                        'throughTime': through_time
+                    }
+                )
+                return render(request, 'hrms/skill_qual/addnewEvent.html', {'success': True})
+            except Exception as e:
+                messages.error(request, f"An error occurred: {str(e)}")
+
+    # Fetch data for dropdowns and render the form
+    employees = HR_Employee.objects.all()
+    training_types = TrainingClassType.objects.all()
+
+    return render(request, 'hrms/skill_qual/addnewEvent.html', {
+        'errors': errors,
+        'employees': employees,
+        'training_types': training_types,
+        'approverId': request.POST.get('approverId', ''),
+        'description': request.POST.get('description', ''),
+        'fromDate': request.POST.get('fromDate', ''),
+        'fromTime': request.POST.get('fromTime', ''),
+        'throughDate': request.POST.get('throughDate', ''),
+        'throughTime': request.POST.get('throughTime', ''),
+    })
+
+
+@require_GET
+def get_trainings(request):
+    date = request.GET.get('date')
+    
+    # Fetch trainings scheduled for the given date
+    trainings = TrainingClass.objects.filter(fromDate=date).select_related('trainingType').values(
+        'trainingClassId',
+        'approverId__employee_id',
+        'trainingType__description',  # Adjust the field if the name is different in TrainingClassType
+        'description',
+        'fromTime',
+        'throughTime'
+    )
+    
+    return JsonResponse(list(trainings), safe=False)
+
+def add_attendee(request):
+    if request.method == 'POST':
+        employee_id = request.POST.get('employee_id')
+        training_class_id = request.POST.get('training_class_id')
+
+        print(f'Training Class Id: {training_class_id}')
+
+        try:
+            employee = HR_Employee.objects.get(employee_id=employee_id)
+            training_class = TrainingClass.objects.get(trainingClassId=training_class_id)
+
+            # Create a new attendee
+            attendee = TrainingAttendee.objects.create(
+                employee=employee,
+                trainingClass=training_class,
+                status='Assigned'
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'attendee': {
+                    'employee_id': attendee.employee.employee_id,
+                    'training_type_id': attendee.attendeeId,
+                    'training_class_id': attendee.trainingClass.trainingClassId,
+                    'status': attendee.status
+                }
+            })
+        except HR_Employee.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Employee not found'})
+        except TrainingClass.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Training Class not found'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def get_attendees(request, training_class_id):
+    print(f'Training Class ID received: {training_class_id}')
+    
+    # Fetch all attendees related to the specified training class
+    attendees = TrainingAttendee.objects.filter(trainingClass__trainingClassId=training_class_id).values(
+        'employee__employee_id',        # Fetch the employee ID from the related HR_Employee model
+        'attendeeId',                   # Attendee ID from the TrainingAttendee model
+        'trainingClass__trainingClassId', # Training Class ID from the related TrainingClass model
+        'status'                        # Attendee status
+    )
+    
+    # Debugging to verify the fetched attendees
+    print(f'Fetched Attendees: {list(attendees)}')
+    
+    return JsonResponse(list(attendees), safe=False)
+
+#########################################################################################################################
+
 # anuj
 def emp_main(request):
     return render(request, 'hrms/emp_per/emp_main.html')
@@ -2811,6 +2961,12 @@ class JobInterviewTypeList(APIView):
     def get(self, request):
         jobinterviewType = JobInterviewType.objects.all()
         serializer = JobInterviewTypeSerializer(jobinterviewType, many=True)
+        return Response(serializer.data)
+
+class TrainingClassTypeList(APIView):
+    def get(self, request):
+        TrainingClassTypes = TrainingClassType.objects.all()
+        serializer = TrainingClassTypeSerializer(TrainingClassTypes, many=True)
         return Response(serializer.data)
     
 

@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/leavereasons/', views.LeaveReasonList.as_view(), name='leaveReason-list'),
     path('api/skilltypes/', views.SkillTypeList.as_view(), name='skillType-list'),
     path('api/jobinterviewtypes/', views.JobInterviewTypeList.as_view(), name='jobInterviewType-list'),
+    path('api/trainingclasstypes/', views.TrainingClassTypeList.as_view(), name='trainingClassType-list'),
 
     path('employment-search/', views.employment_search, name='employment_search'),
     path('api/employment-data/', views.employment_data, name='employment_data'),
@@ -66,6 +67,11 @@ urlpatterns = [
 
     path('create-job-interview/', views.create_job_interview, name='create_job_interview'),
     path('job-interview-search/', views.job_interview_search, name='job_interview_search'),
+
+    path('add-training/', views.add_training_class, name='add_training_class'),
+    path('api/get-trainings/', views.get_trainings, name='get_trainings'),
+    path('add-attendee/', views.add_attendee, name='add_attendee'),
+    path('get-attendees/<int:training_class_id>/', views.get_attendees, name='get_attendees'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
@@ -111,6 +117,7 @@ urlpatterns = [
     path('termination_reasons/', views.termination_reasons, name='termination_reasons'),
     path('api/get_termination_reason/', views.get_termination_reason, name='get_termination_reason'),
     path('termination_reason/', views.termination_reason, name='termination_reason'),
+
     #TerminationTypes 
     path('termination_types/', views.termination_types, name='termination_types'),
     path('termination_type/', views.list_termination_types, name='termination_type_list'),
@@ -121,15 +128,8 @@ urlpatterns = [
     path('position_types/', views.position_types, name='position_types'),
     path('api/positiondata/', views.get_position_data, name='get_position_data'),
     path('create_position/', views.create_position, name='create_position'),
-    path('api/delete-position/<int:id>/', views.delete_position_type, name='delete_position'),
+    path('api/delete-position/<int:name>/', views.delete_position_type, name='delete_position'),
     path('api/search_position_type/', views.search_position_type, name='search_position_type'),
-
-    #Employee Leave Type
-    path('emp_leave_types/', views.emp_leave_types, name='emp_leave_types'),
-    path('create/', views.create_leave_type, name='leave_type_create'),
-    path('delete/', views.delete_leave_type, name='leave_type_delete'),
-    path('list/', views.list_leave_types, name='leave_type_list'),
-
 
     #PaygradesTypes
     path('pay_grades/', views.pay_grades, name='pay_grades'),  # To display the list and search form
@@ -137,6 +137,13 @@ urlpatterns = [
     path('api/search-pay-grades/', views.search_pay_grades, name='search_pay_grades'),
     path('api/create-paygrade/', views.create_paygrade, name='create_paygrade'),
     path('api/delete-pay-grade/<str:id>/', views.delete_pay_grade, name='delete_pay_grade'),
+
+
+       #Employee Leave Type
+    path('emp_leave_types/', views.emp_leave_types, name='emp_leave_types'),
+    path('create/', views.create_leave_type, name='leave_type_create'),
+    path('delete/', views.delete_leave_type, name='leave_type_delete'),
+    path('list/', views.list_leave_types, name='leave_type_list'),
 
      #JobInterviewType
     path('job_interview_types/', views.job_interview_types, name='job_interview_types'),

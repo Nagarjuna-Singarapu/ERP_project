@@ -69,6 +69,9 @@ urlpatterns = [
     path('job-interview-search/', views.job_interview_search, name='job_interview_search'),
 
     path('add-training/', views.add_training_class, name='add_training_class'),
+    path('api/get-trainings/', views.get_trainings, name='get_trainings'),
+    path('add-attendee/', views.add_attendee, name='add_attendee'),
+    path('get-attendees/<int:training_class_id>/', views.get_attendees, name='get_attendees'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),

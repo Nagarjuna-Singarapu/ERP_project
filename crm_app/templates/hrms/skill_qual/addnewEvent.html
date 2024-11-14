@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,16 +13,20 @@
         .calendar-view {
             margin-top: 20px;
         }
+
         .calendar-header {
             background-color: #f8f9fa;
             padding: 10px 0;
         }
+
         .calendar-entries {
             background-color: #f1f5f9;
         }
+
         .highlight-row {
             background-color: #fffdd0;
         }
+
         .text-center {
             text-align: center;
         }
@@ -29,272 +34,429 @@
         .custom-btn:focus {
             outline: none;
         }
+
+
+        .training-card-container {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .training-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            width: 200px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .training-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .training-summary {
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .training-details {
+            display: none;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+        }
+
+        .training-card:hover .training-details {
+            display: block;
+        }
+
+        .training-details button {
+            margin-top: 10px;
+        }
     </style>
 </head>
+
 <body>
-<div class="container calendar-view">
-    <!-- Navigation Buttons -->
-    <div class="my-4 text-start">
-        <button id="btnCalendar" class="btn btn-success me-3" onclick="window.location.href=`{% url 'TrainingCalender' %}`">Training Calendar</button>
-      <button id="btnApproval" class="btn btn-info" onclick="window.location.href=`{% url 'TrainingApproval' %}`">Training Approval</button>
-    </div>
+    <div class="container calendar-view">
+        <!-- Navigation Buttons -->
+        <div class="my-4 text-start">
+            <button id="btnCalendar" class="btn btn-success me-3"
+                onclick="window.location.href=`{% url 'TrainingCalender' %}`">Training Calendar</button>
+            <button id="btnApproval" class="btn btn-info"
+                onclick="window.location.href=`{% url 'TrainingApproval' %}`">Training Approval</button>
+        </div>
 
-    <!-- Calendar Section -->
-    <div id="calendarSection">
-        <!-- Header for week navigation -->
-        <div class="container my-4">
-            <div class="row text-center">
-                <div class="col-md-2">
-                    <button id="previousWeek" class="btn btn-primary w-100" onclick="loadData('previous')">Previous Week</button>
+        <!-- Calendar Section -->
+        <div id="calendarSection">
+            <!-- Header for week navigation -->
+            <div class="container my-4">
+                <div class="row text-center">
+                    <div class="col-md-2">
+                        <button id="previousWeek" class="btn btn-primary w-100" onclick="loadData('previous')">Previous
+                            Week</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button id="thisWeek" class="btn btn-primary w-100" onclick="loadData('this')">This
+                            Week</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button id="nextWeek" class="btn btn-primary w-100" onclick="loadData('next')">Next
+                            Week</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" onclick="window.location.href=`{% url 'dayView' %}`">Day
+                            View</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button id="monthView" class="btn btn-primary w-100"
+                            onclick="window.location.href=`{% url 'monthView' %}`">Month View</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button id="upcomingEvents" class="btn btn-primary w-100"
+                            onclick="window.location.href=`{% url 'upcomingEvent' %}`">Upcoming Events</button>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <button id="thisWeek" class="btn btn-primary w-100" onclick="loadData('this')">This Week</button>
+            </div>
+
+            <!-- Form Section -->
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <h4 class="text-start mt-4">Add/Modify a Calendar Event</h4>
+                    <form class="p-3 border rounded bg-light" method="post" action="{% url 'add_training_class' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="approverId" class="form-label">Approver Party Id</label>
+                            <input type="text" id="approverId" name="approverId" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="trainingType" class="form-label">Training Name</label>
+                            <select id="trainingType" name="trainingType" class="form-select">
+                                <option selected>Select Training Type</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea id="description" name="description" class="form-control" rows="1"></textarea>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="fromDate" class="form-label">From Date</label>
+                                <input type="date" id="fromDate" name="fromDate" class="form-control">
+                            </div>
+                            <div class="col">
+                                <label for="fromTime" class="form-label">Time</label>
+                                <input type="time" id="fromTime" name="fromTime" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="throughDate" class="form-label">Through Date</label>
+                                <input type="date" id="throughDate" name="throughDate" class="form-control">
+                            </div>
+                            <div class="col">
+                                <label for="throughTime" class="form-label">Time</label>
+                                <input type="time" id="throughTime" name="throughTime" class="form-control">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
                 </div>
-                <div class="col-md-2">
-                    <button id="nextWeek" class="btn btn-primary w-100" onclick="loadData('next')">Next Week</button>
+
+                <!-- Participants Section -->
+                <div class="col-md-6 mx-auto">
+                    <h4 class="text-start mt-4">Participants</h4>
+                    <table class="table table-striped table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Employee Party ID</th>
+                                <th>Training Request ID</th>
+                                <th>Training Class Type ID</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="AttendeeTable">
+                            <!-- Dynamically Load the rows -->
+                        </tbody>
+                    </table>
+
+                    <div id="attendeeForm" class="mt-3" style="display: none;">
+                        <input type="hidden" id="trainingClassId" name="trainingClassId" value="">
+                        <div class="mb-3">
+                            <label for="employeeId" class="form-label">Employee ID</label>
+                            <input type="text" id="employeeId" name="employeeId" class="form-control"
+                                placeholder="Enter Employee ID">
+                        </div>
+                        <button class="btn btn-primary" onclick="submitAttendee()">Add Attendee</button>
+                    </div>
+
                 </div>
-                <div class="col-md-2">
-                    <button class="btn btn-primary w-100" onclick="window.location.href=`{% url 'dayView' %}`">Day View</button>
-                </div>
-                <div class="col-md-2">
-                    <button id="monthView" class="btn btn-primary w-100" onclick="window.location.href=`{% url 'monthView' %}`">Month View</button>
-                </div>
-                <div class="col-md-2">
-                    <button id="upcomingEvents" class="btn btn-primary w-100" onclick="window.location.href=`{% url 'upcomingEvent' %}`">Upcoming Events</button>
+            </div>
+
+            <!-- Calendar Entries Section -->
+            <div class="row mt-4 calendar-entries">
+                <div class="col-md-12 mx-auto">
+                    <h5>Calendar Entries</h5>
+                    <table class="table table-bordered">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Time</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                            <!-- Dynamically Load the rows -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- Form Section -->
-        <div class="row">
-            <div class="col-md-6 mx-auto">
-                <h4 class="text-start mt-4">Add/Modify a Calendar Event</h4>
-                <form class="p-3 border rounded bg-light" method="post" action="{% url 'add_training_class' %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="approverId" class="form-label">Approver Party Id</label>
-                        <input type="text" id="approverId" name="approverId" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label for="trainingType" class="form-label">Training Name</label>
-                        <select id="trainingType" name="trainingType" class="form-select">
-                            <option selected>Select Training Type</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea id="description" name="description" class="form-control" rows="1"></textarea>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="fromDate" class="form-label">From Date</label>
-                            <input type="date" id="fromDate" name="fromDate" class="form-control">
-                        </div>
-                        <div class="col">
-                            <label for="fromTime" class="form-label">Time</label>
-                            <input type="time" id="fromTime" name="fromTime" class="form-control">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="throughDate" class="form-label">Through Date</label>
-                            <input type="date" id="throughDate" name="throughDate" class="form-control">
-                        </div>
-                        <div class="col">
-                            <label for="throughTime" class="form-label">Time</label>
-                            <input type="time" id="throughTime" name="throughTime" class="form-control">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Add</button>
-                </form>
-            </div>
-
-            <!-- Participants Section -->
-            <div class="col-md-6 mx-auto">
-                <h4 class="text-start mt-4">Participants</h4>
-                <table class="table table-striped table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Employee Party ID</th>
-                            <th>Training Request ID</th>
-                            <th>Training Class Type ID</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>12345</td>
-                            <td>98765</td>
-                            <td>10000</td>
-                            <td>Approved</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Calendar Entries Section -->
-        <div class="row mt-4 calendar-entries">
-            <div class="col-md-12 mx-auto">
-                <h5>Calendar Entries</h5>
-                <table class="table table-bordered">
-                    <thead class="table-secondary">
-                        <tr>
-                            <th>Time</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultsBody">
-                        <!-- <tr>
-                            <td>Sunday 10/20/24(Current week) <br><a href="#" class="btn btn-sm btn-outline-primary">Add New</a></td>
-                            <td>Show the scheduled Trainings which shows the details of from time to new time and training type</td>
-                        </tr>
-                        <tr>
-                            <td>Monday 10/21/24 (Current week) <br><a href="#" class="btn btn-sm btn-outline-primary">Add New</a></td>
-                            <td>Show the scheduled Trainings which shows the details of from time to new time and training type</td>
-                        </tr>
-                        <tr>
-                            <td>Tuesday 10/22/24 (Current week) <br><a href="#" class="btn btn-sm btn-outline-primary">Add New</a></td>
-                            <td>Show the scheduled Trainings which shows the details of from time to new time and training type</td>
-                        </tr>
-                        <tr class="highlight-row">
-                            <td>Thursday 10/24/24(Current week) <br><a href="#" class="btn btn-sm btn-outline-primary">Add New</a></td>
-                            <td>Show the scheduled Trainings which shows the details of from time to new time and training type</td>
-                        </tr>
-                        <tr>
-                            <td>Friday 10/25/24(Current week) <br><a href="#" class="btn btn-sm btn-outline-primary">Add New</a></td>
-                            <td>Show the scheduled Trainings which shows the details of from time to new time and training type</td>
-                        </tr>
-                        <tr>
-                            <td>Saturday 10/26/24(Current week) <br><a href="#" class="btn btn-sm btn-outline-primary">Add New</a></td>
-                            <td>Show the scheduled Trainings which shows the details of from time to new time and training type</td>
-                        </tr> -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Training Approval Section (Initially Hidden) -->
-    <div id="approvalSection" style="display: none;">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Training Approval</h3>
-            </div>
-            <div class="card-body">
-                <p>This section can contain forms or content specific to training approvals.</p>
+        <!-- Training Approval Section (Initially Hidden) -->
+        <div id="approvalSection" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Training Approval</h3>
+                </div>
+                <div class="card-body">
+                    <p>This section can contain forms or content specific to training approvals.</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
     {% if errors %}
-        <script>
-            let errorMessage = "";
+    <script>
+        let errorMessage = "";
 
-            `{% for field, message in errors.items %}`
-                errorMessage += `{{ message|escapejs }}\n`;
-            `{% endfor %}`
+        `{% for field, message in errors.items %}`
+        errorMessage += `{{ message|escapejs }}\n`;
+        `{% endfor %}`
 
-            if (errorMessage) {
-                alert(errorMessage);
-            }
-        </script>
+        if (errorMessage) {
+            alert(errorMessage);
+        }
+    </script>
     {% endif %}
 
     {% if success %}
-        <script>
-            alert("Training Class has been successfully Created...!");
-        </script>
+    <script>
+        alert("Training Class has been successfully Created...!");
+    </script>
     {% endif %}
 
+
     <script>
-        // Function to get the current week's dates from Sunday to Saturday
+        // Show the form to add an attendee
+        function showAttendeeForm(trainingClassId) {
+            console.log('Training Class ID received:', trainingClassId);
+            document.getElementById('attendeeForm').style.display = 'block';
+            document.getElementById('trainingClassId').value = trainingClassId;
+        }
+
+        // Function to submit the attendee via AJAX
+        function submitAttendee() {
+            const employeeId = document.getElementById('employeeId').value;
+            const trainingClassId = document.getElementById('trainingClassId').value;
+
+            console.log('Training Class in console', trainingClassId)
+
+            fetch('/hrms/add-attendee/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `employee_id=${employeeId}&training_class_id=${trainingClassId}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Attendee added successfully');
+                        fetchAttendees(trainingClassId); // Refresh the attendee list
+                        document.getElementById('employeeId').value = '';
+                    } else {
+                        alert(data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Function to fetch and display attendees
+        function fetchAttendees(trainingClassId) {
+            console.log('Fetching attendees for Training Class ID:', trainingClassId);
+
+            fetch(`/hrms/get-attendees/${trainingClassId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Attendees fetched:', data); // Debug log for fetched data
+
+                    const tableBody = document.getElementById('AttendeeTable');
+                    tableBody.innerHTML = '';
+
+                    if (data.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="4">No attendees found</td></tr>`;
+                        return;
+                    }
+
+                    // Populate the table with fetched attendees
+                    data.forEach(attendee => {
+                        const row = `
+                    <tr>
+                        <td>${attendee.employee__employee_id}</td>
+                        <td>${attendee.attendeeId}</td>
+                        <td>${attendee.trainingClass__trainingClassId}</td>
+                        <td>${attendee.status}</td>
+                    </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error('Error fetching attendees:', error));
+        }
+    </script>
+
+    <script>
+        // Function to get the current week's dates
         function getCurrentWeekDates() {
             const today = new Date();
             const currentDay = today.getDay(); // 0 for Sunday, 6 for Saturday
             const currentWeekDates = [];
-        
+
             // Calculate the start of the week (Sunday)
             const sunday = new Date(today);
             sunday.setDate(today.getDate() - currentDay);
-        
+
             // Generate dates for the current week (Sunday to Saturday)
             for (let i = 0; i < 7; i++) {
                 const date = new Date(sunday);
                 date.setDate(sunday.getDate() + i);
                 const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-                const formattedDate = date.toLocaleDateString('en-US');
+                const formattedDate = date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
                 currentWeekDates.push({ dayName, formattedDate });
             }
-        
+
             return currentWeekDates;
         }
-        
-        // Function to populate the table with the current week's dates
+
+        function fetchTrainings(date, callback) {
+            fetch(`/hrms/api/get-trainings/?date=${date}`)
+                .then(response => response.json())
+                .then(data => callback(data))
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Function to populate the table with the current week's dates and training details
         function populateTable() {
             const tableBody = document.getElementById('resultsBody');
             const currentWeekDates = getCurrentWeekDates();
-        
+
             // Clear existing table rows
             tableBody.innerHTML = '';
-        
+
             // Populate the table with rows for each day
             currentWeekDates.forEach((item) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><b>${item.dayName} ${item.formattedDate}</b> <br>
-                        <a href="#" class="btn btn-sm btn-outline-primary">Add New</a>
-                    </td>
-                    <td>Show the scheduled Trainings </td>
-                `;
+            <td><b>${item.dayName} ${item.formattedDate}</b> <br>
+                <a href="#" class="btn btn-sm btn-outline-primary" onclick="openAddTrainingForm('${item.formattedDate}')">Add New</a>
+            </td>
+            <td id="trainings-${item.formattedDate}">Loading...</td>
+        `;
                 tableBody.appendChild(row);
+
+                // Fetch and display the scheduled trainings for each day
+                fetchTrainings(item.formattedDate, (trainings) => {
+                    const trainingsCell = document.getElementById(`trainings-${item.formattedDate}`);
+                    if (trainings.length > 0) {
+                        trainingsCell.innerHTML = trainings.map(training => `
+                    <div class="training-card">
+                        <div class="training-summary">
+                            <strong>${training.trainingType__description}</strong>
+                        </div>
+                        <div class="training-details">
+                            <b>Approver:</b> ${training.approverId__employee_id}<br>
+                            <b>Training Class Id:</b> ${training.trainingClassId || 'N/A'}<br>
+                            <b>Time:</b> ${training.fromTime} - ${training.throughTime}<br>
+                            <button class="btn btn-sm btn-success" onclick="handleAttendeeActions('${training.trainingClassId}')">Add Attendee</button>
+                        </div>
+                    </div>
+                `).join('');
+                    } else {
+                        trainingsCell.textContent = 'No scheduled trainings';
+                    }
+                });
             });
         }
-        
+
         // Call the function when the page loads
         document.addEventListener('DOMContentLoaded', populateTable);
-        </script>
 
-<script>
-    async function loadDropdowns() {
+        // Function to open the form to add a new training (can be customized further)
+        function openAddTrainingForm(date) {
+            alert(`Add training for ${date}`);
+        }
 
-        // Load Leave Types
-        const trainingClassTypeResponse = await fetch('/hrms/api/trainingclasstypes/');
-        const trainingClassTypes = await trainingClassTypeResponse.json();
-        const trainingClassTypeSelect = document.getElementById('trainingType');
+        function addAttendee(trainingClassId) {
+            alert(`Adding attendee for Training ID: ${trainingClassId}`);
+        }
 
-        trainingClassTypes.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type.tranningTypeId;
-            option.textContent = type.description;
-            trainingClassTypeSelect.appendChild(option);
-        });
+        function handleAttendeeActions(trainingClassId) {
+            console.log('Training Class ID:', trainingClassId);
+
+            // Show the attendee form
+            showAttendeeForm(trainingClassId);
+
+            // Fetch and display existing attendees for the training class
+            fetchAttendees(trainingClassId);
+        }
+    </script>
+
+
+    <script>
+        async function loadDropdowns() {
+
+            // Load Leave Types
+            const trainingClassTypeResponse = await fetch('/hrms/api/trainingclasstypes/');
+            const trainingClassTypes = await trainingClassTypeResponse.json();
+            const trainingClassTypeSelect = document.getElementById('trainingType');
+
+            trainingClassTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.tranningTypeId;
+                option.textContent = type.description;
+                trainingClassTypeSelect.appendChild(option);
+            });
         }
 
         document.addEventListener('DOMContentLoaded', loadDropdowns);
-</script>
+    </script>
 
 
 
-<!-- Bootstrap 5 JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Function to show/hide sections based on button clicks
-    function showSection(section) {
-        const calendarSection = document.getElementById('calendarSection');
-        const approvalSection = document.getElementById('approvalSection');
+    <!-- Bootstrap 5 JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to show/hide sections based on button clicks
+        function showSection(section) {
+            const calendarSection = document.getElementById('calendarSection');
+            const approvalSection = document.getElementById('approvalSection');
 
-        if (section === 'calendar') {
-            calendarSection.style.display = 'block';
-            approvalSection.style.display = 'none';
-        } else if (section === 'approval') {
-            calendarSection.style.display = 'none';
-            approvalSection.style.display = 'block';
+            if (section === 'calendar') {
+                calendarSection.style.display = 'block';
+                approvalSection.style.display = 'none';
+            } else if (section === 'approval') {
+                calendarSection.style.display = 'none';
+                approvalSection.style.display = 'block';
+            }
         }
-    }
-</script>
+    </script>
 </body>
+
 </html>

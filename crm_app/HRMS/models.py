@@ -480,3 +480,23 @@ class TrainingClass(models.Model):
 
     def __str__(self):
         return f"Training Class {self.trainingClassId} - {self.trainingType.description}"
+    
+
+class TrainingAttendee(models.Model):
+    attendeeId = models.AutoField(primary_key=True, unique=True)
+    employee = models.ForeignKey(
+        HR_Employee,
+        to_field='employee_id',
+        on_delete=models.CASCADE,
+        verbose_name="Employee Party ID"
+    )
+    trainingClass = models.ForeignKey(
+        TrainingClass,
+        to_field='trainingClassId',
+        on_delete=models.CASCADE,
+        verbose_name="Training Class ID"
+    )
+    status = models.CharField(max_length=20, default='Assigned')
+
+    def __str__(self):
+        return f"Employee Id: {self.employee.employee_id} - Training Class Id: {self.trainingClass.trainingClassId} - Attendee Id: {self.attendeeId}"

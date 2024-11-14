@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import UserSignup, Profile, RegisterUser, Contacts, Leads, Opportunities, Invoice, Calls, Calendar
-from crm_app.HRMS.models import HR_Employee, Employment, EmployeeResume, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, PartySkill, PayGrade, PerformanceReview, PublicHoliday, SkillType, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, TrainingClass, TrainingClassType
+from crm_app.HRMS.models import HR_Employee, Employment, EmployeeResume, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, PartySkill, PayGrade, PerformanceReview, PublicHoliday, SkillType, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, TrainingAttendee, TrainingClass, TrainingClassType
 
 # Register your models here.
 admin.site.register(UserSignup)
@@ -120,4 +120,5 @@ admin.site.register(JobRequisition)
 admin.site.register(InternalJobPosting)
 admin.site.register(JobInterview)
 admin.site.register(TrainingClass)
+admin.site.register(TrainingAttendee)
 

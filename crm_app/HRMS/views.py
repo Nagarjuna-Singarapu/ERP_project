@@ -17,6 +17,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect,csrf_exempt
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q
+from django.views.decorators.http import require_GET
 
 # Django REST Framework Imports
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -30,7 +31,7 @@ from .models import (
     EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume,
     HR_Employee, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, PublicHoliday, Responsibility_Type, SalaryStepGrade,
     Employment, HR_Company, HR_Department, SkillType, TerminationReason, TerminationType,
-    PerformanceReview, PartySkill, TrainingClass, TrainingClassType
+    PerformanceReview, PartySkill, TrainingAttendee, TrainingClass, TrainingClassType
 )
 
 # Project Specific Imports - Serializers
@@ -2389,6 +2390,73 @@ def add_training_class(request):
         'throughDate': request.POST.get('throughDate', ''),
         'throughTime': request.POST.get('throughTime', ''),
     })
+
+
+@require_GET
+def get_trainings(request):
+    date = request.GET.get('date')
+    
+    # Fetch trainings scheduled for the given date
+    trainings = TrainingClass.objects.filter(fromDate=date).select_related('trainingType').values(
+        'trainingClassId',
+        'approverId__employee_id',
+        'trainingType__description',  # Adjust the field if the name is different in TrainingClassType
+        'description',
+        'fromTime',
+        'throughTime'
+    )
+    
+    return JsonResponse(list(trainings), safe=False)
+
+def add_attendee(request):
+    if request.method == 'POST':
+        employee_id = request.POST.get('employee_id')
+        training_class_id = request.POST.get('training_class_id')
+
+        print(f'Training Class Id: {training_class_id}')
+
+        try:
+            employee = HR_Employee.objects.get(employee_id=employee_id)
+            training_class = TrainingClass.objects.get(trainingClassId=training_class_id)
+
+            # Create a new attendee
+            attendee = TrainingAttendee.objects.create(
+                employee=employee,
+                trainingClass=training_class,
+                status='Assigned'
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'attendee': {
+                    'employee_id': attendee.employee.employee_id,
+                    'training_type_id': attendee.attendeeId,
+                    'training_class_id': attendee.trainingClass.trainingClassId,
+                    'status': attendee.status
+                }
+            })
+        except HR_Employee.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Employee not found'})
+        except TrainingClass.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Training Class not found'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def get_attendees(request, training_class_id):
+    print(f'Training Class ID received: {training_class_id}')
+    
+    # Fetch all attendees related to the specified training class
+    attendees = TrainingAttendee.objects.filter(trainingClass__trainingClassId=training_class_id).values(
+        'employee__employee_id',        # Fetch the employee ID from the related HR_Employee model
+        'attendeeId',                   # Attendee ID from the TrainingAttendee model
+        'trainingClass__trainingClassId', # Training Class ID from the related TrainingClass model
+        'status'                        # Attendee status
+    )
+    
+    # Debugging to verify the fetched attendees
+    print(f'Fetched Attendees: {list(attendees)}')
+    
+    return JsonResponse(list(attendees), safe=False)
 
 #########################################################################################################################
 

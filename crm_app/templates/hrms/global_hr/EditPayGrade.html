@@ -123,6 +123,30 @@ async function submitForm() {
     const comments = document.getElementById('comments').value;
     const csrftoken = getCSRFToken(); // Fetch CSRF token
 
+      // Frontend validation
+      if (!payGradeId) {
+        alert('Pay Grade ID is required.');
+        return;
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(payGradeId)) {
+        alert('Pay Grade ID must be alphanumeric.');
+        return;
+    }
+    if (!gradeName) {
+        alert('Pay Grade Name is required.');
+        return;
+    }
+    if (!/^[a-zA-Z0-9\s]+$/.test(gradeName)) {
+        alert('Pay Grade Name must be alphanumeric.');
+        return;
+    }
+    if (comments && !/^[a-zA-Z\s]+$/.test(comments)) {
+        alert('Comments should only contain alphabets.');
+        return;
+    }
+
+    
+
     try {
         const response = await fetch('/hrms/api/create-paygrade/', {
             method: 'POST',

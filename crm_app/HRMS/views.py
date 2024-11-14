@@ -332,7 +332,6 @@ def search_pay_grades(request):
     data = PayGrade.objects.filter(**filters).values('id', 'payGradeId', 'grade_name','comments')
     return JsonResponse(list(data), safe=False)
 
-#view for create Paygrades 
 def create_paygrade(request):
     if request.method == 'POST':
         payGradeId = request.POST.get('payGradeId')
@@ -341,20 +340,26 @@ def create_paygrade(request):
 
         # Backend validation
         errors = {}
-        
+
         # Validate Pay Grade ID
         if not payGradeId:
             errors['payGradeId'] = 'Pay Grade ID is required.'
         elif not payGradeId.isalnum():
             errors['payGradeId'] = 'Pay Grade ID must be alphanumeric.'
-        elif not re.match(r'^[a-zA-Z0-9]+$', payGradeId):
-            errors['payGradeId'] = 'Pay Grade ID must be alphanumeric.'
-        elif PayGrade.objects.filter(payGradeId=payGradeId).exists():
-            errors['payGradeId'] = 'Pay Grade ID already exists.'
-
+        
         # Validate Pay Grade Name
         if not grade_name:
             errors['grade_name'] = 'Pay Grade Name is required.'
+        elif not re.match(r'^[a-zA-Z0-9\s]+$', grade_name):
+            errors['grade_name'] = 'Pay Grade Name must be alphanumeric.'
+
+        # Validate Comments (if provided)
+        if comments and not re.match(r'^[a-zA-Z\s]*$', comments):
+            errors['comments'] = 'Comments should only contain alphabets.'
+
+        # Check if Pay Grade ID already exists
+        if PayGrade.objects.filter(payGradeId=payGradeId).exists():
+            errors['payGradeId'] = 'Pay Grade ID already exists.'
 
         # Return errors if any
         if errors:
@@ -375,7 +380,6 @@ def create_paygrade(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
 
-
 # View to delete a pay grade by ID
 @csrf_protect
 def delete_pay_grade(request, id):
@@ -394,23 +398,7 @@ def delete_pay_grade(request, id):
 
 #view for get list show Position Type 
 def get_position_data(request):
-    position_type = request.GET.get('positionType', '')
-    parent_type = request.GET.get('parentType', '')
-    has_table = request.GET.get('hasTable', '')
-    description = request.GET.get('description', '')
-
-    # Filter based on the selected filters
-    filters = {}
-    if position_type:
-        filters['name__icontains'] = position_type
-    if parent_type:
-        filters['parent_type__name__icontains'] = parent_type
-    if has_table:
-        filters['has_table__icontains'] = has_table
-    if description:
-        filters['description__icontains'] = description
-
-    data = PositionType.objects.filter(**filters).values('id', 'name','parent_type__name', 'description')
+    data = PositionType.objects.all().values('name','parent_type','has_table', 'description')
     return JsonResponse(list(data), safe=False)
 
 #view to search Position Type data
@@ -486,13 +474,13 @@ def create_position(request):
 
 # View for delete to Position type by ID
 @csrf_protect
-def delete_position_type(request, id):
-    print(f"Triggering delete for position type ID: {id}")
+def delete_position_type(request, name):
+    print(f"Triggering delete for position type ID: {name}")
     
     if request.method == 'DELETE':
         try:
             # Make sure you are using the correct field, which should be `id` in this case
-            position_type = PositionType.objects.get(id=id)
+            position_type = PositionType.objects.get(name=name)
             position_type.delete()
             return JsonResponse({'message': 'Position type deleted successfully'}, status=200)
         except PositionType.DoesNotExist:

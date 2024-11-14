@@ -3082,3 +3082,50 @@ def delete_employment_application(request):
             return JsonResponse({'error': 'Job application not found'}, status=404)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+##########################################################################################################################################################
+
+def view_training_approvals(request):
+    filters = {}
+
+    # Get form fields from the request
+    employee_id = request.GET.get('employee_id', '')
+    training_class_id = request.GET.get('training_class_id', '')
+    training_type = request.GET.get('training_type', '')
+    status = request.GET.get('status', '')
+    start_date = request.GET.get('start_date', '')
+    end_date = request.GET.get('end_date', '')
+
+    # Apply filters based on the inputs
+    if employee_id:
+        filters['employee__employee_id__icontains'] = employee_id
+
+    if training_class_id:
+        filters['trainingClass__trainingClassId__icontains'] = training_class_id
+
+    if training_type:
+        filters['trainingClass__trainingType__tranningTypeId__icontains'] = training_type
+
+    if status:
+        filters['status__icontains'] = status
+
+    if start_date and end_date:
+        filters['trainingClass__fromDate__gte'] = start_date
+        filters['trainingClass__throughDate__lte'] = end_date
+
+    # Fetch the filtered data from the database
+    results = TrainingAttendee.objects.filter(**filters)
+    print(f'results: {results}')
+    # Get available training types for the filter dropdown
+    training_types = TrainingClassType.objects.all()
+
+    # Render the results in the template
+    return render(request, 'hrms/skill_qual/TrainingApproval.html', {
+        'results': results,
+        'training_types': training_types,
+        'employee_id': employee_id,
+        'training_class_id': training_class_id,
+        'status': status,
+        'start_date': start_date,
+        'end_date': end_date,
+    })

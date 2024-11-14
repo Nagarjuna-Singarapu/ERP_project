@@ -217,4 +217,5 @@ urlpatterns = [
     path('search-employment-applications/', views.search_employment_applications, name='search_employment_applications'),
     path('delete-employment-application/', views.delete_employment_application, name='delete_employment_application'),
 
+    path('view-training-approvals/', views.view_training_approvals, name='view_training_approvals'),
 ]

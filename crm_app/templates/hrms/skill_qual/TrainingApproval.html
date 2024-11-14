@@ -1,3 +1,5 @@
+<!-- ERP_project/crm_app/templates/hrms/skill_qual/TrainingApproval.html -->
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -111,7 +113,7 @@
             <h3 class="mb-0">Find Training Approvals</h3>
         </div>
         <div class="card-body">
-            <form action="/humanres/control/FindTrainingApprovals" method="post" id="FindTrainingApprovals">
+            <form action="{% url 'view_training_approvals' %}" method="get" id="FindTrainingApprovals">
                 <div class="form-row">
                    
                     <div class="form-group col-md-6">
@@ -296,67 +298,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Sample Data Rows -->
-                        <tr>
-                            <td>EMP001</td>
-                            <td>TR001</td>
-                            <td>Leadership Training</td>
-                            <td>WE1001</td>
-                            <td>2023-10-01</td>
-                            <td>2023-10-15</td>
-                            <td>John Doe</td>
-                            <td>Approved</td>
-                            <td>For career growth</td>
-                            <td><button class="btn btn-primary btn-sm">Update</button></td>
-                        </tr>
-                        <tr>
-                            <td>EMP002</td>
-                            <td>TR002</td>
-                            <td>Technical Workshop</td>
-                            <td>WE1002</td>
-                            <td>2023-11-05</td>
-                            <td>2023-11-10</td>
-                            <td>Jane Smith</td>
-                            <td>Pending</td>
-                            <td>Required for project</td>
-                            <td><button class="btn btn-primary btn-sm">Update</button></td>
-                        </tr>
-                        <tr>
-                            <td>EMP003</td>
-                            <td>TR003</td>
-                            <td>Compliance Training</td>
-                            <td>WE1003</td>
-                            <td>2023-12-01</td>
-                            <td>2023-12-03</td>
-                            <td>Michael Brown</td>
-                            <td>Rejected</td>
-                            <td>Not eligible</td>
-                            <td><button class="btn btn-primary btn-sm">Update</button></td>
-                        </tr>
-                        <tr>
-                            <td>EMP004</td>
-                            <td>TR004</td>
-                            <td>Project Management</td>
-                            <td>WE1004</td>
-                            <td>2024-01-15</td>
-                            <td>2024-01-20</td>
-                            <td>Emily White</td>
-                            <td>Approved</td>
-                            <td>Skill enhancement</td>
-                            <td><button class="btn btn-primary btn-sm">Update</button></td>
-                        </tr>
-                        <tr>
-                            <td>EMP005</td>
-                            <td>TR005</td>
-                            <td>Data Analysis</td>
-                            <td>WE1005</td>
-                            <td>2024-02-10</td>
-                            <td>2024-02-15</td>
-                            <td>Chris Green</td>
-                            <td>Pending</td>
-                            <td>For project requirements</td>
-                            <td><button class="btn btn-primary btn-sm">Update</button></td>
-                        </tr>
+                        {% for result in results %}
+                            <tr>
+                                <td>{{ result.employee.employee_id }}</td>
+                                <td>{{ result.trainingClass.trainingClassId }}</td>
+                                <td>{{ result.trainingClass.trainingType.tranningTypeId }}</td>
+                                <td>{{ result.trainingClass.trainingClassId }}</td>
+                                <td>{{ result.trainingClass.fromDate }}</td>
+                                <td>{{ result.trainingClass.throughDate }}</td>
+                                <td>{{ result.trainingClass.approverId.employee_id }}</td> <!-- Approver Party ID -->
+                                <td>{{ result.status }}</td> <!-- Approval Status -->
+                                <td>{{ result.reason }}</td> <!-- Reason -->
+                                <td><button class="btn btn-primary btn-sm">Update</button></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="10" class="text-center">No records found</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

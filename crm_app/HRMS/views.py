@@ -2637,67 +2637,33 @@ def find_performance_review(request):
         through_date = request.POST.get('throughDate', '').strip()
         comments = request.POST.get('comments', '').strip()
 
-        # Initialize a filters object
+        # Initialize filters object
         filters = {}
 
-        # Function to convert 'dd-mm-yyyy' to 'yyyy-mm-dd'
-        def convert_date(date_str):
-            if date_str:
-                try:
-                    return datetime.strptime(date_str, '%d-%m-%Y').date()
-                except ValueError as e:
-                    logger.error(f"Date parsing error: {e} for date string: {date_str}")
-                    return None
-            return None
-        
-        # Convert fromDate and throughDate to 'yyyy-mm-dd' format
-        if from_date:
-            from_date = convert_date(from_date)
-        if through_date:
-            through_date = convert_date(through_date)
-
-        # Filter by Performance Review ID
+        # Apply filters (only if the fields are not empty)
         if perf_review_id:
             filters['perf_review_id__icontains'] = perf_review_id
-
-        # Filter by Employee Party ID
         if employee_party_id:
             filters['emp_party_id__employee_id__icontains'] = employee_party_id
-
-        # Filter by Manager Party ID
         if manager_party_id:
             filters['manager_party_id__icontains'] = manager_party_id
-
-        # Filter by Manager Role Type ID
         if manager_role_type_id:
             filters['manager_role_type__icontains'] = manager_role_type_id
-
-        # Filter by Payment ID
         if payment_id:
             filters['payment_id__icontains'] = payment_id
-
-        # Filter by Employee Position Type ID
         if empl_position_name:
             filters['empl_position_type__name__icontains'] = empl_position_name
-
-        # Filter by Date Range (From Date, Through Date)
         if from_date:
             filters['from_date__gte'] = from_date
         if through_date:
             filters['through_date__lte'] = through_date
-
-        # Filter by Comments
         if comments:
             filters['comments__icontains'] = comments
 
-         # Perform the query with the filters (if any), else fetch all
-        if filters:
-            reviews = PerformanceReview.objects.filter(**filters).distinct()
-        else:
-            reviews = PerformanceReview.objects.all()
+        # Query the database with filters
+        reviews = PerformanceReview.objects.filter(**filters)
 
-
-        # Prepare the date for the response
+        # Format the result data
         review_data = [
             {
                 'performance_review_id': review.perf_review_id,
@@ -2705,18 +2671,19 @@ def find_performance_review(request):
                 'manager_party_id': review.manager_party_id,
                 'manager_role_type_id': review.manager_role_type,
                 'payment_id': review.payment_id,
-                'empl_position_name': review.empl_position_type.name if review.empl_position_type else None,  # Include the Employee Position ID
+                'empl_position_name': review.empl_position_type.name if review.empl_position_type else None,
                 'from_date': review.from_date,
                 'through_date': review.through_date,
                 'comments': review.comments,
             }
             for review in reviews
-       ]
+        ]
 
-        # Return JSON response with results
+        # Return the data in JSON format
         return JsonResponse({'data': review_data})
-    
+
     return render(request, 'hrms/emp_per/performance.html')
+
 
 # View to create or update PartySkill record
 def create_party_skill(request):

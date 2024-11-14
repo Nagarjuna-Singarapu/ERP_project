@@ -128,7 +128,7 @@
                     <div class="col-md-6 mb-3">
                         <label for="managerRoleTypeId">Manager Role Type ID</label>
                         <select class="form-control" id="managerRoleTypeId">
-                            <option selected disabled></option>
+                            <option selected disabled>Select Manager Role Type</option>
                             <option>Account Lead</option>
                             <option>Administrator</option>
                             <option>Agent</option>
@@ -245,77 +245,82 @@
                 modal.style.display = "none"; // Close modal after selecting employee
         }
 
-        // Form submission handler with fetch
         function submitForm(event) {
-            event.preventDefault();
+    event.preventDefault();
 
-            // Collect form values
-            const perfReviewId = document.getElementById('perfReviewId').value;
-            const employeePartyId = document.getElementById('employeePartyId').value;
-            const managerPartyId = document.getElementById('managerPartyId').value;
-            const managerRoleTypeId = document.getElementById('managerRoleTypeId').value;
-            const paymentId = document.getElementById('paymentId').value;
-            const emplPositionId = document.getElementById('emplPositionId').value;
-            const fromDate = document.getElementById('fromDate').value;
-            const throughDate = document.getElementById('throughDate').value;
-            const comments = document.getElementById('comments').value;
+    // Collect form values
+    const perfReviewId = document.getElementById('perfReviewId').value.trim();
+    const employeePartyId = document.getElementById('employeePartyId').value.trim();
+    const managerPartyId = document.getElementById('managerPartyId').value.trim();
+    const managerRoleTypeId = document.getElementById('managerRoleTypeId').value.trim();
+    const paymentId = document.getElementById('paymentId').value.trim();
+    const emplPositionName = document.getElementById('emplPositionId').value.trim();
+    const fromDate = document.getElementById('fromDate').value.trim();
+    const throughDate = document.getElementById('throughDate').value.trim();
+    const comments = document.getElementById('comments').value.trim();
 
-            // Prepare data object to send to backend
-            const formData = new FormData();
-            formData.append('perfReviewId', perfReviewId);
-            formData.append('employeePartyId', employeePartyId);
-            formData.append('managerPartyId', managerPartyId);
-            formData.append('managerRoleTypeId', managerRoleTypeId);
-            formData.append('paymentId', paymentId);
-            formData.append('emplPositionId', emplPositionId);
-            formData.append('fromDate', fromDate);
-            formData.append('throughDate', throughDate);
-            formData.append('comments', comments);
+    const formData = new FormData();
 
-            // Send the data via AJAX (POST request) using fetch
-            fetch('{% url "find_performance_review" %}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // CSRF token header
-                },
-                body: formData
-            })
-            .then(response => response.json())  // Parse the response as JSON
-            .then(data => {
-                const resultsTable = document.getElementById('resultsTable');
-                const resultsTableBody = document.getElementById('resultsTableBody');
+    // Append fields if they are not empty or default
+    if (perfReviewId) formData.append('perfReviewId', perfReviewId);
+    if (employeePartyId) formData.append('employeePartyId', employeePartyId);
+    if (managerPartyId) formData.append('managerPartyId', managerPartyId);
+    if (managerRoleTypeId && managerRoleTypeId !== "Select Manager Role Type") {
+        formData.append('managerRoleTypeId', managerRoleTypeId);
+    }
+    if (paymentId) formData.append('paymentId', paymentId);
+    if (emplPositionName) formData.append('emplPositionName', emplPositionName);
+    if (fromDate) formData.append('fromDate', fromDate);
+    if (throughDate) formData.append('throughDate', throughDate);
+    if (comments) formData.append('comments', comments);
 
-                // Clear previous results
-                resultsTableBody.innerHTML = '';
+    // Make the API request
+    fetch('{% url "find_performance_review" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // CSRF token header
+        },
+        body: formData
+    })
+    .then(response => response.json())  // Parse the response as JSON
+    .then(data => {
+        const resultsTable = document.getElementById('resultsTable');
+        const resultsTableBody = document.getElementById('resultsTableBody');
 
-                if (data && data.data && data.data.length > 0) {
-                    data.data.forEach(review => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${review.performance_review_id}</td>
-                            <td>${review.employee_party_id}</td>
-                            <td>${review.manager_party_id}</td>
-                            <td>${review.manager_role_type_id}</td>
-                            <td>${review.payment_id}</td>
-                            <td>${review.empl_position_name || 'No Position Assigned'}</td>
-                            <td>${review.from_date}</td>
-                            <td>${review.through_date}</td>
-                            <td>${review.comments}</td>
-                        `;
-                        resultsTableBody.appendChild(row);
-                    });
-                    resultsTable.style.display = 'table';
-                } else {
-                    // Show a message in the table if no results found
-                    resultsTableBody.innerHTML = `<tr><td colspan="9" class="text-center">No records found</td></tr>`;
-                    resultsTable.style.display = 'table';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while fetching the data.');
+        // Clear previous results
+        resultsTableBody.innerHTML = '';
+
+        if (data && data.data && data.data.length > 0) {
+            data.data.forEach(review => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${review.performance_review_id}</td>
+                    <td>${review.employee_party_id}</td>
+                    <td>${review.manager_party_id}</td>
+                    <td>${review.manager_role_type_id}</td>
+                    <td>${review.payment_id}</td>
+                    <td>${review.empl_position_name || 'No Position Assigned'}</td>
+                    <td>${review.from_date}</td>
+                    <td>${review.through_date}</td>
+                    <td>${review.comments}</td>
+                `;
+                resultsTableBody.appendChild(row);
             });
+            resultsTable.style.display = 'table';
+        } else {
+            // Show a message in the table if no results found
+            resultsTableBody.innerHTML = `<tr><td colspan="9" class="text-center">No records found</td></tr>`;
+            resultsTable.style.display = 'table';
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while fetching the data.');
+    });
+}
+
+
+
     </script>
 
 </body>

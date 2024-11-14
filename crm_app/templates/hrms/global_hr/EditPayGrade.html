@@ -81,9 +81,9 @@
                         <input type="text" class="form-control" id="payGradeId" placeholder="Enter Pay Grade ID">
                     </div>
                     <div class="col-md-4">
-                        <label for="payGradeName" class="form-label">Pay Grade Name</label>
+                        <label for="grade_name" class="form-label">Pay Grade Name</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="payGradeName" placeholder="Enter Pay Grade Name">
+                            <input type="text" class="form-control" id="grade_name" placeholder="Enter Pay Grade Name">
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -94,7 +94,7 @@
                     </div>
                 </div>
                 <div class="mt-3">
-                    <button type="button" class="btn btn-primary">Create</button>
+                    <button type="button" class="btn btn-primary" onclick="submitForm()">Create</button>
                 </div>
             </form>
         </div>
@@ -122,6 +122,30 @@ async function submitForm() {
     const gradeName = document.getElementById('grade_name').value;
     const comments = document.getElementById('comments').value;
     const csrftoken = getCSRFToken(); // Fetch CSRF token
+
+      // Frontend validation
+      if (!payGradeId) {
+        alert('Pay Grade ID is required.');
+        return;
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(payGradeId)) {
+        alert('Pay Grade ID must be alphanumeric.');
+        return;
+    }
+    if (!gradeName) {
+        alert('Pay Grade Name is required.');
+        return;
+    }
+    if (!/^[a-zA-Z0-9\s]+$/.test(gradeName)) {
+        alert('Pay Grade Name must be alphanumeric.');
+        return;
+    }
+    if (comments && !/^[a-zA-Z\s]+$/.test(comments)) {
+        alert('Comments should only contain alphabets.');
+        return;
+    }
+
+    
 
     try {
         const response = await fetch('/hrms/api/create-paygrade/', {

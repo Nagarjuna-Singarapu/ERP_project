@@ -2400,11 +2400,12 @@ def add_attendee(request):
         employee_id = request.POST.get('employee_id')
         training_class_id = request.POST.get('training_class_id')
 
-        print(f'Training Class Id: {training_class_id}')
-
         try:
             employee = HR_Employee.objects.get(employee_id=employee_id)
             training_class = TrainingClass.objects.get(trainingClassId=training_class_id)
+
+            if TrainingAttendee.objects.filter(employee=employee, trainingClass=training_class).exists():
+                return JsonResponse({'success': False, 'error': 'Employee is already assigned to this training class'})
 
             # Create a new attendee
             attendee = TrainingAttendee.objects.create(
@@ -2444,6 +2445,10 @@ def get_attendees(request, training_class_id):
     print(f'Fetched Attendees: {list(attendees)}')
     
     return JsonResponse(list(attendees), safe=False)
+
+def addnew_event(request):
+    date = request.GET.get('date')
+    return render(request, 'hrms/skill_qual/addnewEvent.html', {'date': date})
 
 #########################################################################################################################
 

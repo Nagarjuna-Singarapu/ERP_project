@@ -72,6 +72,7 @@ urlpatterns = [
     path('api/get-trainings/', views.get_trainings, name='get_trainings'),
     path('add-attendee/', views.add_attendee, name='add_attendee'),
     path('get-attendees/<int:training_class_id>/', views.get_attendees, name='get_attendees'),
+    path('addnewEvent/', views.addnew_event, name='addnewEvent'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
@@ -160,7 +161,7 @@ urlpatterns = [
   #Public Holiday Type
     path('public_holiday/', views.public_holiday, name='public_holiday'),
     path('create-public-holiday/', views.create_public_holiday, name='create_public_holiday'),
-    path('list-public-holidays/', views.list_public_holidays, name='list_public_holidays'),
+    path('api/list-public-holidays/', views.list_public_holidays, name='list_public_holidays'),
     path('delete-public-holiday/', views.delete_public_holiday, name='delete_public_holiday'),
     
     path('EditPayGrade/', views.EditPayGrade, name='EditPayGrade'),

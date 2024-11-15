@@ -1,186 +1,179 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar Day View</title>
-    <!-- Bootstrap CDN for styling -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Day View Calendar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Container Styling */
+        .dayview-container {
+            margin: 30px auto;
+            padding: 20px;
+            max-width: 800px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
 
-.btn-info{
-    color: black;
-    background-color: #0dcaf0;
-}
-
-          /* Custom color for Training Calendar and Training Approval buttons */
-       .btn-training {
-            background-color: #198754;
+        .event-card {
+            background-color: #007bff;
             color: white;
-            border: none;
-        }
-
-
-     /* Hover effect for buttons */
-    .btn-training:hover {
-        background-color: #198754;
-        color: white;
-        border: 1px solid #198754;
-    }
-
-    /* Disable hover effect for Training Approval button */
-    .btn-info:hover {
-    background-color: #0dcaf0;
-        color: black;
-        border: 1px solid #198754;
-}
-        /* Custom CSS to replicate your image layout */
-        .calendar-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .calendar-table th, .calendar-table td {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        .calendar-table th {
-            background-color: #304154;  /* Matching the header color */
-            color: white;
-        }
-
-        .time-slot {
-            text-align: left;
-            padding-left: 15px;
-        }
-
-        .add-new {
-            color: #007bff;
-            text-decoration: underline;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
             cursor: pointer;
         }
 
-        .table-header {
-            margin-top: 15px;
+        .event-card:hover {
+            background-color: #0056b3;
+        }
+
+        .add-new {
+            font-size: 14px;
+            color: blue;
+            cursor: pointer;
+            text-align: right;
+        }
+
+        .training-tooltip {
+            display: none;
+            background-color: #333;
+            color: #fff;
             padding: 8px;
-            font-size: 20px;
-            font-weight: bold;
+            border-radius: 4px;
+            position: absolute;
+            z-index: 10;
+            white-space: nowrap;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
-        /* Styling the view buttons */
-        .btn-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 15px;
-        }
-
-        .btn-container button {
-            margin-right: 5px;
+        .event-card:hover .training-tooltip {
+            display: block;
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-
-         <!-- Navigation Buttons -->
-        <div class="my-4 text-start">
-            <button id="btnCalendar" class="btn btn-success me-3" onclick="window.location.href=`{% url 'TrainingCalender' %}`">Training Calendar</button>
-      <button id="btnApproval" class="btn btn-info" onclick="window.location.href=`{% url 'TrainingApproval' %}`">Training Approval</button>
-        </div>
-
-        <!-- Calendar Section (Initially Visible) -->
-        <div id="calendarSection">
-            <!-- Header -->
-            <div class="table-header">
-                Day View: Friday, October 25, 2024
-            </div>
-
-            <!-- Buttons for views -->
-            <div class="btn-container">
-                <button id="prevDay" class="btn btn-primary w-100">Previous Day</button>
-                <button id="today" class="btn btn-primary w-100">Today</button>
-                <button id="nextDay" class="btn btn-primary w-100">Next Day</button>
-                <button id="weekView" class="btn btn-primary w-100" onclick="window.location.href=`{% url 'weekView' %}`">Week View</button>
-                <button id="monthView" class="btn btn-primary w-100" onclick="window.location.href=`{% url 'monthView' %}`">Month View</button>
-                <button id="upcomingEvents" class="btn btn-primary w-100" onclick="window.location.href=`{% url 'upcomingEvent' %}`">Upcoming Events</button>
-            </div>
-
-            <!-- Calendar Table -->
-            <div id="calendar-container">
-                <table class="calendar-table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Calendar Entries</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Time slots generated by JavaScript -->
-                        <tr>
-                            <td class="time-slot">00:00</td>
-                            <td><span class="add-new">Add New</span></td>
-                        </tr>
-                        <tr>
-                            <td class="time-slot">01:00</td>
-                            <td><span class="add-new">Add New</span></td>
-                        </tr>
-                        <!-- More rows up to 23:00 -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Training Approval Section (Initially Hidden) -->
-        <div id="approvalSection" style="display: none;">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Training Approval</h3>
-                </div>
-                <div class="card-body">
-                    <p>This section can contain forms or content specific to training approvals.</p>
-                </div>
-            </div>
-        </div>
+    <!-- Navigation Buttons -->
+    <div class="container my-4 text-center">
+        <button class="btn btn-primary" onclick="window.location.href=`{% url 'TrainingCalender' %}`">Training Calendar</button>
+        <button class="btn btn-info" onclick="window.location.href=`{% url 'TrainingApproval' %}`">Training Approval</button>
     </div>
 
-    <!-- JavaScript to load the time slots dynamically -->
+    <div class="container dayview-container">
+        <!-- Navigation for different views -->
+        <div class="row mb-3">
+            <!-- Left-aligned buttons -->
+            <div class="col text-start">
+                <button class="btn btn-primary" onclick="navigateDate('previous')">Previous Day</button>
+                <button class="btn btn-primary" onclick="navigateDate('today')">Today</button>
+                <button class="btn btn-primary" onclick="navigateDate('next')">Next Day</button>
+            </div>
+            
+            <!-- Right-aligned buttons -->
+            <div class="col text-end">
+                <button id="weekView" class="btn btn-primary" onclick="window.location.href=`{% url 'weekView' %}`">Week View</button>
+                <button id="upcomingEvents" class="btn btn-primary" onclick="window.location.href=`{% url 'upcomingEvent' %}`">Upcoming Events</button>
+            </div>
+        </div>
+
+        <!-- Date Selector -->
+        <div class="mb-4">
+            <input type="date" id="selectedDate" class="form-control" onchange="fetchDayData()">
+        </div>
+
+        <div class="add-new mb-3">
+            <span onclick="openAddTrainingForm()">+ Add New Training</span>
+        </div>
+
+        <!-- Events List for the Day -->
+        <div id="eventsList"></div>
+    </div>
+
     <script>
-        function loadDayView() {
-            const tbody = document.querySelector('.calendar-table tbody');
-            tbody.innerHTML = ''; // Clear existing rows
+        let currentDate = new Date();
 
-            for (let hour = 0; hour < 24; hour++) {
-                const timeLabel = (hour < 10 ? '0' : '') + hour + ':00';
-                const row = `
-                    <tr>
-                        <td class="time-slot">${timeLabel} <br> <a href=`{% url 'addnewEvent' %}`">Add New</a></td>
-                        <td></td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
+        // Function to fetch training data for the selected day
+        function fetchDayData() {
+            const selectedDate = document.getElementById('selectedDate').value;
+            const eventsList = document.getElementById('eventsList');
+
+            // Clear previous data
+            eventsList.innerHTML = '';
+
+            if (selectedDate) {
+                fetch(`/hrms/api/get-trainings/?date=${selectedDate}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            // Sort events by time (ascending order)
+                            data.sort((a, b) => new Date(`1970-01-01T${a.fromTime}`) - new Date(`1970-01-01T${b.fromTime}`));
+
+                            // Display each event
+                            data.forEach(training => {
+                                const eventCard = document.createElement('div');
+                                eventCard.className = 'event-card';
+                                eventCard.innerHTML = `
+                                    <div><b>Type:</b> ${training.trainingType__description || 'N/A'}</div>
+                                    <div><b>Approver:</b> ${training.approverId__employee_id || 'N/A'}</div>
+                                    <div><b>Class ID:</b> ${training.trainingClassId || 'N/A'}</div>
+                                    <div><b>Time:</b> ${training.fromTime} - ${training.throughTime || 'N/A'}</div>
+                                    <div class="training-tooltip">
+                                        <b>Details:</b> ${training.description || 'No additional details'}
+                                    </div>
+                                `;
+                                eventsList.appendChild(eventCard);
+                            });
+                        } else {
+                            eventsList.innerHTML = `<p>No events scheduled for this day.</p>`;
+                        }
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
             }
         }
 
-        // Call the function to load the time slots
-        loadDayView();
+        // Function to navigate between days
+        function navigateDate(direction) {
+            const dateInput = document.getElementById('selectedDate');
+            let selectedDate = new Date(dateInput.value || currentDate);
 
-        // Function to show/hide sections based on button clicks
-        function showSection(section) {
-            const calendarSection = document.getElementById('calendarSection');
-            const approvalSection = document.getElementById('approvalSection');
+            if (direction === 'previous') {
+                selectedDate.setDate(selectedDate.getDate() - 1);
+            } else if (direction === 'next') {
+                selectedDate.setDate(selectedDate.getDate() + 1);
+            } else if (direction === 'today') {
+                selectedDate = new Date();
+            }
 
-            if (section === 'calendar') {
-                calendarSection.style.display = 'block';
-                approvalSection.style.display = 'none';
-            } else if (section === 'approval') {
-                calendarSection.style.display = 'none';
-                approvalSection.style.display = 'block';
+            currentDate = selectedDate;
+            dateInput.value = selectedDate.toISOString().split('T')[0];
+            fetchDayData();
+        }
+
+        // Function to open the form to add a new training event
+        function openAddTrainingForm() {
+            const selectedDate = document.getElementById('selectedDate').value;
+            if (selectedDate) {
+                window.location.href = `/hrms/addnewEvent/?date=${selectedDate}`;
+            } else {
+                alert('Please select a date first.');
             }
         }
+
+        // Set today's date as default on page load
+        window.onload = () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('selectedDate').value = today;
+            fetchDayData();
+        };
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

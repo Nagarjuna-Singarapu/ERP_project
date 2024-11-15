@@ -1,0 +1,559 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payslip Generator</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.payslip-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Make the container span the full viewport height */
+    position: relative;
+    width: 60%;
+        margin: 0 auto;
+        border: 1px solid #000;
+        padding: 20px;
+}
+
+.header {
+    position: relative;
+    height: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centers the headings vertically */
+}
+
+.l-corner {
+    flex-grow: 1;
+}
+
+.right-corner {
+    position: absolute; /* Adjust the distance from the top */
+    right: 20px; /* Adjust the distance from the right */
+    text-align: right;
+}
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    .input-group {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        margin-right: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .input-group button {
+        padding: 8px;
+        background-color: #bcd0e4;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .input-group button:hover {
+        background-color: #005bb5;
+    }
+
+    .calendar-section {
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    .calendar-section label {
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .calendar-section input[type="date"] {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    input[type="text"], input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        margin: 8px 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        width: 20%;
+        padding: 10px;
+        background-color: #0073e6;
+        color: #fff;
+        border: none;
+        margin: 10px auto;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    button:hover {
+        background-color: #005bb5;
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 10px;
+    }
+    .payslip-container .header {
+    display: flex;
+    justify-content: space-between;
+   
+}
+
+.payslip-container .left-corner,
+.payslip-container .right-corner {
+    font-size: 14px;
+}
+
+.payslip-container .right-corner {
+    text-align: right;
+}
+
+.payslip-container .right-corner a {
+    color: #007bff;
+    text-decoration: none;
+}
+.payslip-container .right-corner a:hover {
+    text-decoration: underline;
+}
+.payslip-container {
+    padding: 20px;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.l-corner {
+        text-align: center;
+        flex: 1;
+    }
+
+.left-corner,
+.right-corner {
+    flex: 1;
+}
+
+.left-corner p {
+    margin: 0;
+    font-size: 14px;
+}
+
+
+.right-corner p  {
+        margin-bottom: -17px;
+        padding: 2px;
+    }
+
+.right-corner a {
+    text-decoration: none;
+    color: #007BFF;
+}
+
+
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="payslip-container">
+        <div class="header">
+            <!-- Center aligned heading section -->
+            <div class="l-corner">
+                <h2>Aapai Technologies</h2>
+                <h3>Payslip for the Month</h3>
+            </div>
+            <!-- Right aligned contact details section -->
+            <div class="right-corner">
+                <p>GST Number: <span id="gstNumber">XXXXXXX</span></p>
+                <p><a href="mailto:example@email.com">Email: example@email.com</a></p>
+                <p>Website: <a href="https://www.example.com" target="_blank">www.example.com</a></p>
+                <p>Address: 1234 Main St, City, State</p>
+                <p>Contact: +123 456 7890</p>
+            </div>
+        </div>
+
+        <!-- Rest of your content here -->
+   
+        <!-- Table content goes here -->
+
+    
+
+    <table>
+        <tr>
+            <th colspan="4" style="text-align:center;">Basic Information</th>
+        </tr>
+        <tr>
+            <th>Employee Details</th>
+            <td>
+            <div class="input-group">
+                <input type="number" id="employeeId" class="form-control" placeholder="Employee ID">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#appIDModal">
+                    <i class="bi bi-search"></i> <!-- Bootstrap Icons search icon -->
+                </button>
+            </td>
+            <td><input type="text" id="employeeName" class="form-control" placeholder="Employee Name"></td>
+            <td><input type="text" id="employeeDep" class="form-control" placeholder="Employee Department"></td>
+        </tr>
+        <tr>
+            <th>Bank Details</th>
+            <td><input type="text" id="bankName" placeholder="Bank Name" class="form-control"></td>
+            <td><input type="number" id="accountNo" placeholder="Account Number" class="form-control"></td>
+            <td><input type="number" id="ifscCode" placeholder="IFSC Code" class="form-control"></td>
+        </tr>
+        <tr>
+            <th colspan="4" style="text-align:center;">Earnings</th>
+        </tr>
+        <tr>
+            <th>Basic Salary</th>
+            <td><input type="number" id="basicSalary" value="0"></td>
+            <th>House Rent Allowance</th>
+            <td><input type="number" id="houseRent" value="0"></td>
+        </tr>
+        <tr>
+            <th>Conveyance Allowance</th>
+            <td><input type="number" id="conveyance" value="0"></td>
+            <th>Flat Allowance</th>
+            <td><input type="number" id="flatAllowance" value="0"></td>
+        </tr>
+        <tr>
+            <th>Skill Bonus</th>
+            <td><input type="number" id="skillBonus" value="0"></td>
+            <th>Special Payment</th>
+            <td><input type="number" id="specialPayment" value="0"></td>
+            
+        </tr>
+        <tr>
+            <th>Unpaid Leaves</th>
+            <td><input type="number" id="unpaidLeaves1" class = "readonly" value="0"></td>
+            <td><input type="number" id="unpaidLeaves2" value="0"></td>
+        </tr>
+        <tr>
+            <th>Total Earnings</th>
+            <td colspan="3"><span id="totalEarnings">0</span></td>
+        </tr>
+        <tr>
+            <th colspan="4" style="text-align:center;">Deductions</th>
+        </tr>
+        <tr>
+            <th>ESI Contribution</th>
+            <td><input type="number" id="esiContribution" value="0"></td>
+            <th>PF Contribution</th>
+            <td><input type="number" id="pfContribution" value="0"></td>
+        </tr>
+        <tr>
+            <th>Professional Tax</th>
+            <td><input type="number" id="professionalTax" value="0"></td>
+            <th>Take Home Pay</th>
+            <td><input type="number" id="takeHomePay" value="0"></td>
+        </tr>
+       <tr>
+        <th>Total Deductions</th>
+        <td><span id="totalDeductions">0</span></td>
+        <th>Date</th>
+        <td colspan="3"><input type="date" id="deductionDate"></td> 
+         <!-- Net Salary and Date in the same column -->
+    </tr>
+    <tr>
+        <th>Net Salary</th>
+        <td colspan="3"><span id="netSalary"  class="form-control">0</span></td>
+        <!-- Date in the same row -->
+    </tr>
+    </table>
+
+    <div class="button-container">
+        <button onclick="calculatePayslip()">Calculate Payslip</button>
+        <button onclick="generatePDF()">Download Payslip</button>
+        <button onclick="savePayslip()">Save Payslip</button>
+    </div>
+</div>
+
+<script>
+function calculateNetSalary() {
+    // Parse earnings inputs
+    let basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
+    let houseRent = parseFloat(document.getElementById('houseRent').value) || 0;
+    let conveyance = parseFloat(document.getElementById('conveyance').value) || 0;
+    let flatAllowance = parseFloat(document.getElementById('flatAllowance').value) || 0;
+    let skillBonus = parseFloat(document.getElementById('skillBonus').value) || 0;
+    let specialPayment = parseFloat(document.getElementById('specialPayment').value) || 0;
+    let unpaidLeaves1 = parseFloat(document.getElementById('unpaidLeaves1').value) || 0;
+    let unpaidLeaves2 = parseFloat(document.getElementById('unpaidLeaves2').value) || 0;
+
+    // Calculate total earnings
+    let totalEarnings = basicSalary + houseRent + conveyance + flatAllowance + skillBonus + specialPayment - unpaidLeaves1 - unpaidLeaves2;
+
+    // Update total earnings display
+    document.getElementById('totalEarnings').innerText = totalEarnings.toFixed(2);
+
+    // Parse deduction inputs
+    let esiContribution = parseFloat(document.getElementById('esiContribution').value) || 0;
+    let pfContribution = parseFloat(document.getElementById('pfContribution').value) || 0;
+    let professionalTax = parseFloat(document.getElementById('professionalTax').value) || 0;
+
+    // Calculate total deductions
+    let totalDeductions = esiContribution + pfContribution + professionalTax;
+
+    // Update total deductions display
+    document.getElementById('totalDeductions').innerText = totalDeductions.toFixed(2);
+
+    // Calculate net salary
+    let netSalary = totalEarnings - totalDeductions;
+
+    // Update net salary display
+    document.getElementById('netSalary').innerText = netSalary.toFixed(2);
+}
+
+// Attach event listeners for real-time calculation
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', calculateNetSalary);
+});
+
+
+// Initialize calculation on page load
+calculateNetSalary();
+document.addEventListener("DOMContentLoaded", function () {
+    // Check if editing mode is enabled
+    const editPayslipData = JSON.parse(localStorage.getItem("editPayslipData"));
+    if (editPayslipData) {
+        // Populate Employee Details
+        document.getElementById("employeeId").value = editPayslipData.employeeId || "";
+        document.getElementById("employeeName").value = editPayslipData.employeeName || "";
+        document.getElementById("employeeDep").value = editPayslipData.employeeDep || "";
+        
+        // Populate Bank Details
+        document.getElementById("bankName").value = editPayslipData.bankName || "";
+        document.getElementById("accountNo").value = editPayslipData.accountNo || "";
+        document.getElementById("ifscCode").value = editPayslipData.ifscCode || "";
+
+        // Populate Earnings Section
+        document.getElementById("basicSalary").value = editPayslipData.basicSalary || "0";
+        document.getElementById("houseRent").value = editPayslipData.houseRent || "0";
+        document.getElementById("conveyance").value = editPayslipData.conveyance || "0";
+        document.getElementById("flatAllowance").value = editPayslipData.flatAllowance || "0";
+        document.getElementById("skillBonus").value = editPayslipData.skillBonus || "0";
+        document.getElementById("specialPayment").value = editPayslipData.specialPayment || "0";
+
+        // Populate Unpaid Leaves
+        document.getElementById("unpaidLeaves1").value = editPayslipData.unpaidLeaves1 || "0";
+        document.getElementById("unpaidLeaves2").value = editPayslipData.unpaidLeaves2 || "0";
+
+        // Populate Deductions Section
+        document.getElementById("esiContribution").value = editPayslipData.esiContribution || "0";
+        document.getElementById("pfContribution").value = editPayslipData.pfContribution || "0";
+        document.getElementById("professionalTax").value = editPayslipData.professionalTax || "0";
+
+        // Populate Total Earnings and Deductions Display
+        document.getElementById("totalEarnings").innerText = editPayslipData.totalEarnings || "0";
+        document.getElementById("totalDeductions").innerText = editPayslipData.totalDeductions || "0";
+
+        // Populate Take Home Pay and Date
+        document.getElementById("takeHomePay").value = editPayslipData.takeHomePay || "0";
+        document.getElementById("deductionDate").value = editPayslipData.deductionDate || "";
+
+        // Remove edit data from localStorage (optional)
+        localStorage.removeItem("editPayslipData");
+    }
+});
+
+
+
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Title and Header
+    doc.setFontSize(16);
+    doc.setTextColor(40, 40, 40);
+    doc.text("Payslip", 105, 10, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Private and Confidential", 105, 18, { align: "center" });
+    doc.text("Payslip for the Month", 105, 26, { align: "center" });
+
+    // Date Section
+    const payslipDate = document.getElementById("deductionDate").value || "N/A";
+    doc.setFontSize(10);
+    doc.setTextColor(0);
+    doc.text(`Payslip Date: ${payslipDate}`, 20, 30);
+
+    // Employee Details Section
+    doc.setFillColor(230, 230, 250); // Light lavender background
+    doc.rect(14, 38, 180, 42, 'F');
+
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 128); // Dark blue text for section title
+    doc.text("Employee Details", 14, 44);
+    doc.setTextColor(0);
+
+    const employeeDetails = [
+        { label: "Employee ID", value: document.getElementById("employeeId").value || "N/A" },
+        { label: "Bank Name", value: document.getElementById("bankName").value || "N/A" },
+        { label: "Account Number", value: document.getElementById("accountNo").value || "N/A" },
+        { label: "IFSC Code", value: document.getElementById("ifscCode").value || "N/A" }
+    ];
+
+    employeeDetails.forEach((item, index) => {
+        const yPosition = 52 + index * 8;
+        doc.text(`${item.label}: ${item.value}`, 16, yPosition);
+    });
+
+    // Earnings Section
+    doc.setFillColor(173, 216, 230); // Light blue background
+    doc.rect(14, 90, 180, 66, 'F');
+
+    doc.setTextColor(0, 0, 128);
+    doc.text("Earnings", 105, 96, { align: "center" });
+    doc.setTextColor(0);
+
+    const earningsData = [
+        { label: "Basic Salary", value: document.getElementById("basicSalary").value || "0" },
+        { label: "House Rent Allowance", value: document.getElementById("houseRent").value || "0" },
+        { label: "Conveyance Allowance", value: document.getElementById("conveyance").value || "0" },
+        { label: "Flat Allowance", value: document.getElementById("flatAllowance").value || "0" },
+        { label: "Skill Bonus", value: document.getElementById("skillBonus").value || "0" },
+        { label: "Special Payment", value: document.getElementById("specialPayment").value || "0" },
+        { label: "Total Earnings", value: document.getElementById("totalEarnings").innerText || "0" }
+    ];
+
+    earningsData.forEach((item, index) => {
+        const yPosition = 102 + index * 8;
+        doc.text(item.label, 16, yPosition);
+        doc.text(item.value, 170, yPosition, { align: "right" });
+    });
+
+    // Deductions Section
+    doc.setFillColor(255, 228, 225); // Light pink background
+    doc.rect(14, 160, 180, 58, 'F');
+
+    doc.setTextColor(0, 0, 128);
+    doc.text("Deductions", 105, 166, { align: "center" });
+    doc.setTextColor(0);
+
+    const deductionsData = [
+        { label: "ESI Contribution", value: document.getElementById("esiContribution").value || "0" },
+        { label: "PF Contribution", value: document.getElementById("pfContribution").value || "0" },
+        { label: "Professional Tax", value: document.getElementById("professionalTax").value || "0" },
+        { label: "Total Deductions", value: document.getElementById("totalDeductions").innerText || "0" },
+        { label: "Take Home Pay", value: document.getElementById("takeHomePay").value || "0" }
+    ];
+
+    deductionsData.forEach((item, index) => {
+        const yPosition = 172 + index * 8;
+        doc.text(item.label, 16, yPosition);
+        doc.text(item.value, 170, yPosition, { align: "right" });
+    });
+
+    // Save the PDF
+    doc.save("payslip.pdf");
+}
+
+
+function savePayslip() {
+    // Helper function to retrieve form values safely
+    const getFieldValue = (id, isText = false) => {
+        const element = document.getElementById(id);
+        if (element) {
+            return isText ? element.innerText.trim() : element.value.trim();
+        }
+        return "";
+    };
+
+    // Collect all necessary fields
+    const payslipData = {
+        employeeId: getFieldValue("employeeId"),
+        employeeName: getFieldValue("employeeName"),
+        employeeDepartment: getFieldValue("employeeDep"),
+        bankDetails: getFieldValue("bankName"),
+        accountNo: getFieldValue("accountNo"),
+        basicSalary: getFieldValue("basicSalary"),
+        conveyanceAllowance: getFieldValue("conveyance"),
+        skillBonus: getFieldValue("skillBonus"),
+        houseRentAllowance: getFieldValue("houseRent"),
+        flatAllowance: getFieldValue("flatAllowance"),
+        specialPayment: getFieldValue("specialPayment"),
+        esiContribution: getFieldValue("esiContribution"),
+        professionalTax: getFieldValue("professionalTax"),
+        pfContribution: getFieldValue("pfContribution"),
+        totalEarnings: getFieldValue("totalEarnings", true) || "0",
+        totalDeductions: getFieldValue("totalDeductions", true) || "0",
+        takeHomePay: getFieldValue("takeHomePay", true) || "0",
+        unpaidLeaves: `${getFieldValue("unpaidLeaves1")} / ${getFieldValue("unpaidLeaves2")}`,
+        date: getFieldValue("deductionDate")
+    };
+
+    // Validate required fields
+    const requiredFields = [
+        { name: "Employee ID", value: payslipData.employeeId },
+        { name: "Employee Name", value: payslipData.employeeName },
+        { name: "Employee Department", value: payslipData.employeeDepartment },
+        { name: "Bank Name", value: payslipData.bankDetails },
+        { name: "Account Number", value: payslipData.accountNo },
+        { name: "Date", value: payslipData.date }
+    ];
+
+    const missingFields = requiredFields.filter(field => !field.value);
+    if (missingFields.length > 0) {
+        const missingFieldNames = missingFields.map(field => field.name).join(", ");
+        alert(`Please fill in the following required fields: ${missingFieldNames}`);
+        return;
+    }
+
+    // Save data to localStorage
+    try {
+        localStorage.setItem("payslipData", JSON.stringify(payslipData));
+        alert("Payslip saved successfully!");
+
+        // Redirect to the Payslip page
+        window.location.href = "employee_payslips.html"; // Update this to your correct path
+    } catch (error) {
+        console.error("Failed to save payslip:", error);
+        alert("An error occurred while saving the payslip. Please try again.");
+    }
+}
+
+
+
+</script>
+</body>
+</html>

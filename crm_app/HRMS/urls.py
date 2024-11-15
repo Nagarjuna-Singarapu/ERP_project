@@ -73,6 +73,7 @@ urlpatterns = [
     path('add-attendee/', views.add_attendee, name='add_attendee'),
     path('get-attendees/<int:training_class_id>/', views.get_attendees, name='get_attendees'),
     path('addnewEvent/', views.addnew_event, name='addnewEvent'),
+    path('api/upcoming-training/', views.get_upcoming_training_classes, name='get_upcoming_training_classes'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
@@ -102,7 +103,9 @@ urlpatterns = [
     path('lookup_party_resume/', views.lookup_party_resume, name='lookup_party_resume'),
     path('add_emp_leave/', views.add_emp_leave, name='add_emp_leave'),
     path('leave_approval/', views.leave_approval, name='leave_approval'),
-    
+
+    path('pay_slip/', views.pay_slip, name='pay_slip'),
+    path('payslip_create/', views.payslip_create, name='payslip_create'),
     
     # global HR by sunny and amit 
     path('skill-types/', views.skill_types, name='skill_types'),
@@ -205,7 +208,7 @@ urlpatterns = [
     path('CalenderSection/', views.CalenderSection, name='CalenderSection'),
     path('addnewEventMonth/', views.addnewEventMonth, name='addnewEventMonth'),
     path('addnewEvent/', views.addnewEvent, name='addnewEvent'),
-    path('nagaslookup/', views.nagaslookup, name='nagaslookup'),
+    path('lookups/', views.lookups, name='lookups'),
     
     path('search-party-skills/', views.search_party_skills, name='search_party_skills'),
 

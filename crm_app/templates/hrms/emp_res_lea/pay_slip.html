@@ -97,6 +97,8 @@
         <tr>
           <th><input type="checkbox" onclick="toggleAllCheckboxes(this)" /></th>
           <th>Employee ID</th>
+          <th>Employee Name</th> <!-- Added Employee Name column -->
+          <th>Employee Department</th> <!-- Added Employee Department column -->
           <th>Bank Details</th>
           <th>Basic Salary</th>
           <th>Conveyance Allowance</th>
@@ -109,28 +111,32 @@
           <th>PF Contribution</th>
           <th>Total Earnings</th>
           <th>Total Deductions</th>
-          <th>Take Home Pay</th>
           <th>Unpaid Leaves</th>
+          <th>Net Salary</th>
           <th>Date</th> <!-- New Date column -->
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody></tbody>
     </table>
     <button class="btn btn-danger px-4 py-2 delete-btn" onclick="deleteSelected()">Delete Selected</button>
     
     <script>
-      // Load saved payslip data and display in table
-      document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
   const payslipData = JSON.parse(localStorage.getItem("payslipData"));
 
   if (payslipData) {
     const tableBody = document.querySelector("table tbody");
+    if (!tableBody) {
+      console.error("Table body not found.");
+      return;
+    }
 
     const newRow = document.createElement("tr");
     newRow.innerHTML = `
       <td><input type="checkbox" class="row-checkbox"></td>
       <td>${payslipData.employeeId}</td>
+      <td>${payslipData.employeeName || "N/A"}</td> <!-- Added Employee Name -->
+      <td>${payslipData.employeeDepartment || "N/A"}</td> <!-- Added Employee Department -->
       <td>${payslipData.bankName} - ${payslipData.accountNo}</td>
       <td>${payslipData.basicSalary}</td>
       <td>${payslipData.conveyance}</td>
@@ -143,9 +149,9 @@
       <td>${payslipData.pfContribution}</td>
       <td>${payslipData.totalEarnings}</td>
       <td>${payslipData.totalDeductions}</td>
-      <td>${payslipData.takeHomePay}</td>
       <td>${payslipData.unpaidLeave}</td>
-      <td>${payslipData.date}</td> <!-- New Date field -->
+      <td>${payslipData.netsalary}</td>
+      <td>${payslipData.date}</td> <!-- Added Date -->
       <td>
         <div style="display: flex; gap: 10px;">
           <button class="btn btn-warning btn-sm" style="flex: 1;" onclick="editRow(this)">Edit</button>
@@ -162,30 +168,33 @@ function editRow(button) {
   const row = button.closest("tr");
   const rowData = {
     employeeId: row.cells[1].textContent,
-    bankName: row.cells[2].textContent.split(" - ")[0],
-    accountNo: row.cells[2].textContent.split(" - ")[1],
-    basicSalary: row.cells[3].textContent,
-    conveyance: row.cells[4].textContent,
-    skillBonus: row.cells[5].textContent,
-    houseRent: row.cells[6].textContent,
-    flatAllowance: row.cells[7].textContent,
-    specialPayment: row.cells[8].textContent,
-    esiContribution: row.cells[9].textContent,
-    professionalTax: row.cells[10].textContent,
-    pfContribution: row.cells[11].textContent,
-    totalEarnings: row.cells[12].textContent,
-    totalDeductions: row.cells[13].textContent,
-    takeHomePay: row.cells[14].textContent,
-    unpaidLeave: row.cells[15].textContent,
-    date: row.cells[16].textContent, // New Date data
+    employeeName: row.cells[2].textContent, // Added Employee Name
+    employeeDepartment: row.cells[3].textContent, // Added Employee Department
+    bankName: row.cells[4].textContent.split(" - ")[0],
+    accountNo: row.cells[4].textContent.split(" - ")[1],
+    basicSalary: row.cells[5].textContent,
+    conveyance: row.cells[6].textContent,
+    skillBonus: row.cells[7].textContent,
+    houseRent: row.cells[8].textContent,
+    flatAllowance: row.cells[9].textContent,
+    specialPayment: row.cells[10].textContent,
+    esiContribution: row.cells[11].textContent,
+    professionalTax: row.cells[12].textContent,
+    pfContribution: row.cells[13].textContent,
+    totalEarnings: row.cells[14].textContent,
+    totalDeductions: row.cells[15].textContent,
+    unpaidLeave: row.cells[16].textContent,
+    netsalary: row.cells[17].textContent,
+    date: row.cells[18].textContent // Adjusted Date field index
   };
 
   // Store row data in localStorage
   localStorage.setItem("editPayslipData", JSON.stringify(rowData));
 
   // Redirect to the payslip generator page
-  window.location.href = "{% url 'payslip_create' %}" ;
+  window.location.href = "{% url 'payslip_create' %}";
 }
+
     
     function applyFilters() {
       alert("Filter functionality is not yet implemented.");

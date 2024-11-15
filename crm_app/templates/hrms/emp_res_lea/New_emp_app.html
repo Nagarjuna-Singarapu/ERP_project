@@ -1,3 +1,5 @@
+<!-- ERP_project/crm_app/templates/hrms/emp_res_lea/New_emp_app.html -->
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -152,52 +154,74 @@
 
 <script>
   document.getElementById('employmentApplicationForm').addEventListener('submit', function(event) {
-      event.preventDefault(); // Prevent the default form submission
+    event.preventDefault(); // Prevent the default form submission
 
-      // Gather form data
-      const applicationId = document.getElementById('applicationId').value;
-      const positionId = document.getElementById('positionId').value;
-      const statusId = document.getElementById('statusId').value;
-      const empappSourceId = document.getElementById('empappSourceId').value;
-      const partyId = document.getElementById('partyId').value;
-      const applicationDate = document.getElementById('applicationDate').value;
+    // Gather form data
+    const applicationId = document.getElementById('applicationId').value || null;
+    const positionId = document.getElementById('positionId').value || null;
+    const statusId = document.getElementById('statusId').value || null;
+    const empappSourceId = document.getElementById('empappSourceId').value || null;
+    const partyId = document.getElementById('partyId').value || null;
+    const applicationDate = document.getElementById('applicationDate').value || null;
 
-      // Basic validation (can be expanded)
-      if (!applicationId) {
-          alert('Application ID is required.');
-          return;
-      }
+    // Prepare data for sending (all fields can be null)
+    const data = {
+        applicationId: applicationId,
+        positionId: positionId,
+        statusId: statusId,
+        empappSourceId: empappSourceId,
+        partyId: partyId,
+        applicationDate: applicationDate
+    };
 
-      // Here you can handle the form data as needed (e.g., send it to a server)
-      console.log({
-          applicationId,
-          positionId,
-          statusId,
-          empappSourceId,
-          partyId,
-          applicationDate
-      });
+    // Send the data using fetch
+    fetch('/hrms/create-employment-application/', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json', // Sending JSON
+            'X-CSRFToken': getCookie('csrftoken'),  // CSRF Token
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success modal
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
 
-      // Show success modal
-      const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-      successModal.show();
+            // Reset form and hide success modal after a short delay
+            setTimeout(() => {
+                this.reset();
+                successModal.hide();
+                // Redirect back to the previous page or dashboard
+                window.history.back();
+            }, 2000);
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the form.');
+    });
+});
 
-      // Reset the form after a short delay to allow the modal to show
-      setTimeout(() => {
-          this.reset();
-          successModal.hide();
-          // Redirect back to the previous page
-          window.history.back();
-        }, 2000);
-      });
-
-      // Close the success modal and redirect when the OK button is clicked
-    document.getElementById('closeSuccessModal').addEventListener('click', function() {
-      const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-      successModal.hide();
-      // Redirect back to the previous page
-      window.history.back();
-  });
+// Helper function to get the CSRF token from the cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 </script>
 </body>
 </html>

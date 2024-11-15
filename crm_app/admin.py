@@ -1,7 +1,19 @@
 from django.contrib import admin
+# Import models from the current app (CRM)
+from .models import (
+    UserSignup, Profile, RegisterUser, Contacts, Leads, Opportunities, 
+    Invoice, Calls, Calendar
+)
 
-from .models import UserSignup, Profile, RegisterUser, Contacts, Leads, Opportunities, Invoice, Calls, Calendar
-from crm_app.HRMS.models import HR_Employee, Employment, EmployeeResume, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, PartySkill, PayGrade, PerformanceReview, PublicHoliday, Responsibility_Type, SkillType, SalaryStepGrade, HR_Company, HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, TrainingAttendee, TrainingClass, TrainingClassType
+# Import models from the HRMS app
+from crm_app.HRMS.models import (
+    EmploymentApplication, HR_Employee, Employment, EmployeeResume, InternalJobPosting, JobInterview, 
+    JobInterviewType, JobRequisition, PartySkill, PayGrade, PerformanceReview, 
+    PublicHoliday, Responsibility_Type, SkillType, SalaryStepGrade, HR_Company, 
+    HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, 
+    EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, TrainingAttendee, TrainingClass, TrainingClassType
+)
+
 
 
 # Register your models here.
@@ -95,7 +107,6 @@ class BudgetRequestAdmin(admin.ModelAdmin):
     ordering = ('-start_date',)
 
 admin.site.register(BudgetRequest, BudgetRequestAdmin)
-
 admin.site.register(HR_Employee)
 admin.site.register(PerformanceReview)
 admin.site.register(Employment)
@@ -113,6 +124,7 @@ admin.site.register(Responsibility_Type)
 admin.site.register(LeaveType)
 admin.site.register(LeaveReason)
 admin.site.register(EmployeeLeave)
+admin.site.register(EmploymentApplication)
 admin.site.register(JobInterviewType)
 admin.site.register(TrainingClassType)
 admin.site.register(PublicHoliday)

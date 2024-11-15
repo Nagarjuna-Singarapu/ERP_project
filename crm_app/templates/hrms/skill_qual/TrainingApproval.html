@@ -275,8 +275,8 @@
         </div>
     </div>
 
-    <!-- Results Table -->
-    <div class="card mt-4">
+     <!-- Results Table -->
+     <div class="card mt-4">
         <div class="card-header">
             <h3 class="mb-0">Search Results</h3>
         </div>
@@ -299,30 +299,51 @@
                     </thead>
                     <tbody>
                         {% for result in results %}
-                            <tr>
-                                <td>{{ result.employee.employee_id }}</td>
-                                <td>{{ result.trainingClass.trainingClassId }}</td>
-                                <td>{{ result.trainingClass.trainingType.tranningTypeId }}</td>
-                                <td>{{ result.trainingClass.trainingClassId }}</td>
-                                <td>{{ result.trainingClass.fromDate }}</td>
-                                <td>{{ result.trainingClass.throughDate }}</td>
-                                <td>{{ result.trainingClass.approverId.employee_id }}</td> <!-- Approver Party ID -->
-                                <td>{{ result.status }}</td> <!-- Approval Status -->
-                                <td>{{ result.reason }}</td> <!-- Reason -->
-                                <td><button class="btn btn-primary btn-sm">Update</button></td>
-                            </tr>
+                            {% if result.attendees %}
+                                <!-- For training classes with attendees -->
+                                {% for attendee in result.attendees %}
+                                    <tr>
+                                        <td>{{ attendee.employee.employee_id }}</td>
+                                        <td>{{ attendee.attendeeId }}</td>
+                                        <td>{{ result.trainingType.tranningTypeId }}</td>
+                                        <td>{{ result.trainingClassId }}</td>
+                                        <td>{{ result.fromDate }}</td>
+                                        <td>{{ result.throughDate }}</td>
+                                        <td>{{ result.approverId.employee_id }}</td>
+                                        <td>{{ attendee.status }}</td>
+                                        <td>{{ attendee.reason }}</td>
+                                        <td><button class="btn btn-primary btn-sm">Update</button></td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <!-- For training classes without attendees, display N/A or Not Assigned for attendee-related columns -->
+                                <tr>
+                                    <td></td> <!-- No employee assigned -->
+                                    <td>{{ result.trainingClassId }}</td>
+                                    <td>{{ result.trainingType.tranningTypeId }}</td>
+                                    <td>{{ result.trainingClassId }}</td> <!-- Displaying work effort ID as trainingClassId -->
+                                    <td>{{ result.fromDate }}</td>
+                                    <td>{{ result.throughDate }}</td>
+                                    <td>{{ result.approverId.employee_id }}</td>
+                                    <td></td> <!-- No status -->
+                                    <td></td> <!-- No reason -->
+                                    <td><button class="btn btn-primary btn-sm">Update</button></td>
+                                </tr>
+                            {% endif %}
                         {% empty %}
+                            <!-- In case there are no training classes -->
                             <tr>
-                                <td colspan="10" class="text-center">No records found</td>
+                                <td colspan="10" class="text-center">No records found.</td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+                
+                
+                
             </div>
         </div>
     </div>
-    
-    
 </div>
 
 <!-- Bootstrap JS -->

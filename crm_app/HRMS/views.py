@@ -726,6 +726,94 @@ def submit_employee(request):
         employee_id = request.POST.get('employee_id')
         email = request.POST.get('email')
 
+        import re
+
+        errors = {}
+
+        # Title validation (if required)
+        if not title:
+            errors['title'] = "Title is required."
+
+        # First Name validation: Should contain only alphabets, no special characters or numbers
+        if not first_name:
+            errors['first_name'] = "First Name is required."
+        elif not re.match(r'^[A-Za-z]+$', first_name):
+            errors['first_name'] = "First Name should contain only alphabets."
+
+        # Middle Initial validation: Should contain only alphabets, no special characters or numbers
+        if middle_initial and not re.match(r'^[A-Za-z]*$', middle_initial):
+            errors['middle_initial'] = "Middle Initial should contain only alphabets."
+
+        # Last Name validation: Should contain only alphabets, no special characters or numbers
+        if not last_name:
+            errors['last_name'] = "Last Name is required."
+        elif not re.match(r'^[A-Za-z]+$', last_name):
+            errors['last_name'] = "Last Name should contain only alphabets."
+
+        # City validation: Should contain only alphabets, no special characters or numbers
+        if not city:
+            errors['city'] = "City is required."
+        elif not re.match(r'^[A-Za-z\s]+$', city):
+            errors['city'] = "City should contain only letters and spaces."
+
+        # Phone Number validation: Should contain exactly 10 digits, no alphabets or special characters
+        if not phone_number:
+            errors['phone_number'] = "Phone Number is required."
+        elif not re.match(r'^\d{10}$', phone_number):
+            errors['phone_number'] = "Phone Number should be exactly 10 digits."
+
+        # Zip/Postal Code validation: Should contain only numbers, no alphabets or special characters
+        if not zip_code:
+            errors['zip_code'] = "Zip Code is required."
+        elif not re.match(r'^\d+$', zip_code):
+            errors['zip_code'] = "Zip Code should contain only numbers."
+
+        # Address1 validation: Should not contain only special characters, but can include letters, numbers, ',' '-' '/'
+        if not address1:
+            errors['address1'] = "Address1 is required."
+        elif not re.match(r'^[A-Za-z0-9\s,/-]+$', address1) or re.match(r'^[,/-]+$', address1):
+            errors['address1'] = "Address1 should contain letters, numbers, or ',', '-', '/'."
+
+        # Address2 validation: Should not contain only special characters, but can include letters, numbers, ',' '-' '/'
+        if address2 and (not re.match(r'^[A-Za-z0-9\s,/-]+$', address2) or re.match(r'^[,/-]+$', address2)):
+            errors['address2'] = "Address2 should contain letters, numbers, or ',', '-', '/'."
+
+        # Department ID validation (if required)
+        if not department_id:
+            errors['internal_organization'] = "Department is required."
+
+        # Planned Start Date validation (if required)
+        if not planned_start_date:
+            errors['planned_start_date'] = "Planned Start Date is required."
+
+        # Email validation
+        if not email:
+            errors['email'] = "Email is required."
+        elif not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            errors['email'] = "Invalid email format."
+
+        # Country validation (if required)
+        if not country:
+            errors['country'] = "Country is required."
+
+        # State validation (if required)
+        if not state:
+            errors['state'] = "State is required."
+
+        # Phone Code validation (if required)
+        if not phone_code:
+            errors['phone_code'] = "Phone Code is required."
+
+        # Employee ID validation (if required)
+        if not employee_id:
+            errors['employee_id'] = "Employee ID is required."
+
+        if errors:
+            context = {
+                'errors': errors
+            }
+            return render(request, 'hrms/emp_per/NewEmploye.html', context)
+
         # Save the data to the database
         HR_Employee.objects.create(
             title=title,
@@ -747,12 +835,8 @@ def submit_employee(request):
             email=email
         )
 
-        # messages.success(request, "Employee created successfully!")
-        # return redirect('success_page_url')
-        # Redirect to a success page or return a success message
-        return JsonResponse({"message": "Employee created successfully!"})
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=405)
+        return render(request, 'hrms/emp_per/NewEmploye.html',{'success':True})
+    return render(request, 'hrms/emp_per/NewEmploye.html')
     
 def check_email(request):
     if request.method == 'GET':
@@ -1752,9 +1836,8 @@ def create_job_requisition(request):
             errors['job_location'] = 'Job Location is required.'
         elif len(job_location) < 3:
             errors['job_location'] = 'Job Location must be at least 3 characters long.'
-        elif not re.match(r'^[A-Za-z0-9\s,.-]*$', job_location):  # regex to check for special characters
-            errors['job_location'] = 'Job Location must not contain special characters.'
-
+        elif not re.match(r'^[A-Za-z\s]+$', job_location):  # regex to check only alphabetic characters and spaces
+            errors['job_location'] = 'Job Location must only contain letters and spaces.'
         # Validation for No of Resources (must be a positive integer)
         if not no_of_resources or int(no_of_resources) <= 0:
             errors['no_of_resources'] = 'Number of Resources must be a positive integer.'
@@ -1864,7 +1947,7 @@ def job_requisition_search(request):
             filters['job_posting_type'] = job_posting_type.strip()
         if exam_type_enum_id:
             try:
-                filters['exam_type_enum_id'] = int(exam_type_enum_id)
+                filters['exam_type_enum_id'] = exam_type_enum_id
             except ValueError:
                 return JsonResponse({'error': 'Invalid exam type ID'}, status=400)
 

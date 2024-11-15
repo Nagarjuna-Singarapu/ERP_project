@@ -2344,14 +2344,23 @@ def add_training_class(request):
         if not through_time:
             errors['throughTime'] = "Through Time is required."
 
+        if not description:
+            errors['description'] = "Description is required."
+        elif re.match(r'^[^a-zA-Z0-9]', description):
+            # Check if description starts with a special character
+            errors['description'] = "Description should not start with a special character."
+        elif not re.search(r'[a-zA-Z0-9]', description):
+            # Check if description contains only special characters (no alphanumeric characters)
+            errors['description'] = "Description should not contain only special characters."
+
         # Step 6: If no errors, create or update the TrainingClass entry
         if not errors:
             try:
                 training_class, created = TrainingClass.objects.update_or_create(
                     approverId=approver,
                     trainingType=training_type,
+                    description=description,
                     defaults={
-                        'description': description,
                         'fromDate': from_date,
                         'fromTime': from_time,
                         'throughDate': through_date,
@@ -2450,6 +2459,21 @@ def addnew_event(request):
     date = request.GET.get('date')
     return render(request, 'hrms/skill_qual/addnewEvent.html', {'date': date})
 
+def get_upcoming_training_classes(request):
+    current_date = datetime.now().date()  # Get the current date (no time)
+    upcoming_classes = TrainingClass.objects.filter(fromDate__gte=current_date).order_by('fromDate', 'fromTime')
+    
+    data = []
+    for training_class in upcoming_classes:
+        data.append({
+            'from_date': training_class.fromDate.strftime('%Y-%m-%d'),
+            'from_time': training_class.fromTime.strftime('%H:%M %p'),
+            'through_date': training_class.throughDate.strftime('%Y-%m-%d'),
+            'through_time': training_class.throughTime.strftime('%H:%M %p'),
+            'training_type': training_class.trainingType.description,  # Adjust this field as per your model's relation
+            'description': training_class.description,
+        })
+    return JsonResponse(data, safe=False)
 #########################################################################################################################
 
 # anuj
@@ -2659,8 +2683,8 @@ def skill_lookupparty(request):
     return render(request, 'hrms/skill_qual/skill_lookupparty.html')
 
 @xframe_options_exempt
-def nagaslookup(request):
-    return render(request, 'hrms/skill_qual/nagaslookup.html')
+def lookups(request):
+    return render(request, 'hrms/skill_qual/lookups.html')
 
 
 

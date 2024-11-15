@@ -1,55 +1,109 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Week View Calendar</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    .training-card-container {
+      display: flex;
+      gap: 15px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .training-card {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 10px;
+      width: 200px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .training-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .training-summary {
+      font-weight: bold;
+      color: #007bff;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .training-details {
+      display: none;
+      padding-top: 10px;
+      border-top: 1px solid #ccc;
+    }
+
+    .training-card:hover .training-details {
+      display: block;
+    }
+
+    .training-details button {
+      margin-top: 10px;
+    }
+  </style>
 </head>
+
 <body>
   <div class="container">
     <!-- Navigation Buttons -->
     <div class="d-flex justify-content-start my-4">
-      <button id="btnCalendar" class="btn btn-training-calendar" onclick="window.location.href=`{% url 'TrainingCalender' %}`">Training Calendar</button>
-      <button id="btnApproval" class="btn btn-info" onclick="window.location.href=`{% url 'TrainingApproval' %}`">Training Approval</button>
+      <button id="btnCalendar" class="btn btn-training-calendar"
+        onclick="window.location.href=`{% url 'TrainingCalender' %}`">Training Calendar</button>
+      <button id="btnApproval" class="btn btn-info"
+        onclick="window.location.href=`{% url 'TrainingApproval' %}`">Training Approval</button>
     </div>
 
     <!-- Main Content Section -->
     <div id="content-main-section" class="my-4">
-      
+
       <!-- Training Calendar Section -->
       <div id="calendarSection">
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title" id="displayDate">Week View: Week 43</h3>
+            <h3 class="card-title" id="displayDate">Week View: Week <span id="weekNumber"></span></h3>
           </div>
 
           <!-- Navigation Menu -->
           <div class="container my-4">
             <div class="row text-center">
-                <div class="col-md-2">
-                    <button id="previousWeek" class="btn btn-primary w-100" onclick="loadData('previous')">Previous Week</button>
-                </div>
-                <div class="col-md-2">
-                    <button id="thisWeek" class="btn btn-primary w-100" onclick="loadData('this')">This Week</button>
-                </div>
-                <div class="col-md-2">
-                    <button id="nextWeek"  class="btn btn-primary w-100" onclick="loadData('next')">Next Week</button>
-                </div>
-                <div class="col-md-2">
-                  <button class="btn btn-primary w-100" onclick="window.location.href=`{% url 'dayView' %}`">Day View</button>
-                </div>
-                <div class="col-md-2">
-                  <button id="monthView" class="btn btn-primary w-100" onclick="window.location.href=`{% url 'monthView' %}`">Month View</button>
-                </div>
-                <div class="col-md-2">
-                  <button id="upcomingEvents" class="btn btn-primary w-100" onclick="window.location.href=`{% url 'upcomingEvent' %}`">Upcoming Events</button>
-                </div>
+              <div class="col-md-2">
+                <button id="previousWeek" class="btn btn-primary w-100" onclick="loadData('previous')">Previous
+                  Week</button>
               </div>
+              <div class="col-md-2">
+                <button id="thisWeek" class="btn btn-primary w-100" onclick="loadData('this')">This Week</button>
+              </div>
+              <div class="col-md-2">
+                <button id="nextWeek" class="btn btn-primary w-100" onclick="loadData('next')">Next Week</button>
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-primary w-100" onclick="window.location.href=`{% url 'dayView' %}`">Day
+                  View</button>
+              </div>
+              <div class="col-md-2">
+                <button id="monthView" class="btn btn-primary w-100"
+                  onclick="window.location.href=`{% url 'monthView' %}`">Month View</button>
+              </div>
+              <div class="col-md-2">
+                <button id="upcomingEvents" class="btn btn-primary w-100"
+                  onclick="window.location.href=`{% url 'upcomingEvent' %}`">Upcoming Events</button>
+              </div>
+            </div>
           </div>
-              
+
           <!-- Calendar Table -->
           <div class="table-responsive">
             <table class="table table-bordered table-striped" id="calendarTable">
@@ -59,7 +113,7 @@
                   <th>Calendar Entries</th>
                 </tr>
               </thead>
-              <tbody id="tableContent">
+              <tbody id="resultsBody">
                 <!-- Table content dynamically show here -->
               </tbody>
             </table>
@@ -69,35 +123,150 @@
 
       <!-- Training Approval Section (Initially Hidden) -->
       <div id="approvalSection" class="mt-4" style="display: none;">
-          <div class="card">
-              <div class="card-header">
-                  <h3 class="card-title">Training Approval</h3>
-              </div>
-              <div class="card-body">
-                  <p>This section can contain forms or content specific to training approvals.</p>
-              </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Training Approval</h3>
           </div>
+          <div class="card-body">
+            <p>This section can contain forms or content specific to training approvals.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
+  <script>
+    let currentDate = new Date(); // Global variable to keep track of the current date
+    let currentWeek = getCurrentWeekNumber();
+
+    // Function to get the week's dates based on a reference date
+    function getWeekDates(referenceDate) {
+      const startOfWeek = new Date(referenceDate);
+      const currentDay = startOfWeek.getDay(); // 0 for Sunday, 6 for Saturday
+      startOfWeek.setDate(startOfWeek.getDate() - currentDay); // Start from Sunday
+
+      const weekDates = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+        const formattedDate = date.toISOString().split('T')[0]; // Format: 'YYYY-MM-DD'
+        weekDates.push({ dayName, formattedDate });
+      }
+      return weekDates;
+    }
+
+    // Function to load data based on the selected week navigation
+    function loadData(weekType) {
+      if (weekType === 'previous') {
+        currentDate.setDate(currentDate.getDate() - 7);
+        currentWeek--;
+      } else if (weekType === 'next') {
+        currentWeek++;
+        currentDate.setDate(currentDate.getDate() + 7);
+      } else {
+        currentDate = new Date(); // Reset to current date for 'this' week
+        currentWeek = getCurrentWeekNumber();
+      }
+      const weekDates = getWeekDates(currentDate);
+      populateTable(weekDates);
+      updateWeekDisplay();
+    }
+
+    // Function to fetch training data for a specific date
+    function fetchTrainings(date, callback) {
+      fetch(`/hrms/api/get-trainings/?date=${date}`)
+        .then(response => response.json())
+        .then(data => callback(data))
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Function to populate the table with the week's dates and training details
+    function populateTable(weekDates) {
+      const tableBody = document.getElementById('resultsBody');
+      tableBody.innerHTML = ''; // Clear existing table rows
+
+      // Populate the table with rows for each day
+      weekDates.forEach((item) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+    <td><b>${item.dayName} ${item.formattedDate}</b> <br>
+        <a href="#" class="btn btn-sm btn-outline-primary" onclick="openAddTrainingForm('${item.formattedDate}')">Add New</a>
+    </td>
+    <td id="trainings-${item.formattedDate}">Loading...</td>
+`;
+        tableBody.appendChild(row);
+
+        // Fetch and display scheduled trainings for each day
+        fetchTrainings(item.formattedDate, (trainings) => {
+          const trainingsCell = document.getElementById(`trainings-${item.formattedDate}`);
+          if (trainings.length > 0) {
+            trainingsCell.innerHTML = trainings.map(training => `
+            <div class="training-card">
+                <div class="training-summary">
+                    <strong>${training.trainingType__description}</strong>
+                </div>
+                <div class="training-details">
+                    <b>Approver:</b> ${training.approverId__employee_id}<br>
+                    <b>Training Class Id:</b> ${training.trainingClassId || 'N/A'}<br>
+                    <b>Time:</b> ${training.fromTime} - ${training.throughTime}<br>
+                </div>
+            </div>
+        `).join('');
+          } else {
+            trainingsCell.textContent = 'No scheduled trainings';
+          }
+        });
+      });
+    }
+
+    // Load the current week's data on page load
+    window.onload = function () {
+      loadData('this');
+    };
+
+    // Function to open the form to add a new training (can be customized further)
+    function openAddTrainingForm(date) {
+      window.location.href = `/hrms/addnewEvent/?date=${date}`;
+    }
+
+  // Function to get the current week number
+  function getCurrentWeekNumber() {
+      const today = new Date();
+      const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
+      const pastDaysOfYear = (today - firstDayOfYear) / (1000 * 60 * 60 * 24);
+      return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+  }
+  
+  
+  
+  // Function to update the week number display
+  function updateWeekDisplay() {
+      document.getElementById('weekNumber').textContent = currentWeek;
+  }
+  
+  // Initialize the week display
+  updateWeekDisplay();
+  
+  </script>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  
+
   <script>
     // Function to show/hide sections based on button clicks
     function showSection(section) {
-        const calendarSection = document.getElementById('calendarSection');
-        const approvalSection = document.getElementById('approvalSection');
-    
-        if (section === 'calendar') {
-            calendarSection.style.display = 'block';
-            approvalSection.style.display = 'none';
-        } else if (section === 'approval') {
-            calendarSection.style.display = 'none';
-            approvalSection.style.display = 'block';
-        }
+      const calendarSection = document.getElementById('calendarSection');
+      const approvalSection = document.getElementById('approvalSection');
+
+      if (section === 'calendar') {
+        calendarSection.style.display = 'block';
+        approvalSection.style.display = 'none';
+      } else if (section === 'approval') {
+        calendarSection.style.display = 'none';
+        approvalSection.style.display = 'block';
+      }
     }
   </script>
 </body>
+
 </html>

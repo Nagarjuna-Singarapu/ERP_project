@@ -73,6 +73,7 @@ urlpatterns = [
     path('add-attendee/', views.add_attendee, name='add_attendee'),
     path('get-attendees/<int:training_class_id>/', views.get_attendees, name='get_attendees'),
     path('addnewEvent/', views.addnew_event, name='addnewEvent'),
+    path('api/upcoming-training/', views.get_upcoming_training_classes, name='get_upcoming_training_classes'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),
@@ -205,7 +206,7 @@ urlpatterns = [
     path('CalenderSection/', views.CalenderSection, name='CalenderSection'),
     path('addnewEventMonth/', views.addnewEventMonth, name='addnewEventMonth'),
     path('addnewEvent/', views.addnewEvent, name='addnewEvent'),
-    path('nagaslookup/', views.nagaslookup, name='nagaslookup'),
+    path('lookups/', views.lookups, name='lookups'),
     
     path('search-party-skills/', views.search_party_skills, name='search_party_skills'),
 

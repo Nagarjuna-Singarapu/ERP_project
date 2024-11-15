@@ -71,7 +71,7 @@
       <div id="calendarSection" class="my-4">
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title" id="displayDate">Week View: Week 43</h3>
+            <h3 class="card-title" id="displayDate">Week View: Week <span id="weekNumber"></span></h3>
           </div>
 
           <!-- Navigation Menu -->
@@ -147,13 +147,17 @@
     function loadData(weekType) {
       if (weekType === 'previous') {
         currentDate.setDate(currentDate.getDate() - 7);
+        currentWeek--;
       } else if (weekType === 'next') {
+        currentWeek++;
         currentDate.setDate(currentDate.getDate() + 7);
       } else {
         currentDate = new Date(); // Reset to current date for 'this' week
+        currentWeek = getCurrentWeekNumber();
       }
       const weekDates = getWeekDates(currentDate);
       populateTable(weekDates);
+      updateWeekDisplay();
     }
 
     // Function to fetch training data for a specific date
@@ -212,6 +216,24 @@
     function openAddTrainingForm(date) {
       window.location.href = `/hrms/addnewEvent/?date=${date}`;
     }
+
+    // Function to get the current week number
+  function getCurrentWeekNumber() {
+      const today = new Date();
+      const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
+      const pastDaysOfYear = (today - firstDayOfYear) / (1000 * 60 * 60 * 24);
+      return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+  }
+  
+  
+  
+  // Function to update the week number display
+  function updateWeekDisplay() {
+      document.getElementById('weekNumber').textContent = currentWeek;
+  }
+  
+  // Initialize the week display
+  updateWeekDisplay();
   </script>
 </body>
 

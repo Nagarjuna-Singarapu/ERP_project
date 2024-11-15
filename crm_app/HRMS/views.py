@@ -2687,6 +2687,11 @@ def lookups(request):
     return render(request, 'hrms/skill_qual/lookups.html')
 
 
+def pay_slip(request):
+    return render(request, 'hrms/emp_res_lea/pay_slip.html')
+
+def payslip_create(request):
+    return render(request, 'hrms/emp_res_lea/payslip_create.html')
 
 
 class PayGradeList(APIView):

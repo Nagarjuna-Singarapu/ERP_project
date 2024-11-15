@@ -103,7 +103,9 @@ urlpatterns = [
     path('lookup_party_resume/', views.lookup_party_resume, name='lookup_party_resume'),
     path('add_emp_leave/', views.add_emp_leave, name='add_emp_leave'),
     path('leave_approval/', views.leave_approval, name='leave_approval'),
-    
+
+    path('pay_slip/', views.pay_slip, name='pay_slip'),
+    path('payslip_create/', views.payslip_create, name='payslip_create'),
     
     # global HR by sunny and amit 
     path('skill-types/', views.skill_types, name='skill_types'),

@@ -179,16 +179,58 @@ class Employment(models.Model):
     
 
 class PerformanceReview(models.Model):
-    hr_employee = models.ForeignKey(HR_Employee, on_delete=models.CASCADE, related_name='performance_reviews')
-    perf_review_id = models.CharField(max_length=25)
+    # Foreign key to Employee (Employee Party ID)
+    emp_party_id = models.ForeignKey(HR_Employee, on_delete=models.CASCADE, related_name='performance_reviews')
+    
+    # The unique identifier for the performance review
+    perf_review_id = models.CharField(max_length=25, primary_key=True)
+    
+    # The manager's party ID (could be linked to HR_Employee or another related model)
     manager_party_id = models.CharField(max_length=25)
-    manager_role_type_id = models.CharField(max_length=25)
-    from_date = models.DateField(auto_now_add=True)
-    through_date = models.DateTimeField(auto_now=True, blank=True, null=True)
+    
+    # Manager Role Type (choices for dropdown)
+    MANAGER_ROLE_CHOICES = [
+        ("Account Lead", "Account Lead"),
+        ("Administrator", "Administrator"),
+        ("Agent", "Agent"),
+        ("Automated Agent", "Automated Agent"),
+        ("Calendar", "Calendar"),
+        ("Client", "Client"),
+        ("Communication Participant", "Communication Participant"),
+        ("Consumer", "Consumer"),
+        ("Contractor", "Contractor"),
+        ("Customer", "Customer"),
+        ("Distribution Channel", "Distribution Channel"),
+        ("ISP", "ISP"),
+        ("Hosting Server", "Hosting Server"),
+        ("Manufacturer", "Manufacturer"),
+        ("Not Applicable", "Not Applicable"),
+        ("Organization", "Organization"),
+        ("Owner", "Owner"),
+        ("Prospect", "Prospect"),
+    ]
+    manager_role_type = models.CharField(
+        max_length=255,
+        choices=MANAGER_ROLE_CHOICES,
+        default="Not Applicable",  # Optional, set a default if needed
+    )
+    
+    # Payment ID, linking to the Employment model (you could use Employment's 'payment_id')
+    payment_id = models.CharField(max_length=50, blank=True, null=True)
+    
+    # Empl Position Type (linked to PositionType)
+    empl_position_type = models.ForeignKey(PositionType, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # From and Through Date for the performance review period
+    from_date = models.DateField(null=True, blank=True)
+    through_date = models.DateField(null=True, blank=True)
+    
+    # Comments field
     comments = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"Review for {self.hr_employee} (ID: {self.perf_review_id})"
+        return f"Review for {self.emp_party_id} (ID: {self.perf_review_id})"
+
 
 class PartySkill(models.Model):
     SKILL_TYPE_CHOICES = [
@@ -289,6 +331,33 @@ class EmployeeLeave(models.Model):
 
     def __str__(self):
         return f"Leave for {self.employee.employee_id} from {self.from_date} to {self.through_date}, Status: {self.status}"
+
+
+class EmploymentApplication(models.Model):
+    STATUS_CHOICES = [
+        (1, 'Active/Open'),
+        (2, 'Inactive/Closed'),
+        (3, 'Planned For'),
+    ]
+
+    SOURCE_CHOICES = [
+        (1, 'Advertisement'),
+        (2, 'Job Portal'),
+        (3, 'Internet'),
+        (4, 'News Paper'),
+        (5, 'Personal Referral'),
+    ]
+    
+    # Fields as mentioned in the frontend
+    application_id = models.CharField(max_length=50, unique=True, primary_key=True)
+    position = models.ForeignKey(PositionType, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=1)
+    source = models.IntegerField(choices=SOURCE_CHOICES, default=1)
+    applying_party = models.ForeignKey(HR_Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    application_date = models.DateField()
+
+    def __str__(self):
+        return f"Application ID: {self.application_id} - {self.applying_party} - {self.status}"
 
 ####################### Resume Section #######################################
     

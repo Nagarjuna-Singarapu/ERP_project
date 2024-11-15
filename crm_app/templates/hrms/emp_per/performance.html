@@ -1,3 +1,5 @@
+<!-- ERP_project/crm_app/templates/hrms/skill_qual/.html -->
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +10,6 @@
     <title>Find Performance Review</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <style>
         .fade-in {
             animation: fadeIn 1s ease-in-out;
@@ -37,35 +38,34 @@
         }
 
         /* Modal container styling */
-.modal {
-    display: none; /* Hidden by default */
-    
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%; 
-    background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
-    padding-top: 20px;
-}
+        .modal {
+            display: none;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 20px;
+        }
 
-/* Modal content */
-.modal-content {
-    margin: auto;
-    padding: 10px;
-    background-color: white;
-    border-radius: 8px;
-    max-width: 52%; /* Adjusts width for smaller screens */
-    max-height: 60vh; /* Prevents overflow */
-    overflow: hidden;
-}
+        /* Modal content */
+        .modal-content {
+            margin: auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            max-width: 52%;
+            max-height: 60vh;
+            overflow: hidden;
+        }
 
-/* Responsive iframe */
-.modal-content iframe {
-    width: 100%; /* Ensures iframe fits within modal */
-    height: 60vh; /* Adjust as needed */
-    border: 0;
-}
+        /* Responsive iframe */
+        .modal-content iframe {
+            width: 100%;
+            height: 60vh;
+            border: 0;
+        }
 
     </style>
 </head>
@@ -74,41 +74,35 @@
 
     <div class="container mt-4">
         <h2>Find Performance Review</h2>
-        <button class="btn btn-primary mb-3" onclick="window.location.href='{% url 'EditPerformace' %}'">New
-            PerfReview</button>
-
+        <button class="btn btn-primary mb-3" onclick="window.location.href=`{% url 'EditPerformace' %}`">New PerfReview</button>
 
         <div class="card mb-4">
             <div class="card-header">Search Options</div>
             <div class="card-body">
                 <form class="form-row" id="searchForm" onsubmit="submitForm(event)">
-
-
-                    
-                        <div class="col-md-6 mb-3">
-                            <label for="employeePartyIdIcon">Employee Party ID</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="employeePartyId"
-                                    placeholder="Enter Employee ID">
-                                <span class="input-group-append">
-                                    <button type="button" class="btn btn-outline-secondary" id="show-modal-btn">
-                                        <i class="fas fa-user"></i> <!-- Keeping the same icon here -->
-                                    </button>
-                                </span>
-                            </div>
+                    {% csrf_token %}
+                    <!-- Employee Party ID -->
+                    <div class="col-md-6 mb-3">
+                        <label for="employeePartyId">Employee Party ID</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="employeePartyId" placeholder="Enter Employee ID">
+                            <span class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary" id="show-modal-btn">
+                                    <i class="fas fa-user"></i>
+                                </button>
+                            </span>
                         </div>
+                    </div>
 
-                        <!-- Modal for Employee Search -->
-                        <div id="myModal" class="modal">
-                            <div class="modal-content">
-                                <span class="close" id="close-modal-btn">&times;</span>
-                                <iframe src="{% url 'LookUpPerformace' %}"  style="width: 1000px; height: 610px;"
-                                    frameborder="0"></iframe>
-                            </div>
+                    <!-- Modal for Employee Search -->
+                    <div id="myModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="close-modal-btn">&times;</span>
+                            <iframe src="{% url 'lookup' %}" style="width: 1000px; height: 610px;" frameborder="0"></iframe>
                         </div>
-               
+                    </div>
 
-
+                    <!-- Performance Review ID -->
                     <div class="col-md-6 mb-3">
                         <label for="perfReviewId">Perf Review ID</label>
                         <div class="input-group">
@@ -119,6 +113,7 @@
                         </div>
                     </div>
 
+                    <!-- Manager Party ID -->
                     <div class="col-md-6 mb-3">
                         <label for="managerPartyId">Manager Party ID</label>
                         <div class="input-group">
@@ -129,6 +124,33 @@
                         </div>
                     </div>
 
+                    <!-- Manager Role Type ID -->
+                    <div class="col-md-6 mb-3">
+                        <label for="managerRoleTypeId">Manager Role Type ID</label>
+                        <select class="form-control" id="managerRoleTypeId">
+                            <option selected disabled>Select Manager Role Type</option>
+                            <option>Account Lead</option>
+                            <option>Administrator</option>
+                            <option>Agent</option>
+                            <option>Automated Agent</option>
+                            <option>Calendar</option>
+                            <option>Client</option>
+                            <option>Communication Participant</option>
+                            <option>Consumer</option>
+                            <option>Contractor</option>
+                            <option>Customer</option>
+                            <option>Distribution Channel</option>
+                            <option>ISP</option>
+                            <option>Hosting Server</option>
+                            <option>Manufacturer</option>
+                            <option>Not Applicable</option>
+                            <option>Organization</option>
+                            <option>Owner</option>
+                            <option>Prospect</option>
+                        </select>
+                    </div>
+
+                    <!-- Other fields (Payment ID, Position ID, Dates, Comments) -->
                     <div class="col-md-6 mb-3">
                         <label for="paymentId">Payment ID</label>
                         <div class="input-group">
@@ -153,14 +175,17 @@
                         <label for="fromDate">From Date</label>
                         <input type="date" class="form-control" id="fromDate">
                     </div>
+
                     <div class="col-md-3 mb-3">
                         <label for="throughDate">Through Date</label>
                         <input type="date" class="form-control" id="throughDate">
                     </div>
+
                     <div class="col-md-6 mb-3">
                         <label for="comments">Comments</label>
                         <input type="text" class="form-control" id="comments" placeholder="Enter Comments">
                     </div>
+
                     <div class="col-md-12 text-right">
                         <button type="submit" class="btn btn-success">Find</button>
                     </div>
@@ -168,16 +193,15 @@
             </div>
         </div>
 
-
-
         <!-- Table for Search Results -->
-        <div class="table-responsive mt-4 results-table" id="resultsTable">
+        <div class="table-responsive mt-4 results-table" id="resultsTable" style="display:none;">
             <table class="table table-bordered">
                 <thead class="thead-light">
                     <tr>
                         <th>Perf Review ID</th>
                         <th>Employee Party ID</th>
                         <th>Manager Party ID</th>
+                        <th>Manager Role type ID</th>
                         <th>Payment ID</th>
                         <th>Empl Position ID</th>
                         <th>From Date</th>
@@ -185,7 +209,7 @@
                         <th>Comments</th>
                     </tr>
                 </thead>
-                <tbody id="resultsBody">
+                <tbody id="resultsTableBody">
                     <!-- Rows will be added here dynamically -->
                 </tbody>
             </table>
@@ -193,65 +217,110 @@
     </div>
 
     <script>
-        function showIframe() {
-            const iframeContainer = document.getElementById('resultsIframeContainer');
-            iframeContainer.style.display = 'block';
-            document.getElementById('resultsIframe').src = 'results.html';
+        // Show modal for employee search
+        document.getElementById('show-modal-btn').addEventListener('click', function() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "block";
+        });
+
+        // Close modal
+        document.getElementById('close-modal-btn').addEventListener('click', function() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        });
+
+        // Close modal when clicking outside of modal content
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById("myModal");
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+
+
+        // Receive employee ID from lookup page and populate the Employee Party ID field
+        function selectEmployeeId(employeeId) {
+                document.getElementById('employeePartyId').value = employeeId;
+                const modal = document.getElementById("myModal");
+                modal.style.display = "none"; // Close modal after selecting employee
         }
 
         function submitForm(event) {
-            event.preventDefault();
+    event.preventDefault();
 
-            // Collect form values
-            const perfReviewId = document.getElementById('perfReviewId').value;
-            const employeePartyId = document.getElementById('employeePartyId').value;
-            const managerPartyId = document.getElementById('managerPartyId').value;
-            const paymentId = document.getElementById('paymentId').value;
-            const emplPositionId = document.getElementById('emplPositionId').value;
-            const fromDate = document.getElementById('fromDate').value;
-            const throughDate = document.getElementById('throughDate').value;
-            const comments = document.getElementById('comments').value;
+    // Collect form values
+    const perfReviewId = document.getElementById('perfReviewId').value.trim();
+    const employeePartyId = document.getElementById('employeePartyId').value.trim();
+    const managerPartyId = document.getElementById('managerPartyId').value.trim();
+    const managerRoleTypeId = document.getElementById('managerRoleTypeId').value.trim();
+    const paymentId = document.getElementById('paymentId').value.trim();
+    const emplPositionName = document.getElementById('emplPositionId').value.trim();
+    const fromDate = document.getElementById('fromDate').value.trim();
+    const throughDate = document.getElementById('throughDate').value.trim();
+    const comments = document.getElementById('comments').value.trim();
 
-            // Show the results table
-            document.getElementById('resultsTable').style.display = 'block';
+    const formData = new FormData();
 
-            // Create a new row
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-            <td>${perfReviewId}</td>
-            <td>${employeePartyId}</td>
-            <td>${managerPartyId}</td>
-            <td>${paymentId}</td>
-            <td>${emplPositionId}</td>
-            <td>${fromDate}</td>
-            <td>${throughDate}</td>
-            <td>${comments}</td>
-        `;
+    // Append fields if they are not empty or default
+    if (perfReviewId) formData.append('perfReviewId', perfReviewId);
+    if (employeePartyId) formData.append('employeePartyId', employeePartyId);
+    if (managerPartyId) formData.append('managerPartyId', managerPartyId);
+    if (managerRoleTypeId && managerRoleTypeId !== "Select Manager Role Type") {
+        formData.append('managerRoleTypeId', managerRoleTypeId);
+    }
+    if (paymentId) formData.append('paymentId', paymentId);
+    if (emplPositionName) formData.append('emplPositionName', emplPositionName);
+    if (fromDate) formData.append('fromDate', fromDate);
+    if (throughDate) formData.append('throughDate', throughDate);
+    if (comments) formData.append('comments', comments);
 
-            // Add the row to the table body
-            document.getElementById('resultsBody').appendChild(newRow);
+    // Make the API request
+    fetch('{% url "find_performance_review" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // CSRF token header
+        },
+        body: formData
+    })
+    .then(response => response.json())  // Parse the response as JSON
+    .then(data => {
+        const resultsTable = document.getElementById('resultsTable');
+        const resultsTableBody = document.getElementById('resultsTableBody');
 
-            const modal = document.getElementById("myModal");
-            const showModalBtn = document.getElementById("show-modal-btn");
-            const closeModalBtn = document.getElementById("close-modal-btn");
+        // Clear previous results
+        resultsTableBody.innerHTML = '';
 
-            // Show modal when the button is clicked
-            showModalBtn.onclick = function () {
-                modal.style.display = "block";
-            }
-
-            // Close modal when the "x" is clicked
-            closeModalBtn.onclick = function () {
-                modal.style.display = "none";
-            }
-
-            // Close modal when clicking outside the modal content
-            window.onclick = function (event) {
-                if (event.target === modal) {
-                    modal.style.display = "none";
-                }
-            }
+        if (data && data.data && data.data.length > 0) {
+            data.data.forEach(review => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${review.performance_review_id}</td>
+                    <td>${review.employee_party_id}</td>
+                    <td>${review.manager_party_id}</td>
+                    <td>${review.manager_role_type_id}</td>
+                    <td>${review.payment_id}</td>
+                    <td>${review.empl_position_name || 'No Position Assigned'}</td>
+                    <td>${review.from_date}</td>
+                    <td>${review.through_date}</td>
+                    <td>${review.comments}</td>
+                `;
+                resultsTableBody.appendChild(row);
+            });
+            resultsTable.style.display = 'table';
+        } else {
+            // Show a message in the table if no results found
+            resultsTableBody.innerHTML = `<tr><td colspan="9" class="text-center">No records found</td></tr>`;
+            resultsTable.style.display = 'table';
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while fetching the data.');
+    });
+}
+
+
+
     </script>
 
 </body>

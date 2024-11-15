@@ -1,10 +1,12 @@
+<!-- ERP_project/crm_app/templates/hrms/emp_per/EditPerformace.html -->
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Performance Review</title>
+    <title>Create Performance Review</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> <!-- Font Awesome -->
     <style>
@@ -12,32 +14,91 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .iframe-container { height: 400px; width: 100%; border: 1px solid #ddd; margin-top: 20px; display: none; }
         .results-table { display: none; } /* Hide table initially */
+
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .iframe-container {
+            height: 400px;
+            width: 100%;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .results-table {
+            display: none;
+        }
+
+        /* Modal container styling */
+        .modal {
+            display: none;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 20px;
+        }
+
+        /* Modal content */
+        .modal-content {
+            margin: auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            max-width: 52%;
+            max-height: 60vh;
+            overflow: hidden;
+        }
+
+        /* Responsive iframe */
+        .modal-content iframe {
+            width: 100%;
+            height: 60vh;
+            border: 0;
+        }
     </style>
 </head>
 <body class="fade-in">
 
 <div class="container mt-4">
-    <h2>Edit Performance Review</h2>
+    <h2>Create Performance Review</h2>
     <button class="btn btn-primary mb-3" onclick="window.location.href=`{% url 'performance' %}`">Find PerfReview</button>
     
     <div class="card mb-4">
         <div class="card-header">Search Options</div>
         <div class="card-body">
             <form class="form-row" id="searchForm" onsubmit="submitForm(event)">
+                {% csrf_token %}
                 <div class="col-md-6 mb-3">
                     <label for="employeePartyIdIcon">Employee Party ID</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="employeePartyId" placeholder="Enter Employee ID">
-                        <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
+                        <input type="text" class="form-control" id="employeePartyId" placeholder="Enter Employee ID" required>
+                        <button type="button" class="btn btn-outline-secondary" id="show-modal-btn">
                             <i class="fas fa-user"></i>
                         </button>
                     </div>
                 </div>
 
+                
+
                 <div class="col-md-6 mb-3">
                     <label for="perfReviewId">Perf Review ID</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="perfReviewId" placeholder="Enter Review ID">
+                        <input type="text" class="form-control" id="perfReviewId" placeholder="Enter Review ID" required>
                         
                     </div>
                 </div>
@@ -45,7 +106,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="managerPartyId">Manager Party ID</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="managerPartyId" placeholder="Enter Manager ID">
+                        <input type="text" class="form-control" id="managerPartyId" placeholder="Enter Manager Party ID" required>
                         <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
                             <i class="fas fa-user"></i>
                         </button>
@@ -54,34 +115,43 @@
 
                 <div class="col-md-6 mb-3">
                     <label for="managerRoleTypeId">Manager Role Type ID</label>
-                    <select class="form-control" id="managerRoleTypeId">
-                        <option selected disabled>Main Role</option>
-                        <option>Account Lead</option>
-                        <option>Administrator</option>
-                        <option>Agent</option>
-                        <option>Automated Agent</option>
-                        <option>Calendar</option>
-                        <option>Client</option>
-                        <option>Communication Participant</option>
-                        <option>Consumer</option>
-                        <option>Contractor</option>
-                        <option>Customer</option>
-                        <option>Distribution Channel</option>
-                        <option>ISP</option>
-                        <option>Hosting Server</option>
-                        <option>Manufacturer</option>
-                        <option>Not Applicable</option>
-                        <option>Organization</option>
-                        <option>Owner</option>
-                        <option>Prospect</option>
+                    <select class="form-control" id="managerRoleTypeId" required>
+                        <option value=""selected disabled>Select Manager Role Type</option>
+                        <option value="Account Lead">Account Lead</option>
+                        <option value="Administrator">Administrator</option>
+                        <option value="Agent">Agent</option>
+                        <option value="Automated Agent">Automated Agent</option>
+                        <option value="Calendar">Calendar</option>
+                        <option value="Client">Client</option>
+                        <option value="Communication Participant">Communication Participant</option>
+                        <option value="Consumer">Consumer</option>
+                        <option value="Contractor">Contractor</option>
+                        <option value="Customer">Customer</option>
+                        <option value="Distribution Channel">Distribution Channel</option>
+                        <option value="ISP">ISP</option>
+                        <option value="Hosting Server">Hosting Server</option>
+                        <option value="Manufacturer">Manufacturer</option>
+                        <option value="Not Applicable">Not Applicable</option>
+                        <option value="Organization">Organization</option>
+                        <option value="Owner">Owner</option>
+                        <option value="Prospect">Prospect</option>
                     </select>
                 </div>
                 
+                <div class="col-md-6 mb-3">
+                    <label for="paymentId">Payment ID</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="paymentId" placeholder="Enter Payment ID" required>
+                        <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
+                            <i class="fas fa-user"></i>
+                        </button>
+                    </div>
+                </div>
 
                 <div class="col-md-6 mb-3">
                     <label for="emplPositionId">Empl Position ID</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="emplPositionId" placeholder="Enter Position ID">
+                        <input type="text" class="form-control" id="emplPositionId" name="emplPositionId" placeholder="Enter Position ID" required>
                         <button type="button" class="btn btn-outline-secondary" onclick="showIframe()">
                             <i class="fas fa-user"></i>
                         </button>
@@ -90,15 +160,15 @@
 
                 <div class="col-md-3 mb-3">
                     <label for="fromDate">From Date</label>
-                    <input type="date" class="form-control" id="fromDate">
+                    <input type="date" class="form-control" id="fromDate" required>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="throughDate">Through Date</label>
-                    <input type="date" class="form-control" id="throughDate">
+                    <input type="date" class="form-control" id="throughDate" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="comments">Comments</label>
-                    <input type="text" class="form-control" id="comments" placeholder="Enter Comments">
+                    <input type="text" class="form-control" id="comments" placeholder="Enter Comments" required>
                 </div>
                 <div class="col-md-12 text-right">
                     <button type="submit" class="btn btn-success">Create</button>
@@ -106,31 +176,103 @@
             </form>
         </div>
     </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-modal-btn">&times;</span>
+            <iframe src="{% url 'lookup' %}" style="width: 900px; height: 610px;" frameborder="0"></iframe>
+        </div>
+    </div>
 </div>
+<!-- Modal for Employee Search -->
+
 
 <script>
+
+    // Show modal for employee search
+    document.getElementById('show-modal-btn').addEventListener('click', function() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "block";
+        });
+
+        // Close modal
+        document.getElementById('close-modal-btn').addEventListener('click', function() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        });
+
+        // Close modal when clicking outside of modal content
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById("myModal");
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+
+
+        // Receive employee ID from lookup page and populate the Employee Party ID field
+        function selectEmployeeId(employeeId) {
+                document.getElementById('employeePartyId').value = employeeId;
+                const modal = document.getElementById("myModal");
+                modal.style.display = "none"; // Close modal after selecting employee
+        }
   
-    function submitForm(event) {
-        event.preventDefault();
-        
-        // Collect form values
-        const perfReviewId = document.getElementById('perfReviewId').value;
-        const employeePartyId = document.getElementById('employeePartyId').value;
-        const managerPartyId = document.getElementById('managerPartyId').value;
-        const paymentId = document.getElementById('paymentId').value;
-        const emplPositionId = document.getElementById('emplPositionId').value;
-        const fromDate = document.getElementById('fromDate').value;
-        const throughDate = document.getElementById('throughDate').value;
-        const comments = document.getElementById('comments').value;
+        function submitForm(event) {
+            event.preventDefault();
 
-        // Show the results table
-        document.getElementById('resultsTable').style.display = 'block';
+            // Get the selected value of Manager Role Type
+            const managerRoleTypeId = document.getElementById('managerRoleTypeId').value;
 
-   
+            // Check if the placeholder option is selected (empty value)
+            if (managerRoleTypeId === "") {
+                alert("Please select a valid Manager Role Type.");
+                return;  // Prevent form submission if no valid role type is selected
+            }
 
-        // Add the row to the table body
-        
-    }
+            // Collect form values
+            const perfReviewId = document.getElementById('perfReviewId').value;
+            const employeePartyId = document.getElementById('employeePartyId').value;
+            const managerPartyId = document.getElementById('managerPartyId').value;
+            const paymentId = document.getElementById('paymentId').value;
+            const emplPositionId = document.getElementById('emplPositionId').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const throughDate = document.getElementById('throughDate').value;
+            const comments = document.getElementById('comments').value;
+
+            // Prepare data object to send to backend
+            const formData = new FormData();
+            formData.append('perfReviewId', perfReviewId);
+            formData.append('employeePartyId', employeePartyId);
+            formData.append('managerPartyId', managerPartyId);
+            formData.append('managerRoleType', managerRoleTypeId);
+            formData.append('paymentId', paymentId);
+            formData.append('emplPositionId', emplPositionId);
+            formData.append('fromDate', fromDate);
+            formData.append('throughDate', throughDate);
+            formData.append('comments', comments);
+
+            // Send the data via AJAX (POST request) using fetch
+            fetch('{% url "create_performance_review" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // CSRF token header
+                },
+                body: formData
+            })
+            .then(response => response.json())  // Parse the response as JSON
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Performance review created successfully!');
+                    // Optionally, redirect or clear the form here
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the form.');
+    });
+}
+
 </script>
 
 </body>

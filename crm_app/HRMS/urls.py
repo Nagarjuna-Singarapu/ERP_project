@@ -56,6 +56,10 @@ urlpatterns = [
     path('employee-resume-search/', views.employee_resume_search, name='employee_resume_search'),
     path('api/delete-resume/', views.delete_resume, name='delete_resume'),
 
+    path('job-requisitions/', views.job_requisition_list, name='job_requisition_list'),
+    path('jobRequisitionLookup/', views.jobRequisitionLookup, name='jobRequisitionLookup'),
+    path('internalJobPostingLookup/', views.internalJobPostingLookup, name='internalJobPostingLookup'),
+    path('internal-job-posting-lookup/', views.internal_job_posting_lookup, name='internal_job_posting_lookup'),
     path('new-job-requisition/', views.create_job_requisition, name='new_job_requisition'),
     path('job-requisition-search/', views.job_requisition_search, name='job_requisition_search'),
     path('api/delete-job-requisition/', views.delete_job_requisition, name='delete_job_requisition'),

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Internal Job Posting Lookup</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Internal Job Posting Lookup</h2>
+        
+        <!-- Filter Form -->
+        <form method="get" id="job-filter-form" action="{% url 'internal_job_posting_lookup' %}" class="row g-3">
+            <div class="col-md-3">
+                <label>Application Date:</label>
+                <input type="date" name="application_date" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label>Applying Party ID:</label>
+                <input type="text" name="applying_party_id" class="form-control" placeholder="Enter Employee ID">
+            </div>
+            <div class="col-md-3">
+                <label>Approver Party ID:</label>
+                <input type="text" name="approver_party_id" class="form-control" placeholder="Enter Approver ID">
+            </div>
+            <div class="col-md-3">
+                <label>Job Requisition ID:</label>
+                <input type="text" name="job_requisition_id" class="form-control" placeholder="Enter Job ID">
+            </div>
+            <div class="col-md-2 mt-4">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+
+        <!-- Results Table -->
+        <h3 class="mt-5">Results</h3>
+        <div>
+            <table class="table table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>Application ID</th>
+                        <th>Application Date</th>
+                        <th>Applying Party ID</th>
+                        <th>Approver Party ID</th>
+                        <th>Job Requisition ID</th>
+                    </tr>
+                </thead>
+                <tbody id="results">
+                    {% if postings %}
+                        {% for posting in postings %}
+                        <tr>
+                            <td>{{ posting.applicationId }}</td>
+                            <td>{{ posting.applicationDate }}</td>
+                            <td>{{ posting.applyingPartyId.employee_id }}</td>
+                            <td>{{ posting.approverPartyId.employee_id }}</td>
+                            <td>{{ posting.jobRequisitionId.job_requisition_id }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5">No results found</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- AJAX Script -->
+    <script>
+        $(document).ready(function () {
+            $('#job-filter-form').on('submit', function (event) {
+                event.preventDefault();
+                
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'GET',
+                    data: $(this).serialize(),
+                    headers: {
+                        'x-requested-with': 'XMLHttpRequest'
+                    },
+                    success: function (data) {
+                        // Extract the table rows from the response HTML
+                        const newRows = $(data).find('#results').html();
+                        $('#results').html(newRows);
+                    },
+                    error: function () {
+                        alert("Error fetching data. Please try again.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

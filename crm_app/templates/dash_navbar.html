@@ -1,0 +1,1058 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    {% block css_link %}
+    <!--=============== REMIXICONS ===============-->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+
+    <!-- My CSS -->    
+    <link rel="stylesheet" href="{% static 'css/dash_navbar.css' %}" />
+    {% endblock %}
+
+    <title>Dashboard</title>
+    <style>
+        root {
+            --primary: #eeeeee;
+            --secondary: #227c70;
+            --green: #82cd47;
+            --secondary-light: rgba(34, 124, 112, 0.2);
+            --secondary-light-2: rgba(127, 183, 126, 0.1);
+            --white: #fff;
+            --black: #393e46;
+
+            --shadow: 0px 2px 8px 0px var(--secondary-light);
+        }
+
+        /* Container for dropdown */
+        .profile-dropdown {
+            position: relative;
+            width: fit-content;
+            display: inline-block;
+        }
+
+        /* Dropdown button */
+        .profile-dropdown-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            width: 150px;
+            border-radius: 50px;
+            color: var(--black);
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            border: 1px solid var(--secondary);
+            transition: background-color 0.2s ease-in, border 0.3s ease-in;
+        }
+
+        .profile-dropdown-btn:hover {
+            background-color: var(--secondary-light-2);
+        }
+
+        /* Profile Image */
+        .img1 {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: -28px;
+            margin-top: 5px;
+        }
+
+        /* Dropdown list */
+        .profile-dropdown-list {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            width: 200px;
+            background-color: var(--white);
+            border-radius: 10px;
+            max-height: 0;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: max-height 0.5s;
+        }
+
+        /* Dropdown list active state */
+        .profile-dropdown-list.active {
+            max-height: 500px;
+        }
+
+        /* Dropdown list items */
+        .profile-dropdown-list-item {
+            padding: 10px;
+            transition: background-color 0.2s ease-in;
+            border-bottom: 1px solid var(--secondary-light);
+        }
+
+        .profile-dropdown-list-item a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--black);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Custom icon */
+        .custom-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .profile-dropdown-list-item:hover {
+            background-color: var(--secondary-light);
+        }
+
+        /* Profile Dropdown Container */
+        .profile-dropdown {
+            position: relative;
+            width: fit-content;
+            margin: 1rem;
+        }
+
+        /* Button for the profile dropdown */
+        .profile-dropdown-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-right: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            width: 150px;
+            border-radius: 50px;
+            color: var(--black);
+            cursor: pointer;
+            border: 1px solid var(--secondary);
+            transition: box-shadow 0.2s ease-in, background-color 0.2s ease-in,
+                border 0.3s;
+        }
+
+        .profile-dropdown-btn:hover {
+            background-color: var(--secondary-light-2);
+            box-shadow: var(--shadow);
+        }
+
+        /* Profile image in the dropdown button */
+        .profile-dropdown-btn .img1 {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+        }
+
+        .profile-dropdown-btn span {
+            margin: 0 0.5rem;
+            margin-right: 0;
+        }
+
+        /* The dropdown list that appears when the button is clicked */
+        .profile-dropdown-list {
+            position: absolute;
+            top: 68px;
+            width: 220px;
+            right: 0;
+            background-color: var(--white);
+            border-radius: 10px;
+            max-height: 0;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: max-height 0.5s ease;
+            visibility: visible;
+        }
+
+        /* Dropdown becomes visible when 'active' */
+        .profile-dropdown-list.active {
+            max-height: 500px;
+            visibility: visible;
+        }
+
+        /* List items in the dropdown */
+        .profile-dropdown-list-item {
+            padding: 0.5rem 0rem 0.5rem 1rem;
+            transition: background-color 0.2s ease-in, padding-left 0.2s;
+        }
+
+        .profile-dropdown-list-item a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--black);
+        }
+
+        .profile-dropdown-list-item a i {
+            margin-right: 0.8rem;
+            font-size: 1.1rem;
+            width: 2.3rem;
+            height: 2.3rem;
+            background-color: var(--secondary);
+            color: var(--white);
+            line-height: 2.3rem;
+            text-align: center;
+            margin-right: 1rem;
+            border-radius: 50%;
+            transition: margin-right 0.3s;
+        }
+
+        .profile-dropdown-list-item:hover {
+            padding-left: 1.5rem;
+            background-color: var(--secondary-light);
+        }
+        @media (min-width: 1118px) {
+            #profile1 {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1118px) {
+            #profile2 {
+                display: none;
+            }
+        }
+
+        .nav {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!--=============== HEADER ===============-->
+    <header class="header">
+        <nav class="nav container-sm">
+            
+             <div class="nav__data">
+
+                <a href="{% url 'dashboard' %}" class="nav__logo">
+                    <img src="../static/images/shanaya_logo.png" alt="Logo" class="nav__logo-icon">
+                </a>
+                
+                <div class="nav__toggle" id="nav-toggle">
+                    <i class="ri-menu-line nav__toggle-menu"></i>
+                    <i class="ri-close-line nav__toggle-close"></i>
+                </div> 
+              </div>
+
+
+            <!--=============== NAV MENU ===============-->
+           <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                   
+                    <li class="dropdown__item" id="profile1">
+                        <div class="nav__link dropdown__button">
+                            Profile <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <div class="dropdown__container">
+                            <div class="dropdown__content">
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li class="profile-dropdown-list-item">
+                                            <a href="#">
+                                                <div class="custom-icon">✉️</div>
+                                                Name
+                                            </a>
+                                        </li>
+                                        <li class="profile-dropdown-list-item">
+                                            <a href="{% url "viewprofile" %}">
+                                                <div class="custom-icon">👁️</div>
+                                                View Profile
+                                            </a>
+                                        </li>
+                                        <li class="profile-dropdown-list-item">
+                                            <a href="{% url "profile" %}">
+                                                <div class="custom-icon">✏️</div>
+                                                Edit Profile
+                                            </a>
+                                        </li>
+                                        <li class="profile-dropdown-list-item">
+                                            <a href="#">
+                                                <div class="custom-icon">📊</div>
+                                                Community Forum
+                                            </a>
+                                        </li>
+            
+                                        <li class="profile-dropdown-list-item">
+                                            <a href="#">
+                                                <div class="custom-icon">⚙️</div>
+                                                About
+                                            </a>
+                                        </li>
+            
+                                        <li class="profile-dropdown-list-item">
+                                            <a href="{% url "login" %}">
+                                                <div class="custom-icon">↩️</div>
+                                                Log out
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+
+                    <!--=============== DROPDOWN 1  {#Accounts#} ===============-->
+                    <li class="dropdown__item">
+                        <div class="nav__link dropdown__button">
+                            Account <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <div class="dropdown__container">
+                            <div class="dropdown__content">
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">General Ledger</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Accounts Payable</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Accounts Receivable</a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Cash Management</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Asset Management</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Tax Management</a>
+                                        </li>
+                                        
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Financial Reporting</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Multi-Currency Support</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Cost Accounting</a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="{% url 'overview' %}" class="dropdown__link">Budgeting</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'forecasting' %}" class="dropdown__link">Forecasting</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'PerDeshbord' %}" class="dropdown__link">Performance</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </li>
+
+                    <!--=============== DROPDOWN 2 {#Inventory Management#} ===============-->
+                    <li class="dropdown__item">
+                        <div class="nav__link dropdown__button">
+                            Inventory <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <div class="dropdown__container">
+                            <div class="dropdown__content">
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">User Authentication</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Inventory Management Process</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Order Management Process</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Warehouse Operations</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Reports and Analytics</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Integration with Other ERP Modules</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <!--=============== DROPDOWN 3 {#Warehouse#}===============-->
+
+                    <li class="dropdown__item">
+                        <div class="nav__link dropdown__button">
+                            Warehouse <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <div class="dropdown__container">
+                            <div class="dropdown__content">
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Recieving</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Put-away</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Storage</a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Picking</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Packing</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Shipping</a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Order Processing</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Returns Processing</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!--=============== DROPDOWN 4 {# Production Planning #} ===============-->
+
+                    <li class="dropdown__item">
+                        <div class="nav__link dropdown__button">
+                            Production <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <div class="dropdown__container">
+                            <div class="dropdown__content">
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Product</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Resources</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Capacity</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Purchasing</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Reports</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Manufacturing</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!--=============== DROPDOWN 5 {# SupplyChain Management #}===============-->
+
+                    <li class="dropdown__item">
+                        <div class="nav__link dropdown__button">
+                            SupplyChain <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <div class="dropdown__container">
+                            <div class="dropdown__content">
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Supplier Management</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Procurement</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Inventory and Material Planning</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Production Planning</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Warehouse Management</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Order Fullfullment</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Logistics and Distribution</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Sales and Customer Service</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Finance and Reporting</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+
+                    <!--=============== DROPDOWN 6 {#Dispatch#} ===============-->
+
+
+                    <li class="dropdown__item">
+                        <div class="nav__link dropdown__button">
+                            Dispatch <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <div class="dropdown__container">
+                            <div class="dropdown__content">
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Order Confirmation</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Inventory Check</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Packing and Shipping</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Carrier Selection</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Shipment Tracking</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Dispatch Confirmation</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!--=============== DROPDOWN 7{# Business Intelligence #} ===============-->
+
+                    <li class="dropdown__item">
+                        <div class="nav__link dropdown__button">
+                            Business <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <div class="dropdown__container">
+                            <div class="dropdown__content">
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Data Sources</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Data Integration</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Data Warehouse</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">End User Interface</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Privacy Policy</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+
+                    <!--=============== DROPDOWN 8 {# Hrms #}===============-->
+
+                    <li class="dropdown__item">
+                        <div class="nav__link dropdown__button">
+                            HumanResource <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <div class="dropdown__container">
+                            <div class="dropdown__content">
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="{% url 'emp_main' %}" class="dropdown__link">Employee</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'Employment' %}" class="dropdown__link">Employment</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'Employe_position' %}" class="dropdown__link">Employee Position</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="{% url 'performance' %}" class="dropdown__link">Performance</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'Skills' %}" class="dropdown__link">Skills</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'Qualification' %}" class="dropdown__link">Qualifications</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'pay_slip' %}" class="dropdown__link">Pay Slip</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="{% url 'Recruitment' %}" class="dropdown__link">Recruitment</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'TrainingCalender' %}" class="dropdown__link">Training</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'employement_appli' %}" class="dropdown__link">Employment Applications</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="{% url 'resume' %}" class="dropdown__link">Resume</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'leave' %}" class="dropdown__link">Leave</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'skill_types' %}" class="dropdown__link">Global HR Setting</a>
+                                        </li>
+                                        
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!--=============== DROPDOWN 9 {# Logistics #}===============-->
+
+                    <li class="dropdown__item">
+                        <div class="nav__link dropdown__button">
+                            Logistics <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <div class="dropdown__container">
+                            <div class="dropdown__content">
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Accounts</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Finance</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Inventory Management</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Warehouse</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Production Planning</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Supply Chain Management</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown__group">
+
+                                    <ul class="dropdown__list">
+                                        <li>
+                                            <a href="#" class="dropdown__link">Business Intelligence</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="dropdown__link">Human Resource Management System</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <div class="profile-dropdown" id="profile2">
+                        <div onclick="toggle()">
+                            <div>
+                                <img class="img1"
+                                    src="https://png.pngtree.com/png-vector/20191110/ourmid/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg"
+                                    alt="Profile" />
+                            </div>
+                        </div>
+
+                        <!-- profile menu start -->
+                        <ul class="profile-dropdown-list">
+                            <li class="profile-dropdown-list-item">
+                                <a href="#">
+                                    <div class="custom-icon">✉️</div>
+                                    Name
+                                </a>
+                            </li>
+
+                            <li class="profile-dropdown-list-item">
+                                <a href="{% url "viewprofile" %}">
+                                    <div class="custom-icon">👁️</div>
+                                    View Profile
+                                </a>
+                            </li>
+
+                            <li class="profile-dropdown-list-item">
+                                <a href="{% url "profile" %}">
+                                    <div class="custom-icon">✏️</div>
+                                    Edit Profile
+                                </a>
+                            </li>
+
+                            <li class="profile-dropdown-list-item">
+                                <a href="#">
+                                    <div class="custom-icon">📊</div>
+                                    Community Forum
+                                </a>
+                            </li>
+
+                            <li class="profile-dropdown-list-item">
+                                <a href="#">
+                                    <div class="custom-icon">⚙️</div>
+                                    About
+                                </a>
+                            </li>
+
+                            <li class="profile-dropdown-list-item">
+                                <a href="{% url "login" %}">
+                                    <div class="custom-icon">↩️</div>
+                                    Log out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </ul>
+            </div>
+        </nav>
+        {% block content %} {% endblock %}
+    </header>
+
+
+    
+
+
+
+    <!--=============== MAIN JS ===============-->
+    <script>
+        let profileDropdownList = document.querySelector(".profile-dropdown-list");
+
+        const toggle = () => {
+            profileDropdownList.classList.toggle("active");
+        };
+
+        // Clicking outside the dropdown closes it
+        window.addEventListener("click", function (e) {
+            const btn = document.querySelector(".profile-dropdown-btn");
+            if (!btn.contains(e.target)) {
+                profileDropdownList.classList.remove("active");
+            }
+        });
+
+        /*=============== SHOW MENU ===============*/
+        const initializeNavigation = () => {
+            const navToggle = document.getElementById('nav-toggle');
+            const navMenu = document.getElementById('nav-menu');
+
+            if (!navToggle || !navMenu) {
+                console.error('Navigation elements not found');
+                return;
+            }
+
+            const toggleMenu = () => {
+                navMenu.classList.toggle('show-menu');
+                navToggle.classList.toggle('show-icon');
+
+                // Toggle aria-expanded for accessibility
+                const isExpanded = navMenu.classList.contains('show-menu');
+                navToggle.setAttribute('aria-expanded', isExpanded);
+            };
+
+            navToggle.addEventListener('click', toggleMenu);
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navMenu.contains(e.target) && !navToggle.contains(e.target)) {
+                    navMenu.classList.remove('show-menu');
+                    navToggle.classList.remove('show-icon');
+                    navToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        };
+
+        /*=============== DROPDOWN HANDLING ===============*/
+        const initializeDropdowns = () => {
+            const dropdownItems = document.querySelectorAll('.dropdown__item');
+            let currentDropdown = null;
+            let isTransitioning = false;
+
+            const toggleDropdown = (item, dropdownContainer) => {
+                if (isTransitioning) return;
+
+                isTransitioning = true;
+                const isOpen = item.classList.contains('show-dropdown');
+
+                // Close current dropdown if different from clicked one
+                if (currentDropdown && currentDropdown !== item) {
+                    const currentContainer = currentDropdown.querySelector('.dropdown__container');
+                    currentDropdown.classList.remove('show-dropdown');
+                    currentContainer.style.height = '0';
+                }
+
+                // Toggle clicked dropdown
+                if (!isOpen) {
+                    item.classList.add('show-dropdown');
+                    dropdownContainer.style.height = `${dropdownContainer.scrollHeight}px`;
+                    currentDropdown = item;
+                } else {
+                    item.classList.remove('show-dropdown');
+                    dropdownContainer.style.height = '0';
+                    currentDropdown = null;
+                }
+
+                // Reset transition flag after animation
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 300); // Match this with your CSS transition duration
+            };
+
+            dropdownItems.forEach(item => {
+                const dropdownButton = item.querySelector('.dropdown__button');
+                const dropdownContainer = item.querySelector('.dropdown__container');
+
+                if (!dropdownButton || !dropdownContainer) return;
+
+                // Initialize height as 0
+                dropdownContainer.style.height = '0';
+
+                dropdownButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleDropdown(item, dropdownContainer);
+                });
+
+                // Add keyboard navigation
+                dropdownButton.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleDropdown(item, dropdownContainer);
+                    }
+                });
+            });
+        };
+
+        /*=============== RESPONSIVE HANDLING ===============*/
+        const handleResponsive = () => {
+            const mediaQuery = window.matchMedia('(min-width: 1118px)');
+            const dropdownContainers = document.querySelectorAll('.dropdown__container');
+            const dropdownItems = document.querySelectorAll('.dropdown__item');
+
+            const resetDropdowns = () => {
+                if (mediaQuery.matches) {
+                    dropdownContainers.forEach(container => {
+                        container.style.height = '';
+                    });
+                    dropdownItems.forEach(item => {
+                        item.classList.remove('show-dropdown');
+                    });
+                }
+            };
+
+            // Initial check
+            resetDropdowns();
+
+            // Add resize handler with debounce
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(resetDropdowns, 100);
+            });
+
+            // Handle orientation change for mobile devices
+            window.addEventListener('orientationchange', resetDropdowns);
+        };
+
+        /*=============== INITIALIZE ===============*/
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                initializeNavigation();
+                initializeDropdowns();
+                handleResponsive();
+            } catch (error) {
+                console.error('Error initializing navigation:', error);
+            }
+        });
+
+        /*=============== ACCESSIBILITY ENHANCEMENTS ===============*/
+        const initializeAccessibility = () => {
+            // Add appropriate ARIA labels
+            const dropdownButtons = document.querySelectorAll('.dropdown__button');
+            dropdownButtons.forEach((button, index) => {
+                button.setAttribute('aria-expanded', 'false');
+                button.setAttribute('aria-controls', `dropdown-content-${index}`);
+                const container = button.closest('.dropdown__item')
+                    .querySelector('.dropdown__container');
+                if (container) {
+                    container.id = `dropdown-content-${index}`;
+                    container.setAttribute('aria-hidden', 'true');
+                }
+            });
+
+            // Add focus trap for keyboard navigation
+            const handleFocusTrap = (event, container) => {
+                if (!container.classList.contains('show-dropdown')) return;
+
+                const focusableElements = container.querySelectorAll(
+                    'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+                const firstFocusable = focusableElements[0];
+                const lastFocusable = focusableElements[focusableElements.length - 1];
+
+                if (event.key === 'Tab') {
+                    if (event.shiftKey && document.activeElement === firstFocusable) {
+                        event.preventDefault();
+                        lastFocusable.focus();
+                    } else if (!event.shiftKey && document.activeElement === lastFocusable) {
+                        event.preventDefault();
+                        firstFocusable.focus();
+                    }
+                }
+            };
+
+            document.querySelectorAll('.dropdown__container').forEach(container => {
+                container.addEventListener('keydown', (e) => handleFocusTrap(e, container));
+            });
+        };
+
+        // Initialize accessibility features
+        document.addEventListener('DOMContentLoaded', initializeAccessibility);
+
+    </script>
+
+</body>
+
+</html>

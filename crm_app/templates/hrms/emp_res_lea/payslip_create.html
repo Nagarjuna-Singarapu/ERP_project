@@ -1,204 +1,264 @@
 {% extends "dash_navbar.html" %}
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 {% block content %}
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payslip Generator</title>
-<link rel="stylesheet" href="style.css">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payslip Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
 
-.payslip-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh; /* Make the container span the full viewport height */
-    position: relative;
-    width: 60%;
-        margin: 0 auto;
-        border: 1px solid #000;
-        padding: 20px;
-}
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            /* Make the container span the full viewport height */
+            position: relative;
+            width: 90%;
+            /* Increased width for responsiveness */
+            max-width: 1200px;
+            /* Set a max-width to avoid over-expanding */
+            margin: 0 auto;
 
-.header {
-    position: relative;
-    height: 100%;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Centers the headings vertically */
-}
+            padding: 60px;
+        }
 
-.l-corner {
-    flex-grow: 1;
-}
+        .header {
+            position: relative;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            /* Centers the headings vertically */
+        }
 
-.right-corner {
-    position: absolute; /* Adjust the distance from the top */
-    right: 20px; /* Adjust the distance from the right */
-    text-align: right;
-}
+        .l-corner {
+            flex-grow: 1;
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-    }
+        .right-corner {
+            position: absolute;
+            /* Adjust the distance from the top */
+            right: 20px;
+            /* Adjust the distance from the right */
+            text-align: right;
+            bottom: 0;
 
-    th, td {
-        padding: 8px;
-        text-align: left;
-        border: 1px solid #ddd;
-    }
+        }
 
-    .input-group {
-        display: flex;
-        align-items: center;
-        width: 100%;
-      
-    }
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
 
-    .input-group input {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-        margin-right: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
 
-    .input-group button {
-        padding: 8px;
-        background-color: #bcd0e4;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-        border-radius: 4px;
-    }
+        /* Input group styling */
+        .input-group {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
 
-    .input-group button:hover {
-        background-color: #005bb5;
-    }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
 
-    .calendar-section {
-        margin: 20px 0;
-        text-align: center;
-    }
+        .input-group button {
+            padding: 8px;
+            background-color: #bcd0e4;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
 
-    .calendar-section label {
-        font-weight: bold;
-        margin-right: 10px;
-    }
+        .input-group button:hover {
+            background-color: #005bb5;
+        }
 
-    .calendar-section input[type="date"] {
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
+        /* Calendar section styling */
+        .calendar-section {
+            margin: 20px 0;
+            text-align: center;
+        }
 
-    input[type="text"], input[type="number"] {
-        width: 100%;
-        padding: 8px;
-        margin: 8px 0;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
+        .calendar-section label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
 
-    button {
-        width: 20%;
-        padding: 10px;
-        background-color: #0073e6;
-        color: #fff;
-        border: none;
-        margin: 10px auto;
-        text-align: center;
-        cursor: pointer;
-        border-radius: 4px;
-    }
+        .calendar-section input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
 
-    button:hover {
-        background-color: #005bb5;
-    }
+        /* Form Inputs */
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
 
-    .button-container {
-        text-align: center;
-        margin-top: 10px;
-    }
-    .payslip-container .header {
-    display: flex;
-    justify-content: space-between;
-   
-}
+        /* Button Styling */
+        button {
+            width: 20%;
+            padding: 10px;
+            background-color: #0073e6;
+            color: #fff;
+            border: none;
+            margin: 10px auto;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+        }
 
-.payslip-container .left-corner,
-.payslip-container .right-corner {
-    font-size: 14px;
-}
+        button:hover {
+            background-color: #005bb5;
+        }
 
-.payslip-container .right-corner {
-    text-align: right;
-}
+        .button-container {
+            text-align: center;
+            margin-top: 10px;
+        }
 
-.payslip-container .right-corner a {
-    color: #007bff;
-    text-decoration: none;
-}
-.payslip-container .right-corner a:hover {
-    text-decoration: underline;
-}
-.payslip-container {
-    padding: 20px;
-}
+        /* Left and right corners */
+        .container .header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            /* Ensure the right corner moves below the left corner on smaller screens */
+        }
 
-.row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        .container .left-corner,
+        .container .right-corner {
+            font-size: 14px;
+        }
+
+        .container .right-corner {
+            text-align: right;
+        }
+
+        /* Make the form more fluid on smaller devices */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                /* Make the container width even more responsive */
+                padding: 15px;
+            }
+
+            .right-corner {
+                position: static;
+                text-align: left;
+                margin-top: 20px;
+            }
+
+            .header {
+                flex-direction: column;
+            }
+
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .input-group button {
+                margin-top: 10px;
+            }
+
+            button {
+                width: 100%;
+                /* Make buttons full-width on smaller screens */
+            }
+
+            table {
+                font-size: 14px;
+                /* Adjust font size for smaller devices */
+            }
+
+            .right-corner {
+                position: static;
+                /* Reset position to flow with the document */
+                text-align: left;
+                /* Align text to the left */
+                margin-top: 20px;
+                /* Add spacing for clarity */
+            }
+
+            .header {
+                flex-direction: column;
+                /* Stack header content vertically */
+            }
+
+        }
+
+        .account-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            /* Adjust spacing between grid items */
+        }
+
+        .account-grid div {
+            display: flex;
+            align-items: center;
+        }
+
+        @media (max-width: 480px) {
+
+            table th,
+            table td {
+                padding: 4px;
+                /* Reduce padding on smaller screens */
+            }
+
+            .input-group input,
+            .input-group button {
+                font-size: 14px;
+            }
+
+            button {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
 
 
-.l-corner {
-        text-align: center;
-        flex: 1;
-    }
-
-.left-corner,
-.right-corner {
-    flex: 1;
-}
-
-.left-corner p {
-    margin: 0;
-    font-size: 14px;
-}
-
-
-.right-corner p  {
-        margin-bottom: -17px;
-        padding: 2px;
-    }
-
-.right-corner a {
-    text-decoration: none;
-    color: #007BFF;
-}
-
-
-</style>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </head>
+
 <body>
-    <div class="payslip-container">
+    <div class="container">
         <div class="header">
             <!-- Center aligned heading section -->
             <div class="l-corner">
@@ -214,350 +274,348 @@
                 <p>Contact: +123 456 7890</p>
             </div>
         </div>
+        <table>
+            <tr>
+                <th colspan="4" style="text-align: center;">Basic Information</th>
+            </tr>
+            <tr>
+                <th>Employee Details</th>
+                <td>
+                    <div class="input-group">
+                        <input type="text" id="employeeId" name="employeeId" class="form-control"
+                            placeholder="Employee ID">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                            data-bs-target="#appIDModal">
+                            <i class="bi bi-search"></i> <!-- Bootstrap Icons search icon -->
+                        </button>
+                    </div>
+                </td>
+                <td><input type="text" id="employeeName" name="employeeName" class="form-control"
+                        placeholder="Employee Name" readonly></td>
+                <td><input type="text" id="employeeDep" name="employeeDep" class="form-control"
+                        placeholder="Employee Department" readonly></td>
+            </tr>
+            <tr>
+                <th></th>
+                <td><input type="text" id="designation" name="designation" class="form-control"
+                        placeholder="Designation" readonly></td>
+                <td><input type="text" id="Contactnumber" name="Contactnumber" class="form-control"
+                        placeholder="Contact No." readonly></td>
+                <td></td>
+            </tr>
 
-        <!-- Rest of your content here -->
-   
-        <!-- Table content goes here -->
+            <tr>
+                <th>Pay Slip Period</th>
+                <td colspan="3">
+                    <div class="input-group">
+                        <input type="date" id="startDate" name="startDate" class="form-control"
+                            placeholder="Start Date">
+                        <span class="input-group-text"> - </span>
+                        <input type="date" id="endDate" class="form-control" name="endDate" placeholder="End Date">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>Account Details</th>
+                <td colspan="3">
+                    <div class="account-grid">
+                        <div><input type="text" id="bankName" name="bankName" placeholder="Bank Name"
+                                class="form-control"></div>
+                        <div><input type="text" id="accountNo" name="accountNo" placeholder="Account Number"
+                                class="form-control"></div>
+                        <div><input type="text" id="ifscCode" name="ifscCode" placeholder="IFSC Code"
+                                class="form-control"></div>
+                        <div><input type="text" id="pfnumber" name="pfnumber" placeholder="PF A/C No"
+                                class="form-control"></div>
+                        <div><input type="text" id="Unanumber" name="Unanumber" placeholder="UAN No"
+                                class="form-control"></div>
+                        <div><input type="text" id="Pannumber" name="Pannumber" placeholder="PAN No."
+                                class="form-control"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th colspan="4" style="text-align:center;">Earnings</th>
+            </tr>
+            <tr>
+                <th>Basic Salary</th>
+                <td><input type="number" id="basicSalary" name="basicSalary" value="0"></td>
+                <th>House Rent Allowance</th>
+                <td><input type="number" id="houseRent" name="houseRent" value="0"></td>
+            </tr>
+            <tr>
+                <th>Conveyance Allowance</th>
+                <td><input type="number" id="conveyance" name="conveyance" value="0"></td>
+                <th>Flat Allowance</th>
+                <td><input type="number" id="flatAllowance" name="flatAllowance" value="0"></td>
+            </tr>
+            <tr>
+                <th>Skill Bonus</th>
+                <td><input type="number" id="skillBonus" name="skillBonus" value="0"></td>
+                <th>Special Payment</th>
+                <td><input type="number" id="specialPayment" name="specialPayment" value="0"></td>
 
-    
+            </tr>
+            <tr>
+                <th>Unpaid Leaves</th>
+                <td><input type="number" id="unpaidLeaves1" class="readonly" value="0"></td>
+                <td><input type="number" id="unpaidLeaves2" value="0" readonly></td>
+            </tr>
+            <tr>
+                <th>Total Earnings</th>
+                <td colspan="3"><span id="totalEarnings" name="totalEarnings">0</span></td>
+            </tr>
+            <tr>
+                <th colspan="4" style="text-align:center;">Deductions</th>
+            </tr>
+            <tr>
+                <th>ESI Contribution</th>
+                <td><input type="number" id="esiContribution" name="esiContribution" value="0"></td>
+                <th>PF Contribution</th>
+                <td><input type="number" id="pfContribution" name="pfContribution" value="0"></td>
+            </tr>
+            <tr>
+                <th>Professional Tax</th>
+                <td><input type="number" id="professionalTax" name="professionalTax" value="0"></td>
+                <th>Take Home Pay</th>
+                <td><input type="number" id="takeHomePay" name="takeHomePay" value="0"></td>
+            </tr>
+            <tr>
+                <th>Total Deductions</th>
+                <td><span id="totalDeductions" name="totalDeductions">0</span></td>
+                <th>Date of Issue</th>
+                <td colspan="3"><input type="date" id="deductionDate" name="deductionDate"></td>
+                <!-- Net Salary and Date in the same column -->
+            </tr>
+            <tr>
+                <th>Net Salary</th>
+                <td colspan="3"><input type="text" id="netSalary" name="netSalary" value="0" readonly></td>
+                <!-- Date in the same row -->
+            </tr>
+        </table>
 
-    <table>
-        <tr>
-            <th colspan="4" style="text-align:center;">Basic Information</th>
-        </tr>
-        <tr>
-            <th>Employee Details</th>
-            <td>
-            <div class="input-group">
-                <input type="number" id="employeeId" class="form-control" placeholder="Employee ID">
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#appIDModal">
-                    <i class="bi bi-search"></i> <!-- Bootstrap Icons search icon -->
-                </button>
-            </td>
-            <td><input type="text" id="employeeName" class="form-control" placeholder="Employee Name"></td>
-            <td><input type="text" id="employeeDep" class="form-control" placeholder="Employee Department"></td>
-        </tr>
-        <tr>
-            <th>Bank Details</th>
-            <td><input type="text" id="bankName" placeholder="Bank Name" class="form-control"></td>
-            <td><input type="number" id="accountNo" placeholder="Account Number" class="form-control"></td>
-            <td><input type="number" id="ifscCode" placeholder="IFSC Code" class="form-control"></td>
-        </tr>
-        <tr>
-            <th colspan="4" style="text-align:center;">Earnings</th>
-        </tr>
-        <tr>
-            <th>Basic Salary</th>
-            <td><input type="number" id="basicSalary" value="0"></td>
-            <th>House Rent Allowance</th>
-            <td><input type="number" id="houseRent" value="0"></td>
-        </tr>
-        <tr>
-            <th>Conveyance Allowance</th>
-            <td><input type="number" id="conveyance" value="0"></td>
-            <th>Flat Allowance</th>
-            <td><input type="number" id="flatAllowance" value="0"></td>
-        </tr>
-        <tr>
-            <th>Skill Bonus</th>
-            <td><input type="number" id="skillBonus" value="0"></td>
-            <th>Special Payment</th>
-            <td><input type="number" id="specialPayment" value="0"></td>
-            
-        </tr>
-        <tr>
-            <th>Unpaid Leaves</th>
-            <td><input type="number" id="unpaidLeaves1" class = "readonly" value="0"></td>
-            <td><input type="number" id="unpaidLeaves2" value="0"></td>
-        </tr>
-        <tr>
-            <th>Total Earnings</th>
-            <td colspan="3"><span id="totalEarnings">0</span></td>
-        </tr>
-        <tr>
-            <th colspan="4" style="text-align:center;">Deductions</th>
-        </tr>
-        <tr>
-            <th>ESI Contribution</th>
-            <td><input type="number" id="esiContribution" value="0"></td>
-            <th>PF Contribution</th>
-            <td><input type="number" id="pfContribution" value="0"></td>
-        </tr>
-        <tr>
-            <th>Professional Tax</th>
-            <td><input type="number" id="professionalTax" value="0"></td>
-            <th>Take Home Pay</th>
-            <td><input type="number" id="takeHomePay" value="0"></td>
-        </tr>
-       <tr>
-        <th>Total Deductions</th>
-        <td><span id="totalDeductions">0</span></td>
-        <th>Date</th>
-        <td colspan="3"><input type="date" id="deductionDate"></td> 
-         <!-- Net Salary and Date in the same column -->
-    </tr>
-    <tr>
-        <th>Net Salary</th>
-        <td colspan="3"><span id="netSalary"  class="form-control">0</span></td>
-        <!-- Date in the same row -->
-    </tr>
-    </table>
-
-    <div class="button-container">
-        <button onclick="calculatePayslip()">Calculate Payslip</button>
-        <button onclick="generatePDF()">Download Payslip</button>
-        <button onclick="savePayslip()">Save Payslip</button>
+        <div class="button-container">
+            <button onclick="calculatePayslip()">Calculate Payslip</button>
+            <button onclick="generatePDF()">Download Payslip</button>
+            <button onclick="savePayslip()">Save Payslip</button>
+        </div>
     </div>
-</div>
+    <script>
+        function savePayslip() {
+            // Initialize an array to store error messages
+            const errors = [];
 
-<script>
-function calculateNetSalary() {
-    // Parse earnings inputs
-    let basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
-    let houseRent = parseFloat(document.getElementById('houseRent').value) || 0;
-    let conveyance = parseFloat(document.getElementById('conveyance').value) || 0;
-    let flatAllowance = parseFloat(document.getElementById('flatAllowance').value) || 0;
-    let skillBonus = parseFloat(document.getElementById('skillBonus').value) || 0;
-    let specialPayment = parseFloat(document.getElementById('specialPayment').value) || 0;
-    let unpaidLeaves1 = parseFloat(document.getElementById('unpaidLeaves1').value) || 0;
-    let unpaidLeaves2 = parseFloat(document.getElementById('unpaidLeaves2').value) || 0;
+            // Validate basic fields
+            if (!document.getElementById("employeeId").value.trim()) errors.push("Employee ID is required.");
+            if (!document.getElementById("employeeName").value.trim()) errors.push("Employee Name is required.");
+            if (!document.getElementById("employeeDep").value.trim()) errors.push("Employee Department is required.");
+            if (!document.getElementById("designation").value.trim()) errors.push("Designation is required.");
+            if (!document.getElementById("Contactnumber").value.trim()) errors.push("Contact Number is required.");
 
-    // Calculate total earnings
-    let totalEarnings = basicSalary + houseRent + conveyance + flatAllowance + skillBonus + specialPayment - unpaidLeaves1 - unpaidLeaves2;
+            // Validate dates
+            const startDate = new Date(document.getElementById("startDate").value.trim());
+            const endDate = new Date(document.getElementById("endDate").value.trim());
+            if (!startDate || isNaN(startDate.getTime())) errors.push("Start Date is required and must be valid.");
+            if (!endDate || isNaN(endDate.getTime())) errors.push("End Date is required and must be valid.");
+            if (startDate && endDate && startDate >= endDate) {
+                errors.push("Start Date must be earlier than End Date.");
+            }
 
-    // Update total earnings display
-    document.getElementById('totalEarnings').innerText = totalEarnings.toFixed(2);
+            // Validate bank details
+            if (!document.getElementById("bankName").value.trim() || !/^[A-Za-z\s]+$/.test(document.getElementById("bankName").value.trim())) {
+                errors.push("Bank Name should contain only alphabets.");
+            }
+            if (!document.getElementById("accountNo").value.trim() || !/^\d+$/.test(document.getElementById("accountNo").value.trim())) {
+                errors.push("Account Number should contain only digits.");
+            }
+            if (!document.getElementById("ifscCode").value.trim() || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(document.getElementById("ifscCode").value.trim())) {
+                errors.push("Valid IFSC Code is required (e.g., ABCD0123456).");
+            }
 
-    // Parse deduction inputs
-    let esiContribution = parseFloat(document.getElementById('esiContribution').value) || 0;
-    let pfContribution = parseFloat(document.getElementById('pfContribution').value) || 0;
-    let professionalTax = parseFloat(document.getElementById('professionalTax').value) || 0;
+            // Check for special characters in specific fields
+            const specialCharRegex = /^[A-Za-z0-9]+$/;
+            if (!specialCharRegex.test(document.getElementById("pfnumber").value.trim())) errors.push("PF Number should not contain special characters.");
+            if (!specialCharRegex.test(document.getElementById("Unanumber").value.trim())) errors.push("UAN Number should not contain special characters.");
+            if (!specialCharRegex.test(document.getElementById("Pannumber").value.trim()) || !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(document.getElementById("Pannumber").value.trim())) {
+                errors.push("Valid PAN Number is required (e.g., ABCDE1234F).");
+            }
 
-    // Calculate total deductions
-    let totalDeductions = esiContribution + pfContribution + professionalTax;
+            // Validate salary and allowances
+            if (isNaN(parseFloat(document.getElementById("basicSalary").value)) || parseFloat(document.getElementById("basicSalary").value) <= 0) {
+                errors.push("Basic Salary must be a positive number.");
+            }
+            if (isNaN(parseFloat(document.getElementById("houseRent").value))) errors.push("House Rent must be a number.");
+            if (isNaN(parseFloat(document.getElementById("conveyance").value))) errors.push("Conveyance must be a number.");
+            if (isNaN(parseFloat(document.getElementById("flatAllowance").value))) errors.push("Flat Allowance must be a number.");
+            if (isNaN(parseFloat(document.getElementById("skillBonus").value))) errors.push("Skill Bonus must be a number.");
+            if (isNaN(parseFloat(document.getElementById("specialPayment").value))) errors.push("Special Payment must be a number.");
+            if (isNaN(parseInt(document.getElementById("unpaidLeaves1").value)) || parseInt(document.getElementById("unpaidLeaves1").value) < 0) {
+                errors.push("Unpaid Leaves must be a non-negative number.");
+            }
+            if (isNaN(parseFloat(document.getElementById("esiContribution").value))) errors.push("ESI Contribution must be a number.");
+            if (isNaN(parseFloat(document.getElementById("pfContribution").value))) errors.push("PF Contribution must be a number.");
+            if (isNaN(parseFloat(document.getElementById("professionalTax").value))) errors.push("Professional Tax must be a number.");
 
-    // Update total deductions display
-    document.getElementById('totalDeductions').innerText = totalDeductions.toFixed(2);
+            // Check for errors
+            if (errors.length > 0) {
+                // Display errors in a list using an alert
+                alert("Please fix the following errors:\n\n" + errors.map((err, index) => `${index + 1}. ${err}`).join("\n"));
+                return; // Stop further execution
+            }
 
-    // Calculate net salary
-    let netSalary = totalEarnings - totalDeductions;
+            // Collect form data
+            const data = {
+                employeeId: document.getElementById("employeeId").value,
+                employeeName: document.getElementById("employeeName").value,
+                employeeDep: document.getElementById("employeeDep").value,
+                designation: document.getElementById("designation").value,
+                Contactnumber: document.getElementById("Contactnumber").value,
+                startDate: document.getElementById("startDate").value,
+                endDate: document.getElementById("endDate").value,
+                bankName: document.getElementById("bankName").value,
+                accountNo: document.getElementById("accountNo").value,
+                ifscCode: document.getElementById("ifscCode").value,
+                pfnumber: document.getElementById("pfnumber").value,
+                Unanumber: document.getElementById("Unanumber").value,
+                Pannumber: document.getElementById("Pannumber").value,
+                basicSalary: parseFloat(document.getElementById("basicSalary").value),
+                houseRent: parseFloat(document.getElementById("houseRent").value),
+                conveyance: parseFloat(document.getElementById("conveyance").value),
+                flatAllowance: parseFloat(document.getElementById("flatAllowance").value),
+                skillBonus: parseFloat(document.getElementById("skillBonus").value),
+                specialPayment: parseFloat(document.getElementById("specialPayment").value),
+                unpaidLeaves1: parseInt(document.getElementById("unpaidLeaves1").value),
+                esiContribution: parseFloat(document.getElementById("esiContribution").value),
+                pfContribution: parseFloat(document.getElementById("pfContribution").value),
+                professionalTax: parseFloat(document.getElementById("professionalTax").value),
+                totalEarnings: parseFloat(document.getElementById("totalEarnings").textContent || 0),
+                totalDeductions: parseFloat(document.getElementById("totalDeductions").textContent || 0),
+                netSalary: parseFloat(document.getElementById("netSalary").value),
+                deductionDate: document.getElementById("deductionDate").value
+            };
 
-    // Update net salary display
-    document.getElementById('netSalary').innerText = netSalary.toFixed(2);
-}
-
-// Attach event listeners for real-time calculation
-document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', calculateNetSalary);
-});
-
-
-// Initialize calculation on page load
-calculateNetSalary();
-document.addEventListener("DOMContentLoaded", function () {
-    // Check if editing mode is enabled
-    const editPayslipData = JSON.parse(localStorage.getItem("editPayslipData"));
-    if (editPayslipData) {
-        // Populate Employee Details
-        document.getElementById("employeeId").value = editPayslipData.employeeId || "";
-        document.getElementById("employeeName").value = editPayslipData.employeeName || "";
-        document.getElementById("employeeDep").value = editPayslipData.employeeDep || "";
-        
-        // Populate Bank Details
-        document.getElementById("bankName").value = editPayslipData.bankName || "";
-        document.getElementById("accountNo").value = editPayslipData.accountNo || "";
-        document.getElementById("ifscCode").value = editPayslipData.ifscCode || "";
-
-        // Populate Earnings Section
-        document.getElementById("basicSalary").value = editPayslipData.basicSalary || "0";
-        document.getElementById("houseRent").value = editPayslipData.houseRent || "0";
-        document.getElementById("conveyance").value = editPayslipData.conveyance || "0";
-        document.getElementById("flatAllowance").value = editPayslipData.flatAllowance || "0";
-        document.getElementById("skillBonus").value = editPayslipData.skillBonus || "0";
-        document.getElementById("specialPayment").value = editPayslipData.specialPayment || "0";
-
-        // Populate Unpaid Leaves
-        document.getElementById("unpaidLeaves1").value = editPayslipData.unpaidLeaves1 || "0";
-        document.getElementById("unpaidLeaves2").value = editPayslipData.unpaidLeaves2 || "0";
-
-        // Populate Deductions Section
-        document.getElementById("esiContribution").value = editPayslipData.esiContribution || "0";
-        document.getElementById("pfContribution").value = editPayslipData.pfContribution || "0";
-        document.getElementById("professionalTax").value = editPayslipData.professionalTax || "0";
-
-        // Populate Total Earnings and Deductions Display
-        document.getElementById("totalEarnings").innerText = editPayslipData.totalEarnings || "0";
-        document.getElementById("totalDeductions").innerText = editPayslipData.totalDeductions || "0";
-
-        // Populate Take Home Pay and Date
-        document.getElementById("takeHomePay").value = editPayslipData.takeHomePay || "0";
-        document.getElementById("deductionDate").value = editPayslipData.deductionDate || "";
-
-        // Remove edit data from localStorage (optional)
-        localStorage.removeItem("editPayslipData");
-    }
-});
-
-
-
-function generatePDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    // Title and Header
-    doc.setFontSize(16);
-    doc.setTextColor(40, 40, 40);
-    doc.text("Payslip", 105, 10, { align: "center" });
-
-    doc.setFontSize(12);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Private and Confidential", 105, 18, { align: "center" });
-    doc.text("Payslip for the Month", 105, 26, { align: "center" });
-
-    // Date Section
-    const payslipDate = document.getElementById("deductionDate").value || "N/A";
-    doc.setFontSize(10);
-    doc.setTextColor(0);
-    doc.text(`Payslip Date: ${payslipDate}`, 20, 30);
-
-    // Employee Details Section
-    doc.setFillColor(230, 230, 250); // Light lavender background
-    doc.rect(14, 38, 180, 42, 'F');
-
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 128); // Dark blue text for section title
-    doc.text("Employee Details", 14, 44);
-    doc.setTextColor(0);
-
-    const employeeDetails = [
-        { label: "Employee ID", value: document.getElementById("employeeId").value || "N/A" },
-        { label: "Bank Name", value: document.getElementById("bankName").value || "N/A" },
-        { label: "Account Number", value: document.getElementById("accountNo").value || "N/A" },
-        { label: "IFSC Code", value: document.getElementById("ifscCode").value || "N/A" }
-    ];
-
-    employeeDetails.forEach((item, index) => {
-        const yPosition = 52 + index * 8;
-        doc.text(`${item.label}: ${item.value}`, 16, yPosition);
-    });
-
-    // Earnings Section
-    doc.setFillColor(173, 216, 230); // Light blue background
-    doc.rect(14, 90, 180, 66, 'F');
-
-    doc.setTextColor(0, 0, 128);
-    doc.text("Earnings", 105, 96, { align: "center" });
-    doc.setTextColor(0);
-
-    const earningsData = [
-        { label: "Basic Salary", value: document.getElementById("basicSalary").value || "0" },
-        { label: "House Rent Allowance", value: document.getElementById("houseRent").value || "0" },
-        { label: "Conveyance Allowance", value: document.getElementById("conveyance").value || "0" },
-        { label: "Flat Allowance", value: document.getElementById("flatAllowance").value || "0" },
-        { label: "Skill Bonus", value: document.getElementById("skillBonus").value || "0" },
-        { label: "Special Payment", value: document.getElementById("specialPayment").value || "0" },
-        { label: "Total Earnings", value: document.getElementById("totalEarnings").innerText || "0" }
-    ];
-
-    earningsData.forEach((item, index) => {
-        const yPosition = 102 + index * 8;
-        doc.text(item.label, 16, yPosition);
-        doc.text(item.value, 170, yPosition, { align: "right" });
-    });
-
-    // Deductions Section
-    doc.setFillColor(255, 228, 225); // Light pink background
-    doc.rect(14, 160, 180, 58, 'F');
-
-    doc.setTextColor(0, 0, 128);
-    doc.text("Deductions", 105, 166, { align: "center" });
-    doc.setTextColor(0);
-
-    const deductionsData = [
-        { label: "ESI Contribution", value: document.getElementById("esiContribution").value || "0" },
-        { label: "PF Contribution", value: document.getElementById("pfContribution").value || "0" },
-        { label: "Professional Tax", value: document.getElementById("professionalTax").value || "0" },
-        { label: "Total Deductions", value: document.getElementById("totalDeductions").innerText || "0" },
-        { label: "Take Home Pay", value: document.getElementById("takeHomePay").value || "0" }
-    ];
-
-    deductionsData.forEach((item, index) => {
-        const yPosition = 172 + index * 8;
-        doc.text(item.label, 16, yPosition);
-        doc.text(item.value, 170, yPosition, { align: "right" });
-    });
-
-    // Save the PDF
-    doc.save("payslip.pdf");
-}
-
-
-function savePayslip() {
-    // Helper function to retrieve form values safely
-    const getFieldValue = (id, isText = false) => {
-        const element = document.getElementById(id);
-        if (element) {
-            return isText ? element.innerText.trim() : element.value.trim();
+            // Post data to backend
+            fetch("/hrms/save-payslip/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken") // Include CSRF token
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.status === "success") {
+                        alert(result.message);
+                    } else {
+                        alert("Error: " + result.message);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
         }
-        return "";
-    };
 
-    // Collect all necessary fields
-    const payslipData = {
-        employeeId: getFieldValue("employeeId"),
-        employeeName: getFieldValue("employeeName"),
-        employeeDepartment: getFieldValue("employeeDep"),
-        bankDetails: getFieldValue("bankName"),
-        accountNo: getFieldValue("accountNo"),
-        basicSalary: getFieldValue("basicSalary"),
-        conveyanceAllowance: getFieldValue("conveyance"),
-        skillBonus: getFieldValue("skillBonus"),
-        houseRentAllowance: getFieldValue("houseRent"),
-        flatAllowance: getFieldValue("flatAllowance"),
-        specialPayment: getFieldValue("specialPayment"),
-        esiContribution: getFieldValue("esiContribution"),
-        professionalTax: getFieldValue("professionalTax"),
-        pfContribution: getFieldValue("pfContribution"),
-        totalEarnings: getFieldValue("totalEarnings", true) || "0",
-        totalDeductions: getFieldValue("totalDeductions", true) || "0",
-        takeHomePay: getFieldValue("takeHomePay", true) || "0",
-        unpaidLeaves: `${getFieldValue("unpaidLeaves1")} / ${getFieldValue("unpaidLeaves2")}`,
-        date: getFieldValue("deductionDate")
-    };
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
 
-    // Validate required fields
-    const requiredFields = [
-        { name: "Employee ID", value: payslipData.employeeId },
-        { name: "Employee Name", value: payslipData.employeeName },
-        { name: "Employee Department", value: payslipData.employeeDepartment },
-        { name: "Bank Name", value: payslipData.bankDetails },
-        { name: "Account Number", value: payslipData.accountNo },
-        { name: "Date", value: payslipData.date }
-    ];
+    <script>
+        document.querySelector('.btn-outline-secondary').addEventListener('click', function () {
+            const employeeId = document.getElementById('employeeId').value;
 
-    const missingFields = requiredFields.filter(field => !field.value);
-    if (missingFields.length > 0) {
-        const missingFieldNames = missingFields.map(field => field.name).join(", ");
-        alert(`Please fill in the following required fields: ${missingFieldNames}`);
-        return;
-    }
+            if (!employeeId) {
+                alert('Please enter an Employee ID');
+                return;
+            }
 
-    // Save data to localStorage
-    try {
-        localStorage.setItem("payslipData", JSON.stringify(payslipData));
-        alert("Payslip saved successfully!");
+            fetch(`/hrms/get-employee-details/?employeeId=${employeeId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Employee not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('employeeName').value = data.data.employeeName;
+                        document.getElementById('employeeDep').value = data.data.employeeDep;
+                        document.getElementById('designation').value = data.data.employeePositionType || 'N/A';
+                        document.getElementById('Contactnumber').value = data.data.contactNumber;
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Unable to fetch employee details');
+                });
+        });
+    </script>
 
-        // Redirect to the Payslip page
-        window.location.href = "employee_payslips.html"; // Update this to your correct path
-    } catch (error) {
-        console.error("Failed to save payslip:", error);
-        alert("An error occurred while saving the payslip. Please try again.");
-    }
-}
+    <script>
+        function calculatePayslip() {
+            // Get input values for earnings
+            const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
+            const houseRent = parseFloat(document.getElementById('houseRent').value) || 0;
+            const conveyance = parseFloat(document.getElementById('conveyance').value) || 0;
+            const flatAllowance = parseFloat(document.getElementById('flatAllowance').value) || 0;
+            const skillBonus = parseFloat(document.getElementById('skillBonus').value) || 0;
+            const specialPayment = parseFloat(document.getElementById('specialPayment').value) || 0;
 
+            // Get input values for unpaid leaves
+            const unpaidLeaves = parseInt(document.getElementById('unpaidLeaves1').value) || 0;
+            const dailySalary = basicSalary / 30; // Assuming 30 days in a month
+            const lop = unpaidLeaves * dailySalary; // Loss of Pay
 
+            // Display LOP in unpaidLeaves2
+            document.getElementById('unpaidLeaves2').value = lop.toFixed(2);
 
-</script>
+            // Calculate Total Earnings
+            const totalEarnings =
+                basicSalary +
+                houseRent +
+                conveyance +
+                flatAllowance +
+                skillBonus +
+                specialPayment -
+                lop;
+
+            // Update Total Earnings field
+            document.getElementById('totalEarnings').textContent = totalEarnings.toFixed(2);
+
+            // Get input values for deductions
+            const esiContribution = parseFloat(document.getElementById('esiContribution').value) || 0;
+            const pfContribution = parseFloat(document.getElementById('pfContribution').value) || 0;
+            const professionalTax = parseFloat(document.getElementById('professionalTax').value) || 0;
+
+            // Calculate Total Deductions
+            const totalDeductions = esiContribution + pfContribution + professionalTax;
+
+            // Update Total Deductions field
+            document.getElementById('totalDeductions').textContent = totalDeductions.toFixed(2);
+
+            // Calculate Net Salary
+            const netSalary = totalEarnings - totalDeductions;
+
+            // Update Net Salary field
+            document.getElementById('netSalary').value = netSalary.toFixed(2);
+
+        }
+    </script>
+
 </body>
+
 </html>
 {% endblock %}

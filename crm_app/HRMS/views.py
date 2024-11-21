@@ -2685,6 +2685,44 @@ def get_employee_details(request):
     except HR_Employee.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Employee not found'}, status=404)
 
+
+def get_payslips(request):
+    payslips = Payslip.objects.all().values(
+        'employee__employee_id',
+        'employee_name',
+        'employee_department',
+        'bank_name',
+        'account_number',
+        'ifsc_code',
+        'basic_salary',
+        'conveyance_allowance',
+        'skill_bonus',
+        'house_rent_allowance',
+        'flat_allowance',
+        'special_payment',
+        'esi_contribution',
+        'professional_tax',
+        'pf_contribution',
+        'total_earnings',
+        'total_deductions',
+        'unpaid_leaves',
+        'net_salary',
+        'date_of_issue',
+        'id'
+    )
+
+    return JsonResponse(list(payslips), safe=False)
+
+def delete_payslip(request, payslip_id):
+    print("Started")
+    try:
+        # Fetch the payslip object by its ID and delete it
+        payslip = Payslip.objects.get(id=payslip_id)
+        payslip.delete()
+        return JsonResponse({'message': 'Payslip deleted successfully'}, status=200)
+    except Payslip.DoesNotExist:
+        return JsonResponse({'error': 'Payslip not found'}, status=404)
+
 #########################################################################################################################
 
 # anuj

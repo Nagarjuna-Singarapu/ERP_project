@@ -572,3 +572,61 @@ class TrainingAttendee(models.Model):
 
     def __str__(self):
         return f"Employee Id: {self.employee.employee_id} - Training Class Id: {self.trainingClass.trainingClassId} - Attendee Id: {self.attendeeId}"
+    
+
+class Payslip(models.Model):
+    # Foreign Key to HR_Employee
+    employee = models.ForeignKey(
+        HR_Employee,
+        to_field='employee_id',
+        on_delete=models.CASCADE,
+        related_name="payslips",
+        blank=True
+    )
+
+    # Employee Details
+    employee_name = models.CharField(max_length=100, blank=True, null=True)
+    employee_department = models.CharField(max_length=100, blank=True, null=True)
+    designation = models.CharField(max_length=100, blank=True, null=True)  # To store fetched designation temporarily
+    contact_number = models.CharField(max_length=15, blank=True, null=True)
+
+    # Pay Slip Period
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+
+    # Account Details
+    bank_name = models.CharField(max_length=100, blank=True, null=True)
+    account_number = models.CharField(max_length=20, blank=True, null=True)
+    ifsc_code = models.CharField(max_length=20, blank=True, null=True)
+    pf_number = models.CharField(max_length=50, blank=True, null=True)
+    uan_number = models.CharField(max_length=50, blank=True, null=True)
+    pan_number = models.CharField(max_length=50, blank=True, null=True)
+
+    # Earnings
+    basic_salary = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    house_rent_allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    conveyance_allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    flat_allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    skill_bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    special_payment = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+
+    unpaid_leaves = models.IntegerField(default=0, null=True, blank=True)
+
+    # Calculated Fields
+    total_earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+
+    # Deductions
+    esi_contribution = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    pf_contribution = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    professional_tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    total_deductions = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+
+    # Final Calculations
+    net_salary = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+    take_home_pay = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, null=True, blank=True)
+
+    # Miscellaneous
+    date_of_issue = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Payslip for {self.employee_name} {self.employee.employee_id}"

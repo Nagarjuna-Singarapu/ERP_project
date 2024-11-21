@@ -81,6 +81,8 @@ urlpatterns = [
 
     path("save-payslip/", views.save_payslip, name="save_payslip"),
     path('get-employee-details/', views.get_employee_details, name='get_employee_details'),
+    path('payslips/api/get_payslips/', views.get_payslips, name='get_payslips'),
+    path('payslips/api/delete_payslip/<int:payslip_id>/', views.delete_payslip, name='delete_payslip'),
 
     # anuj hrms
     path('NewEmploye/', views.NewEmploye, name='NewEmploye'),

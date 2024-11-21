@@ -1813,6 +1813,64 @@ def delete_resume(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 ###################################### Job Requisition #############################################################################
 
+def jobRequisitionLookup(request):
+    return render(request, 'hrms/skill_qual/jobRequisitionLookup.html')
+def internalJobPostingLookup(request):
+    return render(request, 'hrms/skill_qual/internalJobPostingLookup.html')
+
+def job_requisition_list(request):
+    job_requisitions = JobRequisition.objects.all()
+
+    # Retrieve filter parameters from the GET request
+    job_location = request.GET.get('job_location')
+    job_posting_type = request.GET.get('job_posting_type')
+    qualification = request.GET.get('qualification')
+    experience_years = request.GET.get('experience_years')
+
+    # Apply filters if parameters are provided
+    if job_location:
+        job_requisitions = job_requisitions.filter(job_location__icontains=job_location)
+    if job_posting_type:
+        job_requisitions = job_requisitions.filter(job_posting_type=job_posting_type)
+    if qualification:
+        job_requisitions = job_requisitions.filter(qualification=qualification)
+    if experience_years:
+        job_requisitions = job_requisitions.filter(experience_years__gte=int(experience_years))
+
+    context = {
+        'job_requisitions': job_requisitions
+    }
+    return render(request, 'hrms/skill_qual/jobRequisitionLookup.html', context)
+
+def internal_job_posting_lookup(request):
+    # Get the filter values from the GET request
+    application_date = request.GET.get('application_date')
+    applying_party_id = request.GET.get('applying_party_id')
+    approver_party_id = request.GET.get('approver_party_id')
+    job_requisition_id = request.GET.get('job_requisition_id')
+
+    # Start with all InternalJobPosting records
+    postings = InternalJobPosting.objects.all()
+
+    # Apply filters if any of the fields are provided
+    if application_date:
+        postings = postings.filter(applicationDate=application_date)
+    if applying_party_id:
+        postings = postings.filter(applyingPartyId__employee_id=applying_party_id)
+    if approver_party_id:
+        postings = postings.filter(approverPartyId__employee_id=approver_party_id)
+    if job_requisition_id:
+        postings = postings.filter(jobRequisitionId__job_requisition_id=job_requisition_id)
+
+    context = {
+        'postings': postings,
+    }
+
+
+    # Render the full page for initial load
+    return render(request, 'hrms/skill_qual/internalJobPostingLookup.html', context)
+
+
 def create_job_requisition(request):
     if request.method == 'POST':
         # Get data from the form

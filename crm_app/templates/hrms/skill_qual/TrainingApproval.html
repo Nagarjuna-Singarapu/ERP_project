@@ -135,142 +135,57 @@
                         </div>
                     </div>
 
-
                     <div class="form-group col-md-6">
                         <label for="trainingRequestId">Training Request ID</label>
                         <div class="input-group">
-                            <select name="trainingRequestId_op" class="custom-select">
-                                <option value="equals">Equals</option>
-                                <option value="like">Begins With</option>
-                                <option value="contains" selected>Contains</option>
-                                <option value="empty">Is Empty</option>
-                                <option value="notEqual">Not Equal</option>
-                            </select>
-                            <input type="text" class="form-control" name="trainingRequestId" placeholder="Enter Training Request ID">
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <input type="checkbox" name="trainingRequestId_ic" value="Y" checked> Ignore Case
-                                </span>
-                            </div>
+                            <input type="number" class="form-control" name="trainingRequestId" placeholder="Enter Training Request ID">
                         </div>
-                    </div>
-                </div>
+
+                        <!-- Training Attendee ID Field -->
+                        <div class="form-group col-md-6">
+                            <label for="attendeeId">Training Attendee ID</label>
+                            <input type="text" class="form-control" name="attendeeId" id="attendeeId" placeholder="Enter Training Attendee ID">
+                        </div>
                 
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label for="trainingClassTypeId">Training Class Type</label>
-                        <select name="trainingClassTypeId" class="form-control" id="trainingClassTypeId">
-                            <option value="">Select Type</option>
-                            <option value="ADVAN_TRAINING">Advance Training</option>
-                            <option value="BASIC_TRAINING">Basic Training</option>
-                            <option value="IMPRO_TRAINING">Improvement Training</option>
-                            <option value="ONJOB_TRAINING">On Job Training</option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="workEffortId">Work Effort ID</label>
-                        <div class="input-group">
-                            <select name="workEffortId_op" class="custom-select">
-                                <option value="equals">Equals</option>
-                                <option value="like">Begins With</option>
-                                <option value="contains" selected>Contains</option>
-                                <option value="empty">Is Empty</option>
-                                <option value="notEqual">Not Equal</option>
+                        <label for="trainingType" class="form-label">Training Class type</label>
+                            <select id="trainingType" name="trainingType" class="form-select">
+                                <option selected>Select Training Type</option>
                             </select>
-                            <input type="text" class="form-control" name="workEffortId" placeholder="Enter Work Effort ID">
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <input type="checkbox" name="workEffortId_ic" value="Y" checked> Ignore Case
-                                </span>
+                    </div>
+                <!-- Date Fields -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>From Date</label>
+                            <div class="input-group">
+                                <input type="date" class="form-control" name="fromDate" placeholder="Enter From Date">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group col-md-6">
+                            <label>Through Date</label>
+                            <div class="input-group">
+                                <input type="date" class="form-control" name="thruDate" placeholder="Enter Through Date">
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Date Fields -->
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label>From Date</label>
-                        <div class="input-group">
-                            <input type="date" class="form-control" name="fromDate_fld0_value">
-                            <select name="fromDate_fld0_op" class="custom-select">
-                                <option value="equals">Equals</option>
-                                <option value="greaterThan" selected>Greater Than</option>
-                            </select>
-                            <input type="date" class="form-control" name="fromDate_fld1_value">
-                            <select name="fromDate_fld1_op" class="custom-select">
-                                <option value="opLessThan" selected>Less Than</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label>Through Date</label>
-                        <div class="input-group">
-                            <input type="date" class="form-control" name="thruDate_fld0_value">
-                            <select name="thruDate_fld0_op" class="custom-select">
-                                <option value="greaterThan" selected>Greater Than</option>
-                            </select>
-                            <input type="date" class="form-control" name="thruDate_fld1_value">
-                            <select name="thruDate_fld1_op" class="custom-select">
-                                <option value="opLessThan" selected>Less Than</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Approver and Status Fields -->
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="approverId">Approver Party</label>
-                        <div class="input-group">
-                            <select name="approverId_op" class="custom-select">
-                                <option value="equals">Equals</option>
-                                <option value="contains" selected>Contains</option>
-                            </select>
-                            <input type="text" class="form-control" name="approverId">
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <input type="checkbox" name="approverId_ic" value="Y" checked> Ignore Case
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="approvalStatus">Approver Status</label>
-                        <div class="input-group">
-                            <select name="approvalStatus_op" class="custom-select">
-                                <option value="equals">Equals</option>
-                                <option value="contains" selected>Contains</option>
-                            </select>
-                            <input type="text" class="form-control" name="approvalStatus">
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <input type="checkbox" name="approvalStatus_ic" value="Y" checked> Ignore Case
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Reason Field -->
-                <div class="form-row">
-                    <div class="form-group col-md-12">
-                        <label for="reason">Reason</label>
-                        <div class="input-group">
-                            <select name="reason_op" class="custom-select">
-                                <option value="equals">Equals</option>
-                                <option value="contains" selected>Contains</option>
-                            </select>
-                            <input type="text" class="form-control" name="reason">
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <input type="checkbox" name="reason_ic" value="Y" checked> Ignore Case
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-group col-md-6">
+                    <label for="approverId">Approver Party</label>
+                    <input type="text" class="form-control" name="approverId" placeholder="Enter Approver Party ID">
                 </div>
                 
+                <div class="form-group col-md-6">
+                    <label for="approvalStatus">Approver Status</label>
+                    <select name="approvalStatus" class="form-control" id="approvalStatus">
+                        <option value="">Select Status</option>
+                        <option value="Assigned">Assigned</option>
+                        <option value="Unassigned">Unassigned</option>
+                    </select>
+                </div>                
 
                 <button type="submit" class="btn btn-primary">Find</button>
             </form>
@@ -278,75 +193,110 @@
     </div>
 
      <!-- Results Table -->
-     <div class="card mt-4">
-        <div class="card-header">
-            <h3 class="mb-0">Search Results</h3>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>Employee Party ID</th>
-                            <th>Training Request ID</th>
-                            <th>Training Class Type</th>
-                            <th>Work Effort ID</th>
-                            <th>From Date</th>
-                            <th>Through Date</th>
-                            <th>Approver Party</th>
-                            <th>Approver Status</th>
-                            <th>Reason</th>
-                            <th>Update</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="mb-0">Search Results</h3>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Employee Party ID</th> <!-- Employee Party ID -->
+                        <th>Training Attendee ID</th>
+                        <th>Training Class Type</th>
+                        <th>Training Request ID</th>
+                        <th>From Date</th>
+                        <th>Through Date</th>
+                        <th>Approver Party</th>
+                        <th>Approver Status</th>
+                        <th>Update</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if results %}
                         {% for result in results %}
+                            <!-- Check if the training class has attendees -->
                             {% if result.attendees %}
-                                <!-- For training classes with attendees -->
+                                <!-- Display rows for each attendee -->
                                 {% for attendee in result.attendees %}
                                     <tr>
-                                        <td>{{ attendee.employee.employee_id }}</td>
-                                        <td>{{ attendee.attendeeId }}</td>
-                                        <td>{{ result.trainingType.tranningTypeId }}</td>
+                                        <!-- Employee Party ID -->
+                                        <td>
+                                            {% if attendee.employee %}
+                                                {{ attendee.employee.employee_id }}
+                                            {% else %}
+                                                Unassigned
+                                            {% endif %}
+                                        </td>
+                                        <!-- Training Attendee ID -->
+                                        <td>
+                                            {% if attendee.attendeeId %}
+                                                {{ attendee.attendeeId }}
+                                            {% else %}
+                                                Unassigned
+                                            {% endif %}
+                                        </td>
+                                        <!-- Training Class Type -->
+                                        <td>{{ result.trainingType.description }}</td>
+                                        <!-- Training Request ID -->
                                         <td>{{ result.trainingClassId }}</td>
+                                        <!-- From Date -->
                                         <td>{{ result.fromDate }}</td>
+                                        <!-- Through Date -->
                                         <td>{{ result.throughDate }}</td>
-                                        <td>{{ result.approverId.employee_id }}</td>
-                                        <td>{{ attendee.status }}</td>
-                                        <td>{{ attendee.reason }}</td>
+                                        <!-- Approver Party -->
+                                        <td>
+                                            {% if result.approverId %}
+                                                {{ result.approverId.employee_id }}
+                                            {% else %}
+                                                Unassigned
+                                            {% endif %}
+                                        </td>
+                                        <!-- Approver Status -->
+                                        <td>
+                                            {% if attendee.status %}
+                                                {{ attendee.status }}
+                                            {% else %}
+                                                Unassigned
+                                            {% endif %}
+                                        </td>
                                         <td><button class="btn btn-primary btn-sm">Update</button></td>
                                     </tr>
                                 {% endfor %}
                             {% else %}
-                                <!-- For training classes without attendees, display N/A or Not Assigned for attendee-related columns -->
+                                <!-- Display only the training class row if no attendees -->
                                 <tr>
-                                    <td></td> <!-- No employee assigned -->
+                                    <td>Unassigned</td> <!-- Employee Party ID is Unassigned -->
+                                    <td>Unassigned</td> <!-- Training Attendee ID is Unassigned -->
+                                    <td>{{ result.trainingType.description }}</td>
                                     <td>{{ result.trainingClassId }}</td>
-                                    <td>{{ result.trainingType.tranningTypeId }}</td>
-                                    <td>{{ result.trainingClassId }}</td> <!-- Displaying work effort ID as trainingClassId -->
                                     <td>{{ result.fromDate }}</td>
                                     <td>{{ result.throughDate }}</td>
-                                    <td>{{ result.approverId.employee_id }}</td>
-                                    <td></td> <!-- No status -->
-                                    <td></td> <!-- No reason -->
+                                    <td>
+                                        {% if result.approverId %}
+                                            {{ result.approverId.employee_id }}
+                                        {% else %}
+                                            Unassigned
+                                        {% endif %}
+                                    </td>
+                                    <td>Unassigned</td> <!-- Placeholder for approver status -->
                                     <td><button class="btn btn-primary btn-sm">Update</button></td>
                                 </tr>
                             {% endif %}
-                        {% empty %}
-                            <!-- In case there are no training classes -->
-                            <tr>
-                                <td colspan="10" class="text-center">No records found.</td>
-                            </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
-                
-                
-                
-            </div>
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center">No records found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>                                                     
+            </table>
         </div>
     </div>
 </div>
+
+
 
 <!-- Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -429,6 +379,24 @@
             }
         }
 </script> 
+<script>
+    async function loadDropdowns() {
+
+        // Load Leave Types
+        const trainingClassTypeResponse = await fetch('/hrms/api/trainingclasstypes/');
+        const trainingClassTypes = await trainingClassTypeResponse.json();
+        const trainingClassTypeSelect = document.getElementById('trainingType');
+
+        trainingClassTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.tranningTypeId;
+            option.textContent = type.description;
+            trainingClassTypeSelect.appendChild(option);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDropdowns);
+</script>
 
 
 </body>

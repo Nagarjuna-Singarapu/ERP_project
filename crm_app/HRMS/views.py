@@ -11,7 +11,7 @@ from django.http import JsonResponse
 import json
 import logging
 import re
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Count
 # Django Imports
 from django.core.exceptions import ValidationError
 from django.contrib import messages
@@ -2958,6 +2958,15 @@ class TerminationReasonList(APIView):
 #         return Response(serializer.data)
 
 
+# Updated Regular expression to allow spaces and special characters, while ensuring alphanumeric characters are present
+VALID_PATTERN = re.compile(r'^(?=.*[a-zA-Z0-9])[a-zA-Z0-9!@#$%^&*()_+={}\[\]:;"\'<>,.?/\\| -]*$')
+
+
+# Function to validate if the field contains at least one alphanumeric character and may have special characters
+def is_valid(value):
+    value = value.strip()
+    return bool(VALID_PATTERN.match(value))
+
 def create_performance_review(request):
     if request.method == 'POST':
         try:
@@ -2973,6 +2982,10 @@ def create_performance_review(request):
             through_date = data.get('throughDate', '')
             comments = data.get('comments', '')
 
+            # Check if the Performance Review ID is unique
+            if PerformanceReview.objects.filter(perf_review_id=perf_review_id).exists():
+                return JsonResponse({'status': 'error', 'message': 'Performance Review ID must be unique. A review with this ID already exists.'})
+
             # Check if the employee exists in the HR_Employee model
             try:
                 employee = HR_Employee.objects.get(employee_id=employee_party_id)
@@ -2985,15 +2998,28 @@ def create_performance_review(request):
                 try:
                     position_type = PositionType.objects.get(name=empl_position_name)
                 except PositionType.DoesNotExist:
-                    # If PositionType doesn't exist, we just keep it as None
-                    
-                    # Optional: You could return an error here if you want strict validation
                     return JsonResponse({'status': 'error', 'message': 'Position Type not found.'})
+
+
+            # Validate that the following fields contain at least one alphanumeric character and may include special characters
+            if perf_review_id and not is_valid(perf_review_id):
+                return JsonResponse({'status': 'error', 'message': 'Performance Review ID must be alphanumeric and can contain special characters.'})
+            if manager_party_id and not is_valid(manager_party_id):
+                return JsonResponse({'status': 'error', 'message': 'Manager Party ID must be alphanumeric and can contain special characters.'})
+            if payment_id and not is_valid(payment_id):
+                return JsonResponse({'status': 'error', 'message': 'Payment ID must be alphanumeric and can contain special characters.'})
+            if comments and not is_valid(comments):
+                return JsonResponse({'status': 'error', 'message': 'Comments must be alphanumeric and can contain special characters.'})
+
             # Parse dates
             from_date_parsed = datetime.strptime(from_date, '%Y-%m-%d').date() if from_date else None
             through_date_parsed = datetime.strptime(through_date, '%Y-%m-%d').date() if through_date else None
 
-            # Create the Performance Review entry, even with blank/null data
+            # Validate that through_date is not before from_date
+            if from_date_parsed and through_date_parsed and through_date_parsed < from_date_parsed:
+                return JsonResponse({'status': 'error', 'message': 'Through date cannot be before From date.'})
+
+            # Create the Performance Review entry
             review = PerformanceReview.objects.create(
                 perf_review_id=perf_review_id,
                 emp_party_id=employee,
@@ -3096,6 +3122,10 @@ def create_party_skill(request):
         # Validate Skill Type
         if skill_type_id not in dict(PartySkill.SKILL_TYPE_CHOICES).keys():
             return JsonResponse({"status": "error", "message": "Invalid skill type."}, status=400)
+
+        # Validate description field: it should contain at least one alphanumeric character and can have special characters
+        if not description or not is_valid(description):
+            return JsonResponse({"status": "error", "message": "Description must contain at least one alphanumeric character and may include special characters."}, status=400)
 
         # Create or update PartySkill record
         party_skill, created = PartySkill.objects.update_or_create(
@@ -3327,10 +3357,85 @@ def delete_employment_application(request):
 ##########################################################################################################################################################
 
 def view_training_approvals(request):
-    # Fetch all the training class data and prefetch related attendees
-    results = TrainingClass.objects.prefetch_related(
+    # Fetch parameters from GET request and strip any leading/trailing spaces
+    party_id = request.GET.get('partyId', '').strip()
+    training_request_id = request.GET.get('trainingRequestId', '').strip()
+    training_class_type = request.GET.get('trainingType', '').strip()  # Ensure this value is valid
+    approver_id = request.GET.get('approverId', '').strip()
+    approval_status = request.GET.get('approvalStatus', '').strip()
+    from_date = request.GET.get('fromDate', '').strip()
+    through_date = request.GET.get('thruDate', '').strip()
+    attendee_id = request.GET.get('attendeeId', '').strip()
+
+    # Parse dates if provided
+    try:
+        if from_date:
+            from_date = datetime.strptime(from_date, "%Y-%m-%d").date()
+        if through_date:
+            through_date = datetime.strptime(through_date, "%Y-%m-%d").date()
+    except ValueError:
+        from_date = None
+        through_date = None
+
+    # Base queryset for fetching training class data with related attendees
+    queryset = TrainingClass.objects.select_related('trainingType').prefetch_related(
         Prefetch('trainingattendee_set', queryset=TrainingAttendee.objects.all(), to_attr='attendees')
     )
 
-    # Directly pass the results to the template
+    # Handle the "Unassigned" case for party_id (checks if party_id is null)
+    if party_id:
+        if party_id == "Unassigned":
+            queryset = queryset.filter(trainingattendee__employee__employee_id__isnull=True)  # filter for null employee_id
+        else:
+            queryset = queryset.filter(trainingattendee__employee__employee_id=party_id)
+
+    # Training Request ID filter is applied only if it is provided and no other conflicting filters are present
+    if training_request_id:
+        queryset = queryset.filter(trainingClassId=training_request_id)
+
+
+    # Handle the case where the training type is "Select Training Type" (skip filter if that's the case)
+    if training_class_type and training_class_type != "Select Training Type":
+        queryset = queryset.filter(trainingType__tranningTypeId=training_class_type)
+
+    # Handle the "Unassigned" case for approverId (checks if approverId is null)
+    if approver_id:
+        if approver_id == "Unassigned":
+            queryset = queryset.filter(approverId__isnull=True)  # filter for null approvers
+        else:
+            queryset = queryset.filter(approverId__employee_id=approver_id)
+
+    # Handle the "Unassigned" case for approvalStatus (checks if status is null)
+    if approval_status:
+        if approval_status == "Unassigned":
+            queryset = queryset.filter(trainingattendee__status__isnull=True)  # filter for null status
+        else:
+            queryset = queryset.filter(trainingattendee__status=approval_status)
+
+    # Filter by attendee_id if provided, handle the "Unassigned" case
+    if attendee_id == 'Unassigned':
+        queryset = queryset.filter(trainingattendee__employee__employee_id__isnull=True)
+
+
+    # Date filtering logic - only apply when dates are given
+    if from_date and through_date:
+        queryset = queryset.filter(fromDate__gte=from_date, throughDate__lte=through_date)
+    elif from_date:
+        queryset = queryset.filter(fromDate__gte=from_date)
+    elif through_date:
+        queryset = queryset.filter(throughDate__lte=through_date)
+
+    # Fetch the filtered results, or all records if no filters are provided
+    results = queryset.distinct()
+
+    # Debugging: Check if any results were found
+    if not results:
+        print("No results found for the given filters.")
+
+    print(f"party_id: {party_id}, training_request_id: {training_request_id}, training_class_type: {training_class_type}")
+    print(f"approver_id: {approver_id}, approval_status: {approval_status}")
+    print(f"from_date: {from_date}, through_date: {through_date}")
+
+
+    # Return results to template
     return render(request, 'hrms/skill_qual/TrainingApproval.html', {'results': results})

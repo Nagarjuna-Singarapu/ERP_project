@@ -1,9 +1,9 @@
 {% extends "dash_navbar.html" %}
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
-{% block content %}
+    {% block content %}
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,194 +11,323 @@
 <link rel="stylesheet" href="style.css">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 <style>
-  body {
+body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
 }
 
-.payslip-container {
+.container {
     display: flex;
     flex-direction: column;
-    height: 100vh; /* Make the container span the full viewport height */
+    height: 100vh;
     position: relative;
-    width: 60%;
-        margin: 0 auto;
-        border: 1px solid #000;
-        padding: 20px;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 .header {
     position: relative;
-    height: 100%;
     text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centers the headings vertically */
+    justify-content: center;
 }
 
 .l-corner {
     flex-grow: 1;
+    margin-top: 20px;
 }
 
 .right-corner {
-    position: absolute; /* Adjust the distance from the top */
-    right: 20px; /* Adjust the distance from the right */
+    position: relative;
     text-align: right;
+    padding: 5px 10px; /* Reduced padding for less space */
+    font-size: 14px;
+    line-height: 1.4; /* Reduced line height for tighter spacing */
+    margin-left: auto; /* Ensures it aligns to the right in the header */
 }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
+/* For mobile responsiveness */
+@media (max-width: 768px) {
+    .right-corner {
+        position: static; /* Resets absolute positioning */
+        text-align: left; /* Aligns the text to the left on mobile */
+        margin-top: 10px; /* Reduced top margin for more compact view */
+        padding-left: 0;
+        padding-right: 0; /* No extra padding on mobile */
+    }
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid #ddd;
+    font-size: 16px; /* Ensures readability */
+}
+
+th {
+    background-color: #f4f4f4; /* Light gray background for headers */
+    font-weight: bold;
+}
+
+td input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+td input:focus {
+    border-color: #0073e6; /* Focus effect for better UX */
+}
+
+td {
+    vertical-align: middle; /* Ensures vertical alignment for inputs */
+}
+
+/* Table Section Headers */
+table tr th[colspan="4"] {
+    background-color: #0073e6; /* Navbar color for table sections */
+    color: white;
+    text-align: center;
+    font-size: 18px;
+}
+
+/* Input group styling */
+.input-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.input-group button {
+    padding: 8px;
+    background-color: #bcd0e4;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.input-group button:hover {
+    background-color: #005bb5;
+}
+
+/* Calendar section styling */
+.calendar-section {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.calendar-section label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.calendar-section input[type="date"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Button Styling */
+button {
+    width: 20%;
+    padding: 10px;
+    background-color: #0073e6;
+    color: #fff;
+    border: none;
+    margin: 10px auto;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #005bb5;
+}
+
+.button-container {
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Left and right corners */
+.container .header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.container .left-corner,
+.container .right-corner {
+    font-size: 14px;
+}
+
+
+
+/* Make the form more fluid on smaller devices */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 15px;
     }
 
-    th, td {
-        padding: 8px;
+    .right-corner {
+        position: static;
         text-align: left;
-        border: 1px solid #ddd;
+        margin-top: 20px;
+    }
+
+    .header {
+        flex-direction: column;
     }
 
     .input-group {
-        display: flex;
-        align-items: center;
-        width: 100%;
-      
-    }
-
-    .input-group input {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-        margin-right: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .input-group button {
-        padding: 8px;
-        background-color: #bcd0e4;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-        border-radius: 4px;
-    }
-
-    .input-group button:hover {
-        background-color: #005bb5;
-    }
-
-    .calendar-section {
-        margin: 20px 0;
-        text-align: center;
-    }
-
-    .calendar-section label {
-        font-weight: bold;
-        margin-right: 10px;
-    }
-
-    .calendar-section input[type="date"] {
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    input[type="text"], input[type="number"] {
-        width: 100%;
-        padding: 8px;
-        margin: 8px 0;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
+        margin-top: 10px;
     }
 
     button {
-        width: 20%;
-        padding: 10px;
-        background-color: #0073e6;
-        color: #fff;
-        border: none;
-        margin: 10px auto;
-        text-align: center;
-        cursor: pointer;
-        border-radius: 4px;
+        width: 100%; /* Make buttons full-width on smaller screens */
     }
 
-    button:hover {
-        background-color: #005bb5;
+    table {
+        font-size: 14px; /* Adjust font size for smaller devices */
     }
+}
 
-    .button-container {
-        text-align: center;
-        margin-top: 10px;
-    }
-    .payslip-container .header {
+.account-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.account-grid div {
     display: flex;
-    justify-content: space-between;
-   
-}
-
-.payslip-container .left-corner,
-.payslip-container .right-corner {
-    font-size: 14px;
-}
-
-.payslip-container .right-corner {
-    text-align: right;
-}
-
-.payslip-container .right-corner a {
-    color: #007bff;
-    text-decoration: none;
-}
-.payslip-container .right-corner a:hover {
-    text-decoration: underline;
-}
-.payslip-container {
-    padding: 20px;
-}
-
-.row {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
-
-.l-corner {
-        text-align: center;
-        flex: 1;
+@media (max-width: 480px) {
+    table th, table td {
+        padding: 8px; /* Adjust padding for smaller screens */
     }
 
-.left-corner,
-.right-corner {
-    flex: 1;
-}
-
-.left-corner p {
-    margin: 0;
-    font-size: 14px;
-}
-
-
-.right-corner p  {
-        margin-bottom: -17px;
-        padding: 2px;
+    .input-group input, .input-group button {
+        font-size: 14px;
     }
 
-.right-corner a {
-    text-decoration: none;
-    color: #007BFF;
+    button {
+        width: 100%;
+        padding: 12px;
+    }
+}
+
+
+/* Make the form more fluid on smaller devices */
+@media (max-width: 768px) {
+    .container {
+        width: 95%; /* Make the container width even more responsive */
+        padding: 15px;
+    }
+
+    .right-corner {
+        position: static;
+        text-align: left;
+        margin-top: 20px;
+    }
+
+    .header {
+        flex-direction: column;
+    }
+
+    .input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .input-group button {
+        margin-top: 10px;
+    }
+
+    button {
+        width: 100%; /* Make buttons full-width on smaller screens */
+    }
+
+    table {
+        font-size: 14px; /* Adjust font size for smaller devices */
+    }
+    .right-corner {
+        position: static; /* Reset position to flow with the document */
+        text-align: left; /* Align text to the left */
+        margin-top: 20px; /* Add spacing for clarity */
+    }
+
+    .header {
+        flex-direction: column; /* Stack header content vertically */
+    }
+
+}
+.account-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px; /* Adjust spacing between grid items */
+}
+
+.account-grid div {
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 480px) {
+    table th, table td {
+        padding: 4px; /* Reduce padding on smaller screens */
+    }
+
+    .input-group input, .input-group button {
+        font-size: 14px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+    }
 }
 
 
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
+
 </head>
 <body>
-    <div class="payslip-container">
+    <div class="container">
         <div class="header">
             <!-- Center aligned heading section -->
             <div class="l-corner">
@@ -223,25 +352,54 @@
 
     <table>
         <tr>
-            <th colspan="4" style="text-align:center;">Basic Information</th>
+            <th colspan="4" style="text-align: center;">Basic Information</th>
         </tr>
         <tr>
             <th>Employee Details</th>
-            <td>
-            <div class="input-group">
-                <input type="number" id="employeeId" class="form-control" placeholder="Employee ID">
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#appIDModal">
-                    <i class="bi bi-search"></i> <!-- Bootstrap Icons search icon -->
-                </button>
-            </td>
-            <td><input type="text" id="employeeName" class="form-control" placeholder="Employee Name"></td>
-            <td><input type="text" id="employeeDep" class="form-control" placeholder="Employee Department"></td>
-        </tr>
+          <td colspan="3">
+            <div class="account-grid">
+                <div class="input-group">
+                    <input type="text" id="employeeId" class="form-control" placeholder="Employee ID">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#appIDModal">
+                        <i class="bi bi-search"></i> <!-- Bootstrap Icons search icon -->
+                    </button>
+                </div>
+                <div><input type="text" id="employeeName"   placeholder="Employee Name" class="form-control"></div>
+                <div><input type="text" id="employeeDep"   placeholder="Employee Department" class="form-control"></div>
+                <div><input type="text"  id="designation"   placeholder="Designation" class="form-control"></div>
+                <div><input type="text"   id="Contactnumber"   placeholder="Contact No." class="form-control"></div>
+
+            </div>
+        </td>
+    </tr>
+           
         <tr>
-            <th>Bank Details</th>
-            <td><input type="text" id="bankName" placeholder="Bank Name" class="form-control"></td>
-            <td><input type="number" id="accountNo" placeholder="Account Number" class="form-control"></td>
-            <td><input type="number" id="ifscCode" placeholder="IFSC Code" class="form-control"></td>
+            <th>Pay Slip Period</th>
+            <td colspan="1">
+                <div class="input-group">
+                    <input type="date" id="startDate" class="form-control" placeholder="Start Date" style="margin-right: 10px;">
+                    <span class="input-group-text"> - </span>
+                    <input type="date" id="endDate" class="form-control" placeholder="End Date" style="margin-left: 10px;">
+                </div>
+            </td> 
+            <th>Date of Issue</th>
+            <td>
+                <input type="date" id="deductionDate" class="form-control">
+            </td>
+        </tr>
+        
+        <tr>
+            <th>Account Details</th>
+            <td colspan="3">
+                <div class="account-grid">
+                    <div><input type="text" id="bankName" placeholder="Bank Name" class="form-control"></div>
+                    <div><input type="text" id="accountNo" placeholder="Account Number" class="form-control"></div>
+                    <div><input type="text" id="ifscCode" placeholder="IFSC Code" class="form-control"></div>
+                    <div><input type="text" id="pfnumber" placeholder="PF A/C No" class="form-control"></div>
+                    <div><input type="text" id="Unanumber" placeholder="UAN No" class="form-control"></div>
+                    <div><input type="text" id="Pannumber" placeholder="PAN No." class="form-control"></div>
+                </div>
+            </td>
         </tr>
         <tr>
             <th colspan="4" style="text-align:center;">Earnings</th>
@@ -267,8 +425,12 @@
         </tr>
         <tr>
             <th>Unpaid Leaves</th>
-            <td><input type="number" id="unpaidLeaves1" class = "readonly" value="0"></td>
-            <td><input type="number" id="unpaidLeaves2" value="0"></td>
+            <td colspan="3">
+                <div class="account-grid" style="display: flex; align-items: center; gap: 50px;">
+                    <input type="number" id="unpaidLeaves1" value="0" class="form-control" style="width: 50%;">
+                    <input type="number" id="unpaidLeaves2" value="0" class="form-control" style="width: 50%;">
+                </div>
+            </td>
         </tr>
         <tr>
             <th>Total Earnings</th>
@@ -286,21 +448,17 @@
         <tr>
             <th>Professional Tax</th>
             <td><input type="number" id="professionalTax" value="0"></td>
-            <th>Take Home Pay</th>
-            <td><input type="number" id="takeHomePay" value="0"></td>
+            <th>Total Deductions</th>
+            <td><span id="totalDeductions">0</span></td>
+            
+         
         </tr>
-       <tr>
-        <th>Total Deductions</th>
-        <td><span id="totalDeductions">0</span></td>
-        <th>Date</th>
-        <td colspan="3"><input type="date" id="deductionDate"></td> 
-         <!-- Net Salary and Date in the same column -->
-    </tr>
-    <tr>
-        <th>Net Salary</th>
-        <td colspan="3"><span id="netSalary"  class="form-control">0</span></td>
-        <!-- Date in the same row -->
-    </tr>
+        <tr>
+            <th>Net Salary</th>
+            <td colspan="3"><span id="netSalary" class="form-control">0</span></td>
+       
+        </tr>
+
     </table>
 
     <div class="button-container">
@@ -310,186 +468,150 @@
     </div>
 </div>
 
+
+
 <script>
-function calculateNetSalary() {
-    // Parse earnings inputs
-    let basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
-    let houseRent = parseFloat(document.getElementById('houseRent').value) || 0;
-    let conveyance = parseFloat(document.getElementById('conveyance').value) || 0;
-    let flatAllowance = parseFloat(document.getElementById('flatAllowance').value) || 0;
-    let skillBonus = parseFloat(document.getElementById('skillBonus').value) || 0;
-    let specialPayment = parseFloat(document.getElementById('specialPayment').value) || 0;
-    let unpaidLeaves1 = parseFloat(document.getElementById('unpaidLeaves1').value) || 0;
-    let unpaidLeaves2 = parseFloat(document.getElementById('unpaidLeaves2').value) || 0;
-
-    // Calculate total earnings
-    let totalEarnings = basicSalary + houseRent + conveyance + flatAllowance + skillBonus + specialPayment - unpaidLeaves1 - unpaidLeaves2;
-
-    // Update total earnings display
-    document.getElementById('totalEarnings').innerText = totalEarnings.toFixed(2);
-
-    // Parse deduction inputs
-    let esiContribution = parseFloat(document.getElementById('esiContribution').value) || 0;
-    let pfContribution = parseFloat(document.getElementById('pfContribution').value) || 0;
-    let professionalTax = parseFloat(document.getElementById('professionalTax').value) || 0;
-
-    // Calculate total deductions
-    let totalDeductions = esiContribution + pfContribution + professionalTax;
-
-    // Update total deductions display
-    document.getElementById('totalDeductions').innerText = totalDeductions.toFixed(2);
-
-    // Calculate net salary
-    let netSalary = totalEarnings - totalDeductions;
-
-    // Update net salary display
-    document.getElementById('netSalary').innerText = netSalary.toFixed(2);
-}
-
-// Attach event listeners for real-time calculation
-document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', calculateNetSalary);
-});
-
-
-// Initialize calculation on page load
-calculateNetSalary();
-document.addEventListener("DOMContentLoaded", function () {
-    // Check if editing mode is enabled
-    const editPayslipData = JSON.parse(localStorage.getItem("editPayslipData"));
-    if (editPayslipData) {
-        // Populate Employee Details
-        document.getElementById("employeeId").value = editPayslipData.employeeId || "";
-        document.getElementById("employeeName").value = editPayslipData.employeeName || "";
-        document.getElementById("employeeDep").value = editPayslipData.employeeDep || "";
-        
-        // Populate Bank Details
-        document.getElementById("bankName").value = editPayslipData.bankName || "";
-        document.getElementById("accountNo").value = editPayslipData.accountNo || "";
-        document.getElementById("ifscCode").value = editPayslipData.ifscCode || "";
-
-        // Populate Earnings Section
-        document.getElementById("basicSalary").value = editPayslipData.basicSalary || "0";
-        document.getElementById("houseRent").value = editPayslipData.houseRent || "0";
-        document.getElementById("conveyance").value = editPayslipData.conveyance || "0";
-        document.getElementById("flatAllowance").value = editPayslipData.flatAllowance || "0";
-        document.getElementById("skillBonus").value = editPayslipData.skillBonus || "0";
-        document.getElementById("specialPayment").value = editPayslipData.specialPayment || "0";
-
-        // Populate Unpaid Leaves
-        document.getElementById("unpaidLeaves1").value = editPayslipData.unpaidLeaves1 || "0";
-        document.getElementById("unpaidLeaves2").value = editPayslipData.unpaidLeaves2 || "0";
-
-        // Populate Deductions Section
-        document.getElementById("esiContribution").value = editPayslipData.esiContribution || "0";
-        document.getElementById("pfContribution").value = editPayslipData.pfContribution || "0";
-        document.getElementById("professionalTax").value = editPayslipData.professionalTax || "0";
-
-        // Populate Total Earnings and Deductions Display
-        document.getElementById("totalEarnings").innerText = editPayslipData.totalEarnings || "0";
-        document.getElementById("totalDeductions").innerText = editPayslipData.totalDeductions || "0";
-
-        // Populate Take Home Pay and Date
-        document.getElementById("takeHomePay").value = editPayslipData.takeHomePay || "0";
-        document.getElementById("deductionDate").value = editPayslipData.deductionDate || "";
-
-        // Remove edit data from localStorage (optional)
-        localStorage.removeItem("editPayslipData");
-    }
-});
-
-
-
-function generatePDF() {
+    
+    function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    // Title and Header
+    const leftMargin = 15;
+    const topMargin = 20;
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+
+    // Title Section
     doc.setFontSize(16);
-    doc.setTextColor(40, 40, 40);
-    doc.text("Payslip", 105, 10, { align: "center" });
-
-    doc.setFontSize(12);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Private and Confidential", 105, 18, { align: "center" });
-    doc.text("Payslip for the Month", 105, 26, { align: "center" });
-
-    // Date Section
-    const payslipDate = document.getElementById("deductionDate").value || "N/A";
+    doc.setFont("helvetica", "bold");
+    doc.text("Aapai Technologies", leftMargin, topMargin);
     doc.setFontSize(10);
-    doc.setTextColor(0);
-    doc.text(`Payslip Date: ${payslipDate}`, 20, 30);
+    doc.text("Payslip for the Month", leftMargin, topMargin + 10);
 
-    // Employee Details Section
-    doc.setFillColor(230, 230, 250); // Light lavender background
-    doc.rect(14, 38, 180, 42, 'F');
+    // Company Details
+    const rightColumnX = pageWidth - 120;
+    doc.setFontSize(8);
+    doc.text("GST Number: XXXXXX", rightColumnX + 60, topMargin);
+    doc.text("Email: example@email.com", rightColumnX + 60, topMargin + 5);
+    doc.text("Website: www.example.com", rightColumnX + 60, topMargin + 10);
+    doc.text("Address: 1234 Main St, City, State", rightColumnX + 60, topMargin + 15);
+    doc.text("Contact: +123 456 7890", rightColumnX + 60, topMargin + 20);
 
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 128); // Dark blue text for section title
-    doc.text("Employee Details", 14, 44);
-    doc.setTextColor(0);
+    doc.line(leftMargin, topMargin + 25, pageWidth - leftMargin, topMargin + 25);
 
-    const employeeDetails = [
-        { label: "Employee ID", value: document.getElementById("employeeId").value || "N/A" },
-        { label: "Bank Name", value: document.getElementById("bankName").value || "N/A" },
-        { label: "Account Number", value: document.getElementById("accountNo").value || "N/A" },
-        { label: "IFSC Code", value: document.getElementById("ifscCode").value || "N/A" }
+    // Payslip Period and Date
+    const payslipPeriod = `${document.getElementById('startDate').value} - ${document.getElementById('endDate').value}`;
+    const dateOfIssue = document.getElementById('deductionDate').value;
+    doc.setFontSize(8);
+    doc.text("Payslip Period: " + payslipPeriod, leftMargin, topMargin + 30);
+    doc.text("Date of Issue: " + dateOfIssue, leftMargin, topMargin + 35);
+
+    doc.line(leftMargin, topMargin + 40, pageWidth - leftMargin, topMargin + 40);
+
+    let currentY = topMargin + 45;
+
+    // Basic Information Table
+    const basicInfo = [
+        ["Employee ID", document.getElementById('employeeId').value],
+        ["Employee Name", document.getElementById('employeeName').value],
+        ["Employee Department", document.getElementById('employeeDep').value],
+        ["Designation", document.getElementById('designation').value],
+        ["Contact No.", document.getElementById('Contactnumber').value],
+        ["Bank Name", document.getElementById('bankName').value],
+        ["Account Number", document.getElementById('accountNo').value],
+        ["IFSC Code", document.getElementById('ifscCode').value],
+        ["PF A/C No.", document.getElementById('pfnumber').value],
+        ["UAN No.", document.getElementById('Unanumber').value],
+        ["PAN No.", document.getElementById('Pannumber').value]
     ];
 
-    employeeDetails.forEach((item, index) => {
-        const yPosition = 52 + index * 8;
-        doc.text(`${item.label}: ${item.value}`, 16, yPosition);
+    doc.autoTable({
+        head: [["Basic Information", "Value"]],
+        body: basicInfo.map(item => [item[0], item[1]]),
+        startY: currentY,
+        theme: 'grid',
+        styles: { cellPadding: 2, fontSize: 8 },
+        margin: { top: 0, bottom: 0 }
     });
 
-    // Earnings Section
-    doc.setFillColor(173, 216, 230); // Light blue background
-    doc.rect(14, 90, 180, 66, 'F');
+    currentY = doc.lastAutoTable.finalY + 5;
 
-    doc.setTextColor(0, 0, 128);
-    doc.text("Earnings", 105, 96, { align: "center" });
-    doc.setTextColor(0);
-
-    const earningsData = [
-        { label: "Basic Salary", value: document.getElementById("basicSalary").value || "0" },
-        { label: "House Rent Allowance", value: document.getElementById("houseRent").value || "0" },
-        { label: "Conveyance Allowance", value: document.getElementById("conveyance").value || "0" },
-        { label: "Flat Allowance", value: document.getElementById("flatAllowance").value || "0" },
-        { label: "Skill Bonus", value: document.getElementById("skillBonus").value || "0" },
-        { label: "Special Payment", value: document.getElementById("specialPayment").value || "0" },
-        { label: "Total Earnings", value: document.getElementById("totalEarnings").innerText || "0" }
+    // Earnings Table
+    const earnings = [
+        ["Basic Salary", document.getElementById('basicSalary').value],
+        ["House Rent Allowance", document.getElementById('houseRent').value],
+        ["Conveyance Allowance", document.getElementById('conveyance').value],
+        ["Flat Allowance", document.getElementById('flatAllowance').value],
+        ["Skill Bonus", document.getElementById('skillBonus').value],
+        ["Special Payment", document.getElementById('specialPayment').value],
+        ["Unpaid Leaves", document.getElementById('unpaidLeaves1').value + " / " + document.getElementById('unpaidLeaves2').value],
+        ["Total Earnings", document.getElementById('totalEarnings').innerText]
     ];
 
-    earningsData.forEach((item, index) => {
-        const yPosition = 102 + index * 8;
-        doc.text(item.label, 16, yPosition);
-        doc.text(item.value, 170, yPosition, { align: "right" });
+    doc.autoTable({
+        head: [["Earnings", "Amount"]],
+        body: earnings.map(item => [item[0], item[1]]),
+        startY: currentY,
+        theme: 'grid',
+        styles: { cellPadding: 2, fontSize: 8 },
+        columnStyles: {
+            1: { halign: 'right', cellWidth: 'auto' } // Align amounts to the right with automatic width
+        },
+        margin: { top: 0, bottom: 0 }
     });
 
-    // Deductions Section
-    doc.setFillColor(255, 228, 225); // Light pink background
-    doc.rect(14, 160, 180, 58, 'F');
+    currentY = doc.lastAutoTable.finalY + 5;
 
-    doc.setTextColor(0, 0, 128);
-    doc.text("Deductions", 105, 166, { align: "center" });
-    doc.setTextColor(0);
-
-    const deductionsData = [
-        { label: "ESI Contribution", value: document.getElementById("esiContribution").value || "0" },
-        { label: "PF Contribution", value: document.getElementById("pfContribution").value || "0" },
-        { label: "Professional Tax", value: document.getElementById("professionalTax").value || "0" },
-        { label: "Total Deductions", value: document.getElementById("totalDeductions").innerText || "0" },
-        { label: "Take Home Pay", value: document.getElementById("takeHomePay").value || "0" }
+    // Deductions Table
+    const deductions = [
+        ["ESI Contribution", document.getElementById('esiContribution').value],
+        ["PF Contribution", document.getElementById('pfContribution').value],
+        ["Professional Tax", document.getElementById('professionalTax').value],
+        ["Total Deductions", document.getElementById('totalDeductions').innerText]
     ];
 
-    deductionsData.forEach((item, index) => {
-        const yPosition = 172 + index * 8;
-        doc.text(item.label, 16, yPosition);
-        doc.text(item.value, 170, yPosition, { align: "right" });
+    doc.autoTable({
+        head: [["Deductions", "Amount"]],
+        body: deductions.map(item => [item[0], item[1]]),
+        startY: currentY,
+        theme: 'grid',
+        styles: { cellPadding: 2, fontSize: 8 },
+        columnStyles: {
+            1: { halign: 'right', cellWidth: 'auto' } // Align amounts to the right with automatic width
+        },
+        margin: { top: 0, bottom: 0 }
     });
 
-    // Save the PDF
-    doc.save("payslip.pdf");
+    currentY = doc.lastAutoTable.finalY + 5;
+
+    // Net Salary Table
+    const netSalary = document.getElementById('netSalary').innerText;
+    const netSalaryTable = [
+        ["Net Salary", netSalary]
+    ];
+
+    doc.autoTable({
+        head: [["Total", "Amount"]],
+        body: netSalaryTable,
+        startY: currentY,
+        theme: 'grid',  // Using the 'grid' theme for consistency
+        styles: {
+            cellPadding: 2,  // Reduced padding for consistency with other tables
+            fontSize: 8,      // Same font size as the rest of the content
+            fontStyle: "bold",
+            textColor: [0, 0, 0]  // Black text color
+        },
+        columnStyles: {
+            1: { halign: 'right', cellWidth: 'auto' } // Align the amount in the second column (index 1) to the right
+        },
+        margin: { top: 0, bottom: 0 }
+    });
+
+    doc.save("Aapai_Technologies_Payslip.pdf");
 }
+
+
+
 
 
 function savePayslip() {

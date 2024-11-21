@@ -33,7 +33,7 @@ from rest_framework.response import Response
 # Project Specific Imports - Models
 from .models import (
     EmployeeLeave, EmployeePosition, EmployeeQualification, EmployeeResume, EmploymentApplication,
-    HR_Employee, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, LeaveReason, LeaveType, PayGrade, PositionType, PublicHoliday, Responsibility_Type, SalaryStepGrade,
+    HR_Employee, InternalJobPosting, JobInterview, JobInterviewType, JobRequisition, LeaveReason, LeaveType, PayGrade, Payslip, PositionType, PublicHoliday, Responsibility_Type, SalaryStepGrade,
     Employment, HR_Company, HR_Department, SkillType, TerminationReason, TerminationType,
     PerformanceReview, PartySkill, TrainingAttendee, TrainingClass, TrainingClassType
 )
@@ -2619,6 +2619,72 @@ def get_upcoming_training_classes(request):
             'description': training_class.description,
         })
     return JsonResponse(data, safe=False)
+#########################################################################################################################
+def save_payslip(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+
+            # Save Payslip
+            payslip = Payslip.objects.create(
+                employee=HR_Employee.objects.get(employee_id=data.get("employeeId")),
+                employee_name=data.get("employeeName"),
+                employee_department=data.get("employeeDep"),
+                designation=data.get("designation"),
+                contact_number=data.get("Contactnumber"),
+                start_date=data.get("startDate"),
+                end_date=data.get("endDate"),
+                bank_name=data.get("bankName"),
+                account_number=data.get("accountNo"),
+                ifsc_code=data.get("ifscCode"),
+                pf_number=data.get("pfnumber"),
+                uan_number=data.get("Unanumber"),
+                pan_number=data.get("Pannumber"),
+                basic_salary=data.get("basicSalary"),
+                house_rent_allowance=data.get("houseRent"),
+                conveyance_allowance=data.get("conveyance"),
+                flat_allowance=data.get("flatAllowance"),
+                skill_bonus=data.get("skillBonus"),
+                special_payment=data.get("specialPayment"),
+                unpaid_leaves=data.get("unpaidLeaves1"),
+                total_earnings=data.get("totalEarnings"),
+                esi_contribution=data.get("esiContribution"),
+                pf_contribution=data.get("pfContribution"),
+                professional_tax=data.get("professionalTax"),
+                total_deductions=data.get("totalDeductions"),
+                net_salary=data.get("netSalary"),
+                take_home_pay=data.get("netSalary"),
+                date_of_issue=data.get("deductionDate"),
+            )
+            return JsonResponse({"status": "success", "message": "Payslip saved successfully!"})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)})
+    return JsonResponse({"status": "error", "message": "Invalid request method"})
+
+
+def get_employee_details(request):
+    employee_id = request.GET.get('employeeId')
+    if not employee_id:
+        return JsonResponse({'status': 'error', 'message': 'Employee ID is required'}, status=400)
+
+    # Fetch employee details
+    try:
+        employee = HR_Employee.objects.get(employee_id=employee_id)
+        # Fetch the latest employee position (or modify based on your logic)
+        employee_position = EmployeePosition.objects.filter(employee=employee).first()
+        print(f'emp: {employee_position}')
+
+        data = {
+            'employeeName': f"{employee.first_name} {employee.last_name}",
+            'employeeDep': employee.internal_organization.name,  # Assuming HR_Department has a `name` field
+            'contactNumber': f"{employee.phone_code} {employee.phone_number}",
+            'employeePositionType': employee_position.employee_position_type.name if employee_position else None,
+        }
+
+        return JsonResponse({'status': 'success', 'data': data})
+    except HR_Employee.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Employee not found'}, status=404)
+
 #########################################################################################################################
 
 # anuj

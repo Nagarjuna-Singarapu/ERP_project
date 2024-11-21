@@ -8,7 +8,7 @@ from .models import (
 # Import models from the HRMS app
 from crm_app.HRMS.models import (
     EmploymentApplication, HR_Employee, Employment, EmployeeResume, InternalJobPosting, JobInterview, 
-    JobInterviewType, JobRequisition, PartySkill, PayGrade, PerformanceReview, 
+    JobInterviewType, JobRequisition, PartySkill, PayGrade, Payslip, PerformanceReview, 
     PublicHoliday, Responsibility_Type, SkillType, SalaryStepGrade, HR_Company, 
     HR_Department, TerminationReason, TerminationType, PositionType, EmployeePosition, 
     EmployeeQualification, LeaveReason, LeaveType, EmployeeLeave, TrainingAttendee, TrainingClass, TrainingClassType
@@ -135,4 +135,5 @@ admin.site.register(InternalJobPosting)
 admin.site.register(JobInterview)
 admin.site.register(TrainingClass)
 admin.site.register(TrainingAttendee)
+admin.site.register(Payslip)
 
